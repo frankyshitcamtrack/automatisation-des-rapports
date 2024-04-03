@@ -2,10 +2,11 @@ require('dotenv').config();
 const morgan = require("morgan");
 const cors = require("cors");
 const path = require('path');
-
 const express = require("express");
 const bodyParser = require("body-parser");
-const {generateReportGlobal}= require('./src/services/services')
+const {generalControllers} =require('./src/controllers/generalControllers')
+const {generatStyleDoc}=require('./src/utils/geneStyleXlsx')
+
 
 const app = express();
 
@@ -18,13 +19,8 @@ app.use(morgan('combined'));
 app.use(cors());
 app.use(bodyParser.json());
 
-generateReportGlobal("admin guinness","Speedings","GUINNESS(TRANSAPORTEUR)",1708918215,1711423815);
-
-//vehicleRessourceId("admin ADDAX");
-
-//vehicleTemplateId("ECO DRIVING Report ADDAX","admin ADDAX"); 
-
-//vehicleGroupRessourceId("ADDAX PETROLEUM");
+//generatStyleDoc();
+generalControllers();
 
 app.use(express.static(path.join(__dirname,'..','public')));
 

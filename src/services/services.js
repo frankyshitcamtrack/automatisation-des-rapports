@@ -54,7 +54,7 @@ async function generateReportDetails(sid,tableIndex,row,level) {
 }
 
 
-async function generateReportGlobal(reportResource, reportTemplate, reportObject, from, to,subRepport) {
+async function generateReportGlobal(reportResource, reportTemplate, reportObject, from, to, subRepport) {
     let reportResourceId;
     let reportTemplateId;
     let reportObjectId;
@@ -64,45 +64,59 @@ async function generateReportGlobal(reportResource, reportTemplate, reportObject
         .catch(error => console.log(error));
 
     if (sid) {
-        const reportResourceAndTemplateId = await vehicleRessourceAndTemplateId(reportResource,reportTemplate, sid);
+        const reportResourceAndTemplateId = await vehicleRessourceAndTemplateId(reportResource, reportTemplate, sid);
 
-        reportObjectId = await vehicleGroupRessourceId(reportObject,sid);
-        reportResourceId=reportResourceAndTemplateId.ressourceId;
-        reportTemplateId=reportResourceAndTemplateId.reportTemplateId;
-        
+        reportObjectId = await vehicleGroupRessourceId(reportObject, sid);
+        reportResourceId = reportResourceAndTemplateId.ressourceId;
+        reportTemplateId = reportResourceAndTemplateId.reportTemplateId;
     }
 
     if (reportResourceId && reportTemplateId && reportObjectId) {
         const generateReport = await axios.get(`${baseUrl}svc=report/exec_report&params={"reportResourceId":${reportResourceId},"reportTemplateId":${reportTemplateId},"reportObjectId":${reportObjectId},"reportObjectSecId":0,"interval":{"from":${from},"to":${to},"flags":0}}&sid=${sid}`)
-            .then(res =>res.data)
+            .then(res => res.data)
             .catch(err => console.log(err))
-        
-            if(generateReport){
-                let tableIndex;
-                let row;
-                let level;
-                const tables = generateReport.reportResult.tables;
-                if(subRepport){
-                    tableIndex = tables.findIndex(data => data.label === subRepport) || 0;
-                    const group = tables[tableIndex]
-                    row = group.rows + 1;
-                    level = group.level + 1;
-                }else{
+
+        if (generateReport) {
+            let tableIndex;
+            let row;
+            let level;
+            let group;
+            const tables = generateReport.reportResult.tables;
+            
+            if (tables.length > 0) {
+                if (subRepport) {
+                    tableIndex = tables.findIndex(data => data.label === subRepport);
+                  
+                    if(tableIndex>-1){
+                        group = tables[tableIndex]
+                        row = group.rows + 1;
+                        level = group.level + 1;
+                    }
+                  
+                } else {
                     tableIndex = 0;
                     group = tables[tableIndex]
                     row = group.rows + 1;
                     level = group.level + 1;
                 }
-               
 
-                const repportDetail = await  generateReportDetails(sid,tableIndex,row,level);
-                console.log(group);
-                
+                const repportDetail = await generateReportDetails(sid, tableIndex, row, level);
 
-                return {repportDetail,group};
+                cleanRepport(sid);
+                return { repportDetail, group };
             }
+
+
+        }
     }
 }
 
 
-module.exports = { generateSessionId, vehicleGroupRessourceId, generateReportGlobal }
+async function cleanRepport(sid){
+    const clean = await axios.get(`${baseUrl}svc=core/logout&params={}&sid=${sid}`)
+    .then(res => res.data)
+    .catch(err => console.log(err));
+   return clean;
+}
+
+module.exports = { generateSessionId, vehicleGroupRessourceId, generateReportGlobal,cleanRepport }

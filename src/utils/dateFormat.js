@@ -19,4 +19,4 @@ function dateInYyyyMmDdHhMmSs(date) {
     );
 }
 
-  module.exports = dateInYyyyMmDdHhMmSs;
+module.exports = {dateInYyyyMmDdHhMmSs};
