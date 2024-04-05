@@ -19,7 +19,7 @@ function sendMail(from,to,pass,subject,text,filename,path) {
         text: text,
         attachments: [{
             filename: filename,
-            path: path,
+            content:Buffer.from(path, 'base64')
            
         }]
     };

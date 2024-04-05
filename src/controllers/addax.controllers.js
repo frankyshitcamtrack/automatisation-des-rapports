@@ -15,16 +15,14 @@ function generateAddaxDaylyRepport() {
   
 
    
-    generateRepport("admin ADDAX", "rapport/adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "Excessive Idle", firstHourDay, lastHourDay, reportTitleDate, "Excessive Idle");
+    //generateRepport("admin ADDAX", "rapport/adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "Excessive Idle", firstHourDay, lastHourDay, reportTitleDate, "Excessive Idle");
     generateRepport("admin ADDAX", "rapport/adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "Éco-conduite", firstHourDay, lastHourDay, reportTitleDate, "Éco-conduite");
-    generateRepport("admin ADDAX", "rapport/adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "Excès de Vitesse", firstHourDay, lastHourDay, reportTitleDate, "Excès de Vitesse");
+    //generateRepport("admin ADDAX", "rapport/adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "Excès de Vitesse", firstHourDay, lastHourDay, reportTitleDate, "Excès de Vitesse");
    
    
-   //sendMail('franky.shity@camtrack.net','frankyshiti737@gmail.com','wsnx llvp nfal ncme','test mail','A simple text for nodemailer')
     
-  /*  setTimeout(()=>{
-        sendMail('franky.shity@camtrack.net', 'frankyshiti737@gmail.com', 'wsnx llvp nfal ncme', 'EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM', 'Bonjour Mr retrouvez en PJ le rapport de la flotte du mois passé', 'EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM', path.join(__dirname, `../../rapport/adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM-OF-${reportTitleDate}.xlsx`))
-     },10000) */
+    
+ 
 }
 
 
@@ -34,13 +32,13 @@ function generateAddaxDaylyRepport22h06h(){
     const firstHour= first22h6h.firstHourDayTimestamp06h;
     const lastHour=first22h6h.lastHourDayTimestamp22h;
     const titleDate=first22h6h.dateTitle;
-
-    console.log(lastHour)
-    console.log(firstHour);
-   
-    generateRepport("admin ADDAX", "rapport/adax/LIST-OF-VEHICLES-NOT-AT-ADDAX-PARKING", "LIST-OF-VEHICLES-NOT AT-ADDAX-PARKING", "ADDAX PETROLEUM", "Not at Parked",firstHour,lastHour,titleDate,"Not at Parked");
-   
+    const generate=  generateRepport("admin ADDAX", "rapport/adax/LIST-OF-VEHICLES-NOT-AT-ADDAX-PARKING", "LIST-OF-VEHICLES-NOT AT-ADDAX-PARKING", "ADDAX PETROLEUM", "Not at Parked",firstHour,lastHour,titleDate,"Not at Parked");
+    
+   /*  setTimeout(()=>{
+        sendMail('franky.shity@camtrack.net', 'frankyshiti737@gmail.com', 'wsnx llvp nfal ncme', 'EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM', 'Bonjour Mr retrouvez en PJ le rapport de la flotte du mois passé', 'EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM', path.join(__dirname, `../../rapport/adax/LIST-OF-VEHICLES-NOT-AT-ADDAX-PARKING-${titleDate}.xlsx`));
+     },10000)  */
 }
+
 
 function generateAddaxMonthlyRepport() {
 
@@ -50,10 +48,10 @@ function generateAddaxMonthlyRepport() {
     const lastDayMonth = firstDayLastDayMonth.lastDayTimestamp;
     const reportTitleDate = firstDayLastDayMonth.dateTitle
 
-    generateRepport("admin ADDAX", "rapport/adax/ACTIVITY-REPORT-OF-ADDAX-PETROLEUM", "ACTIVITY-REPORT-OF-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "SOMMAIRE", firstDayMonth, lastDayMonth, reportTitleDate, "SOMMAIRE");
+    //generateRepport("admin ADDAX", "rapport/adax/ACTIVITY-REPORT-OF-ADDAX-PETROLEUM", "ACTIVITY-REPORT-OF-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "SOMMAIRE", firstDayMonth, lastDayMonth, reportTitleDate, "SOMMAIRE");
 
 
-    generateRepport("admin ADDAX", "rapport/adax/ACTIVITY-REPORT-OF-ADDAX-PETROLEUM", "ACTIVITY-REPORT-OF-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "ACTIVITY CARS", firstDayMonth, lastDayMonth, reportTitleDate,"ACTIVITY CARS");
+    //generateRepport("admin ADDAX", "rapport/adax/ACTIVITY-REPORT-OF-ADDAX-PETROLEUM", "ACTIVITY-REPORT-OF-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "ACTIVITY CARS", firstDayMonth, lastDayMonth, reportTitleDate,"ACTIVITY CARS");
 
 
     generateRepport("admin ADDAX", "rapport/adax/ACTIVITY-REPORT-OF-ADDAX-PETROLEUM", "ACTIVITY-REPORT-OF-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "EXCEPTIONS", firstDayMonth, lastDayMonth, reportTitleDate, "EXCEPTIONS");
@@ -65,7 +63,7 @@ function generateAddaxMonthlyRepport() {
 function generateAddaxRepports() {
     generateAddaxDaylyRepport();
     generateAddaxDaylyRepport22h06h();
-    generateAddaxMonthlyRepport();
+    //generateAddaxMonthlyRepport();
 }
 
 

@@ -29,13 +29,13 @@ function getFistAndLastHourDay(){
 
 function getFistAndLastHourDay22H06H(){
     let startOfDay = new Date();
-    startOfDay.setHours(23, 0, 0, 0);
+    startOfDay.setHours(22, 0, 0, 0);
     let firstHourDay = new Date(startOfDay.getFullYear(), startOfDay.getMonth(),startOfDay.getDay()-1,startOfDay.getHours(),startOfDay.getMinutes(),startOfDay.getSeconds());
     let firstHourDayFormat=dateInYyyyMmDdHhMmSs(firstHourDay);
     let firstHourDayTimestamp06h =convertDateToTimeStamp(firstHourDayFormat);
 
     let endofDay = new Date();
-    endofDay.setHours(7, 0, 0, 0);   
+    endofDay.setHours(6, 0, 0, 0);   
     let lastHourDay = new Date(endofDay.getFullYear(), endofDay.getMonth(),endofDay.getDay(),endofDay.getHours(),endofDay.getMinutes(),endofDay.getSeconds() );
     let lasthourDayFormat =dateInYyyyMmDdHhMmSs(lastHourDay);
     let lastHourDayTimestamp22h =convertDateToTimeStamp(lasthourDayFormat);

@@ -2,8 +2,9 @@ const {generateReportGlobal}=require('../services/services');
 const {convertArrayObject}=require('../utils/ArrToObject');
 const {changeObjectKeys}=require('../utils/changeObjectKeys');
 const {convertJsonToExcel}=require('../utils/genrateXlsx');
-const {changePropertiesDateTOLocal}= require('../utils/convertDatePropertiesToLocaltime')
-
+const {changePropertiesDateTOLocal}= require('../utils/convertDatePropertiesToLocaltime');
+const {removeProperties}= require('../utils/removeProperties');
+const {replaceProps}=require('../utils/replaceProperties');
 
 async function generateRepport(ressourceClient,path,template,client,sheet,from,to,reportTitleDate,subGroup){
    let items=[];
@@ -40,17 +41,16 @@ async function generateRepport(ressourceClient,path,template,client,sheet,from,t
        const obj = convertArrayObject(items)
        
        //change all object key by the header group values
-       
       changeObjectKeys(header,obj);
-      
+
+      //Convert GMT Date values to Local
       changePropertiesDateTOLocal(obj)
+     
+      //Remove all № item
+      removeProperties(obj,'№');
       
-      console.log(obj);
-       
-
-
-      convertJsonToExcel(obj,sheet,`${path}-${reportTitleDate}.xlsx`);
-      return;
+      const convert=  convertJsonToExcel(obj,sheet,`${path}-${reportTitleDate}.xlsx`);
+      return convert
      }
 
    }
