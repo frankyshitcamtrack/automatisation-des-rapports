@@ -1,25 +1,22 @@
-const {dateInYyyyMmDdHhMmSs} = require('./dateFormat');
-const {convertDateToTimeStamp} =require('./dateTotimeStamp');
+const {dateInYyyyMmDdHhMmSs,dateFormatMinusOneDay,convertDateToTimeStamp} = require('./dateFormat');
+
 
 function getFistAndLastHourDay(){
     let startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
-    let firstHourDay = new Date(startOfDay.getFullYear(), startOfDay.getMonth(),startOfDay.getDay()-1,startOfDay.getHours(),startOfDay.getMinutes(),startOfDay.getSeconds());
-    let firstHourDayFormat=dateInYyyyMmDdHhMmSs(firstHourDay);
+    let firstHourDayFormat=dateFormatMinusOneDay(startOfDay);
+    
     let firstHourDayTimestamp =convertDateToTimeStamp(firstHourDayFormat);
 
     let endofDay = new Date();
     endofDay.setHours(23, 59, 59, 999);   
-    let lastHourDay = new Date(endofDay.getFullYear(), endofDay.getMonth(),endofDay.getDay()-1,endofDay.getHours(),endofDay.getMinutes(),endofDay.getSeconds() );
-    let lasthourDayFormat =dateInYyyyMmDdHhMmSs(lastHourDay);
+    let lasthourDayFormat =dateFormatMinusOneDay(endofDay);
     let lastHourDayTimestamp =convertDateToTimeStamp(lasthourDayFormat);
     
 
     let date= new Date();
 
-    let title= new Date(date.getFullYear(), date.getMonth(),date.getDay()-1);
-
-    let dateTitle=dateInYyyyMmDdHhMmSs(title).split(' ')[0];
+    let dateTitle=dateFormatMinusOneDay(date).split(' ')[0];
   
 
     return {firstHourDayTimestamp,lastHourDayTimestamp,dateTitle}
@@ -29,25 +26,22 @@ function getFistAndLastHourDay(){
 
 function getFistAndLastHourDay22H06H(){
     let startOfDay = new Date();
-    startOfDay.setHours(22, 0, 0, 0);
-    let firstHourDay = new Date(startOfDay.getFullYear(), startOfDay.getMonth(),startOfDay.getDay()-1,startOfDay.getHours(),startOfDay.getMinutes(),startOfDay.getSeconds());
-    let firstHourDayFormat=dateInYyyyMmDdHhMmSs(firstHourDay);
+    
+    startOfDay.setHours(21, 0, 0);
+    let firstHourDayFormat=dateFormatMinusOneDay(startOfDay);
+     
     let firstHourDayTimestamp06h =convertDateToTimeStamp(firstHourDayFormat);
 
-    let endofDay = new Date();
-    endofDay.setHours(6, 0, 0, 0);   
-    let lastHourDay = new Date(endofDay.getFullYear(), endofDay.getMonth(),endofDay.getDay(),endofDay.getHours(),endofDay.getMinutes(),endofDay.getSeconds() );
-    let lasthourDayFormat =dateInYyyyMmDdHhMmSs(lastHourDay);
-    let lastHourDayTimestamp22h =convertDateToTimeStamp(lasthourDayFormat);
     
+    let endofDay = new Date();
+    endofDay.setHours(7, 0, 0);  
+    let lasthourDayFormat =dateInYyyyMmDdHhMmSs(endofDay);
+   
+    let lastHourDayTimestamp22h =convertDateToTimeStamp(lasthourDayFormat);
 
     let date= new Date();
-
-    let title= new Date(date.getFullYear(), date.getMonth(),date.getDay()-1);
-
-    let dateTitle=dateInYyyyMmDdHhMmSs(title).split(' ')[0];
+    let dateTitle=dateFormatMinusOneDay(date).split(' ')[0];
   
-
     return {firstHourDayTimestamp06h,lastHourDayTimestamp22h,dateTitle}
 
 }

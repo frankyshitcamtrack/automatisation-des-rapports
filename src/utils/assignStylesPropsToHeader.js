@@ -3,7 +3,7 @@ function assignStyleToHeaders(ws,headersLength){
     const headerKeys=wsKeyArr.slice(Math.max((wsKeyArr.length-1) - headersLength, 0))
     headerKeys.map(item=>{
      Object.assign(ws[item],
-         {s:{ fill: { bgColor: "48CAE4"},font: { bold: true, color: { rgb: "FFFFFF" } } }})
+         {s:{ font: { bold: true, color: { rgb: "FFFFFF" } },fill: {pattern: "solid",fgColor:{rgb:"023E8A"} } }})
     });
 
 }

@@ -19,8 +19,9 @@ function sendMail(from,to,pass,subject,text,filename,path) {
         text: text,
         attachments: [{
             filename: filename,
-            content:Buffer.from(path, 'base64')
-           
+            path :path,
+            contentType:'application/xlsx',
+            contentDispositio:'attachment'
         }]
     };
 

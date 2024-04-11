@@ -84,6 +84,7 @@ async function generateReportGlobal(reportResource, reportTemplate, reportObject
             const tables = generateReport.reportResult.tables;
             
             if (tables.length > 0) {
+                //console.log(tables)
                 if (subRepport) {
                     tableIndex = tables.findIndex(data => data.label === subRepport);
                   
@@ -101,7 +102,7 @@ async function generateReportGlobal(reportResource, reportTemplate, reportObject
                 }
 
                 const repportDetail = await generateReportDetails(sid, tableIndex, row, level);
-
+              
                 cleanRepport(sid);
                 return { repportDetail, group };
             }

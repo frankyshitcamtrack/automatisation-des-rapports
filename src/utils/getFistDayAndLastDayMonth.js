@@ -1,5 +1,5 @@
-const {dateInYyyyMmDdHhMmSs} = require('./dateFormat');
-const {convertDateToTimeStamp} =require('./dateTotimeStamp');
+const {dateInYyyyMmDdHhMmSs,convertDateToTimeStamp} = require('./dateFormat');
+
 
 function getFirstAndLastDayMonth(){
     let date = new Date();
