@@ -1,6 +1,6 @@
 function changeHeaderToColum(arr){
     const colum=arr.map(item=>{
-        return {key:item,header:item}
+        return {key:item}
       })
     return colum;  
 }

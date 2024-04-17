@@ -20,7 +20,7 @@ function sendMail(from,to,pass,subject,text,filename,path) {
         attachments: [{
             filename: filename,
             path :path,
-            contentType:'application/xlsx',
+            contentType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             contentDispositio:'attachment'
         }]
     };

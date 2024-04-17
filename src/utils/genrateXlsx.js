@@ -2,24 +2,35 @@ const fs = require('fs');
 
 const XLSX = require('exceljs');
 
-const { getTitleHeaderSheet } = require('../utils/getTitleHeaderSheet')
+const {addImageBannerHeaderSheet}=require('../utils/addImageBannerSheet')
+const { getTitleHeaderSheet } = require('../utils/getTitleHeaderSheet');
+const { assignStyleToHeaders } = require('../utils/assignStylesPropsToHeader');
+const { autoSizeColumnSheet } = require('../utils/autoSizeColumnSheet');
+
 
 const { addAutoFilter } = require('./addAutofilter')
 
 async function convertJsonToExcel(data, sheet, path, excelColum, colorSheet) {
     const dataHeader = []
-    console.log(`Generating file ${sheet} ...`);
 
     const isExistPath = fs.existsSync(path);
 
     let workbook = new XLSX.Workbook();
 
-
     const imageId2 = workbook.addImage({
-        filename: 'rapport/Adax/assets/header.PNG',
+        buffer: fs.readFileSync('rapport/Adax/assets/banner.png') ,
         extension: 'png',
     });
 
+    const logo1=workbook.addImage({
+        buffer: fs.readFileSync('rapport/Adax/assets/addax-logo.png'),
+        extension: 'png',
+    });
+
+   const logo2=workbook.addImage({
+    buffer: fs.readFileSync('rapport/Adax/assets/camtrack-logo.png'),
+    extension: 'png',
+});
 
     if (excelColum) {
         excelColum.map(item => {
@@ -31,12 +42,15 @@ async function convertJsonToExcel(data, sheet, path, excelColum, colorSheet) {
         workbook.xlsx.readFile(path)
             .then(() => {
                 if (dataHeader.length > 0) {
-                    const autoFilter = addAutoFilter(dataHeader, 10)
+                    const autoFilter = addAutoFilter(dataHeader, 8)
                     const worksheet = workbook.addWorksheet(sheet, { properties: { tabColor: { argb: colorSheet } } });
-                    worksheet.getRow(10).values = dataHeader;
-                    worksheet.addImage(imageId2, 'A1:J6');
+
+                    worksheet.views = [{showGridLines:false}];
+        
+                    worksheet.getRow(8).values = dataHeader;
 
                     worksheet.columns = excelColum;
+
                     worksheet.autoFilter = autoFilter;
 
                     //Add data to rows
@@ -44,65 +58,49 @@ async function convertJsonToExcel(data, sheet, path, excelColum, colorSheet) {
                         worksheet.addRow(item)
                     })
 
+
                     // Process each row for beautification 
-                    worksheet.eachRow((row, rowNumber) => {
-                        row.height = 25;
-                        row.eachCell((cell, colNumber) => {
-                            cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
-                            cell.font = { name: 'calibri', size: 8 };
-                            if (rowNumber == 10) {
-                                // First set the background of header row
-                                cell.fill = {
-                                    type: 'pattern',
-                                    pattern: 'solid',
-                                    fgColor: { argb: "023E8A" }
-                                }
-                                cell.font = { color: { argb: 'FFFFFF' }, bold: true }
-                            }
-                        })
-                        //Commit the changed row to the stream
-                        row.commit();
-                    });
+                    assignStyleToHeaders(worksheet);
 
+                    //autosize column width base on the content
+                    autoSizeColumnSheet(worksheet)
 
-                    worksheet.mergeCells('A7', 'J7',);
-                    worksheet.getCell('A7').alignment = { vertical: 'middle', horizontal: 'center' };
-                    worksheet.getCell('A7').font = { name: 'calibri', size: 15, bold: true };
-                    worksheet.getCell('A7').border = {
-                        top: { style: 'thin', color: { argb: '000000' } },
-                        bottom: { style: 'thin', color: { argb: '000000' } },
-                        right: { style: 'thin', color: { argb: '000000' } }
-                    };
-                    worksheet.getCell('A7').value = getTitleHeaderSheet(sheet);
+                    //Center image header banner depending on number of columns
+                    addImageBannerHeaderSheet(worksheet,dataHeader,sheet,imageId2,logo1,logo2)
 
-                    //set Auto Column Width
-                    worksheet.columns.forEach(column => {
-                        const header=column.header
-                        if(header){
-                            column.width = column.header.length < 12 ? 12 : column.header.length
-                        }
-                       
-                    })
-        
-                    return workbook.xlsx.writeFile(path)
-                        .then(response => {
-                            console.log("file is written");
-                        })
-                        .catch(err => {
-                            console.log(err);
-                        });
                 }
 
+            })
+            .then(() => {
+                console.log(`Generating file ${sheet} ...`);
+            })
+            .then(() => {
+                workbook.xlsx.writeFile(path)
+                    .then(response => {
+                        console.log("file generated");
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    });
             });
     } else {
-        const worksheet = workbook.addWorksheet(sheet, { properties: { tabColor: { argb: colorSheet } } });
+        console.log(`Generating file ${sheet} ...`);
         if (dataHeader.length > 0) {
-            const autoFilter = addAutoFilter(dataHeader, 10)
-            worksheet.getRow(10).values = dataHeader;
-            worksheet.addImage(imageId2, 'A1:J6');
+            //creation of auto filter depending of number of existing header
+            const autoFilter = addAutoFilter(dataHeader, 8)
 
+            // creation of new sheet
+            const worksheet = workbook.addWorksheet(sheet, { properties: { tabColor: { argb: colorSheet } } });
+
+            worksheet.views = [{showGridLines:false}];
+
+            // set header columns
+            worksheet.getRow(8).values = dataHeader;
+
+            //set columns
             worksheet.columns = excelColum;
 
+            //Add autofilter
             worksheet.autoFilter = autoFilter;
 
             //Add data to rows
@@ -111,50 +109,18 @@ async function convertJsonToExcel(data, sheet, path, excelColum, colorSheet) {
             })
 
             // Process each row for beautification 
-            worksheet.eachRow((row, rowNumber) => {
-                row.height = 25;
-                row.eachCell((cell, colNumber) => {
-                    cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
-                    cell.font = { name: 'calibri', size: 8 };
-                    if (rowNumber == 10) {
-                        // First set the background of header row
-                        cell.fill = {
-                            type: 'pattern',
-                            pattern: 'solid',
-                            fgColor: { argb: "023E8A" }
-                        }
-                        cell.font = { color: { argb: 'FFFFFF' }, bold: true }
-                    }
-                })
-                //Commit the changed row to the stream
-                row.commit();
-            });
+            assignStyleToHeaders(worksheet);
 
+            //autosize column width base on the content
+            autoSizeColumnSheet(worksheet)
 
-            worksheet.mergeCells('A7', 'J7',);
-            worksheet.getCell('A7').alignment = { vertical: 'middle', horizontal: 'center' };
-            worksheet.getCell('A7').font = { name: 'calibri', size: 15, bold: true };
-            worksheet.getCell('A7').border = {
-                top: { style: 'thin', color: { argb: '000000' } },
-                bottom: { style: 'thin', color: { argb: '000000' } },
-                right: { style: 'thin', color: { argb: '000000' } }
-            };
+            //Center image header banner depending on number of columns
+            addImageBannerHeaderSheet(worksheet,dataHeader,sheet,imageId2,logo1,logo2);
 
-            worksheet.getCell('A7').value = getTitleHeaderSheet(sheet);
-
-            //set Auto Column Width
-            worksheet.columns.forEach(column => {
-                const header=column.header
-                if(header){
-                    column.width = column.header.length < 12 ? 12 : column.header.length
-                }
-               
-            })
-
-
-            workbook.xlsx.writeFile(path)
+            // Export excel generated file
+            await workbook.xlsx.writeFile(path)
                 .then(response => {
-                    console.log("file is written");
+                    console.log("file generated");
                 })
                 .catch(err => {
                     console.log(err);
@@ -181,6 +147,8 @@ async function generateSyntheseSheetAddax(data, path, sheet) {
         workbook.xlsx.readFile(path)
             .then(() => {
                 const worksheet = workbook.addWorksheet(sheet);
+        
+                worksheet.views = [{showGridLines:false}];
 
                 worksheet.addImage(imageId2, 'A1:D4');
 
@@ -188,10 +156,10 @@ async function generateSyntheseSheetAddax(data, path, sheet) {
                 worksheet.getCell('A5').alignment = { vertical: 'middle', horizontal: 'center' };
                 worksheet.getCell('A5').font = { name: 'Arial', size: 12, bold: true };
                 worksheet.getCell('A5').border = {
-                    top: { style: 'thin', color: { argb: '000000' } },
-                    left: { style: 'thin', color: { argb: '000000' } },
-                    bottom: { style: 'thin', color: { argb: '000000' } },
-                    right: { style: 'thin', color: { argb: '000000' } }
+                    top: { style: 'medium', color: { argb: '000000' } },
+                    left: { style: 'medium', color: { argb: '000000' } },
+                    bottom: { style: 'medium', color: { argb: '000000' } },
+                    right: { style: 'medium', color: { argb: '000000' } }
                 };
                 worksheet.getCell('A5').value = sheet
 
@@ -199,174 +167,237 @@ async function generateSyntheseSheetAddax(data, path, sheet) {
                 worksheet.getColumn(2).width = 60
 
                 //first Array
-                worksheet.getCell('A8').border = {
-                    top: { style: 'thin', color: { argb: '000000' } },
-                    left: { style: 'thin', color: { argb: '000000' } },
-                    bottom: { style: 'thin', color: { argb: '000000' } },
-                    right: { style: 'thin', color: { argb: '000000' } }
-                };
-                worksheet.getCell('A9').border = {
-                    top: { style: 'thin', color: { argb: '000000' } },
-                    left: { style: 'thin', color: { argb: '000000' } },
-                    bottom: { style: 'thin', color: { argb: '000000' } },
-                    right: { style: 'thin', color: { argb: '000000' } }
-                };
-                worksheet.getCell('A10').border = {
-                    top: { style: 'thin', color: { argb: '000000' } },
-                    left: { style: 'thin', color: { argb: '000000' } },
-                    bottom: { style: 'thin', color: { argb: '000000' } },
-                    right: { style: 'thin', color: { argb: '000000' } }
-                };
-                worksheet.getCell('A11').border = {
-                    top: { style: 'thin', color: { argb: '000000' } },
-                    left: { style: 'thin', color: { argb: '000000' } },
-                    bottom: { style: 'thin', color: { argb: '000000' } },
-                    right: { style: 'thin', color: { argb: '000000' } }
-                };
-
-                worksheet.getCell('B8').border = {
-                    top: { style: 'thin', color: { argb: '000000' } },
-                    left: { style: 'thin', color: { argb: '000000' } },
-                    bottom: { style: 'thin', color: { argb: '000000' } },
-                    right: { style: 'thin', color: { argb: '000000' } }
-                };
-                worksheet.getCell('B9').border = {
-                    top: { style: 'thin', color: { argb: '000000' } },
-                    left: { style: 'thin', color: { argb: '000000' } },
-                    bottom: { style: 'thin', color: { argb: '000000' } },
-                    right: { style: 'thin', color: { argb: '000000' } }
-                };
-                worksheet.getCell('B10').border = {
-                    top: { style: 'thin', color: { argb: '000000' } },
-                    left: { style: 'thin', color: { argb: '000000' } },
-                    bottom: { style: 'thin', color: { argb: '000000' } },
-                    right: { style: 'thin', color: { argb: '000000' } }
-                };
-                worksheet.getCell('B11').border = {
-                    top: { style: 'thin', color: { argb: '000000' } },
-                    left: { style: 'thin', color: { argb: '000000' } },
-                    bottom: { style: 'thin', color: { argb: '000000' } },
-                    right: { style: 'thin', color: { argb: '000000' } }
-                };
+                const A8=worksheet.getCell('A8');
+                const A9= worksheet.getCell('A9');
+                const A10=worksheet.getCell('A10');
+                const A11=worksheet.getCell('A11');
+                const A14=worksheet.getCell('A14');
+                const A17=worksheet.getCell('A17');
 
 
+                const B8 = worksheet.getCell('B8');
+                const B9= worksheet.getCell('B9');
+                const B10=worksheet.getCell('B10');
+                const B11=worksheet.getCell('B11');
+                const B14=worksheet.getCell('B14');
+                const B15=worksheet.getCell('B15');
+                const B16=worksheet.getCell('B16');
+                const B17=worksheet.getCell('B17');
+                const B18=worksheet.getCell('B18');
+          
+
+                const C14= worksheet.getCell('C14')
+                const C15= worksheet.getCell('C15')
+                const C16= worksheet.getCell('C16')
+                const C17= worksheet.getCell('C17')
+                const C18= worksheet.getCell('C18')
+             
+
+                A8.font={family: 4,bold: true}
+                A9.font={family: 4,bold: true}
+                A10.font={family: 4,bold: true}
+                A11.font={family: 4,bold: true}
+
+                B8.font={family: 4,bold: true}
+                B9.font={family: 4,bold: true}
+                B10.font={family: 4,bold: true}
+                B11.font={family: 4,bold: true}
+                B14.font={family: 4,bold: true}
+                B15.font={family: 4,bold: true}
+                B16.font={family: 4,bold: true}
+                B17.font={family: 4,bold: true}
+                B18.font={family: 4,bold: true}
+
+                B8.alignment = { vertical: 'middle', horizontal: 'center' };
+                B9.alignment = { vertical: 'middle', horizontal: 'center' };
+                B10.alignment = { vertical: 'middle', horizontal: 'center' };
+                B11.alignment = { vertical: 'middle', horizontal: 'center' };
+                C14.alignment = { vertical: 'middle', horizontal: 'center' };
+                C15.alignment = { vertical: 'middle', horizontal: 'center' };
+                C16.alignment = { vertical: 'middle', horizontal: 'center' };
+                C17.alignment = { vertical: 'middle', horizontal: 'center' };
+                C18.alignment = { vertical: 'middle', horizontal: 'center' };
 
 
-                worksheet.getCell('A8').value = 'Total Number of Vehicle'
-                worksheet.getCell('A9').value = 'Number of vehicle communicating'
-                worksheet.getCell('A10').value = 'Number of vehicle used'
-                worksheet.getCell('A11').value = 'percentage of vehicle used'
 
-                worksheet.getCell('B8').value = data['Total Number of Vehicle']
-                worksheet.getCell('B9').value = data['Number of vehicle communicating']
-                worksheet.getCell('B10').value = data['Number of vehicle used']
-                worksheet.getCell('B11').value = data['percentage of vehicle used']
+                C14.font={family: 4,bold: true}
+                C15.font={family: 4,bold: true}
+                C16.font={family: 4,bold: true}
+                C18.font={family: 4,bold: true}
+                C18.font={family: 4,bold: true}
+                 
+
+                A8.border = {
+                    top: { style: 'medium', color: { argb: '000000' } },
+                    left: { style: 'medium', color: { argb: '000000' } },
+                    bottom: { style: 'medium', color: { argb: '000000' } },
+                    right: { style: 'medium', color: { argb: '000000' } }
+                };
+               
+
+               A9.border = {
+                    top: { style: 'medium', color: { argb: '000000' } },
+                    left: { style: 'medium', color: { argb: '000000' } },
+                    bottom: { style: 'medium', color: { argb: '000000' } },
+                    right: { style: 'medium', color: { argb: '000000' } }
+                };
+                
+                A10.border = {
+                    top: { style: 'medium', color: { argb: '000000' } },
+                    left: { style: 'medium', color: { argb: '000000' } },
+                    bottom: { style: 'medium', color: { argb: '000000' } },
+                    right: { style: 'medium', color: { argb: '000000' } }
+                };
+                A11.border = {
+                    top: { style: 'medium', color: { argb: '000000' } },
+                    left: { style: 'medium', color: { argb: '000000' } },
+                    bottom: { style: 'medium', color: { argb: '000000' } },
+                    right: { style: 'medium', color: { argb: '000000' } }
+                };
+
+               B8.border = {
+                    top: { style: 'medium', color: { argb: '000000' } },
+                    left: { style: 'medium', color: { argb: '000000' } },
+                    bottom: { style: 'medium', color: { argb: '000000' } },
+                    right: { style: 'medium', color: { argb: '000000' } }
+                };
+               B9.border = {
+                    top: { style: 'medium', color: { argb: '000000' } },
+                    left: { style: 'medium', color: { argb: '000000' } },
+                    bottom: { style: 'medium', color: { argb: '000000' } },
+                    right: { style: 'medium', color: { argb: '000000' } }
+                };
+                B10.border = {
+                    top: { style: 'medium', color: { argb: '000000' } },
+                    left: { style: 'medium', color: { argb: '000000' } },
+                    bottom: { style: 'medium', color: { argb: '000000' } },
+                    right: { style: 'medium', color: { argb: '000000' } }
+                };
+                B11.border = {
+                    top: { style: 'medium', color: { argb: '000000' } },
+                    left: { style: 'medium', color: { argb: '000000' } },
+                    bottom: { style: 'medium', color: { argb: '000000' } },
+                    right: { style: 'medium', color: { argb: '000000' } }
+                };
+
+
+
+
+                A8.value = 'Total Number of Vehicle'
+                A9.value = 'Number of vehicle communicating'
+                A10.value = 'Number of vehicle used'
+                A11.value = 'percentage of vehicle used'
+
+                B8.value = data['Total Number of Vehicle']?data['Total Number of Vehicle']:0
+                B9.value = data['Number of vehicle communicating']?data['Number of vehicle communicating']:0
+                B10.value = data['Number of vehicle used']? data['Number of vehicle used']:0
+                B11.value = data['percentage of vehicle used']? data['percentage of vehicle used']:0
 
                 //Second Array
                 worksheet.mergeCells('A14', 'A16');
                 worksheet.mergeCells('A17', 'A18');
 
 
-                worksheet.getCell('A14').alignment = { vertical: 'middle', horizontal: 'center' };
-                worksheet.getCell('A14').font = { bold: true };
-                worksheet.getCell('A14').value = 'Total Km driven'
+                A14.alignment = { vertical: 'middle', horizontal: 'center' };
+                A14.font = { bold: true };
+                A14.value = 'Total Km driven'
 
-                worksheet.getCell('A17').alignment = { vertical: 'middle', horizontal: 'center' };
-                worksheet.getCell('A17').font = { bold: true };
-                worksheet.getCell('A17').value = 'Safety'
-
-
-                worksheet.getCell('A14').border = {
-                    top: { style: 'thin', color: { argb: '000000' } },
-                    left: { style: 'thin', color: { argb: '000000' } },
-                    bottom: { style: 'thin', color: { argb: '000000' } },
-                    right: { style: 'thin', color: { argb: '000000' } }
-                };
-
-                worksheet.getCell('A17').border = {
-                    top: { style: 'thin', color: { argb: '000000' } },
-                    left: { style: 'thin', color: { argb: '000000' } },
-                    bottom: { style: 'thin', color: { argb: '000000' } },
-                    right: { style: 'thin', color: { argb: '000000' } }
-                };
+                A17.alignment = { vertical: 'middle', horizontal: 'center' };
+                A17.font = { bold: true };
+                A17.value = 'Safety'
 
 
-                worksheet.getCell('B14').border = {
-                    top: { style: 'thin', color: { argb: '000000' } },
-                    left: { style: 'thin', color: { argb: '000000' } },
-                    bottom: { style: 'thin', color: { argb: '000000' } },
-                    right: { style: 'thin', color: { argb: '000000' } }
+                A14.border = {
+                    top: { style: 'medium', color: { argb: '000000' } },
+                    left: { style: 'medium', color: { argb: '000000' } },
+                    bottom: { style: 'medium', color: { argb: '000000' } },
+                    right: { style: 'medium', color: { argb: '000000' } }
                 };
-                worksheet.getCell('B15').border = {
-                    top: { style: 'thin', color: { argb: '000000' } },
-                    left: { style: 'thin', color: { argb: '000000' } },
-                    bottom: { style: 'thin', color: { argb: '000000' } },
-                    right: { style: 'thin', color: { argb: '000000' } }
-                };
-                worksheet.getCell('B16').border = {
-                    top: { style: 'thin', color: { argb: '000000' } },
-                    left: { style: 'thin', color: { argb: '000000' } },
-                    bottom: { style: 'thin', color: { argb: '000000' } },
-                    right: { style: 'thin', color: { argb: '000000' } }
-                };
-                worksheet.getCell('B17').border = {
-                    top: { style: 'thin', color: { argb: '000000' } },
-                    left: { style: 'thin', color: { argb: '000000' } },
-                    bottom: { style: 'thin', color: { argb: '000000' } },
-                    right: { style: 'thin', color: { argb: '000000' } }
-                };
-                worksheet.getCell('B18').border = {
-                    top: { style: 'thin', color: { argb: '000000' } },
-                    left: { style: 'thin', color: { argb: '000000' } },
-                    bottom: { style: 'thin', color: { argb: '000000' } },
-                    right: { style: 'thin', color: { argb: '000000' } }
+
+                A17.border = {
+                    top: { style: 'medium', color: { argb: '000000' } },
+                    left: { style: 'medium', color: { argb: '000000' } },
+                    bottom: { style: 'medium', color: { argb: '000000' } },
+                    right: { style: 'medium', color: { argb: '000000' } }
                 };
 
 
+                B14.border = {
+                    top: { style: 'medium', color: { argb: '000000' } },
+                    left: { style: 'medium', color: { argb: '000000' } },
+                    bottom: { style: 'medium', color: { argb: '000000' } },
+                    right: { style: 'medium', color: { argb: '000000' } }
+                };
+                B15.border = {
+                    top: { style: 'medium', color: { argb: '000000' } },
+                    left: { style: 'medium', color: { argb: '000000' } },
+                    bottom: { style: 'medium', color: { argb: '000000' } },
+                    right: { style: 'medium', color: { argb: '000000' } }
+                };
+                B16.border = {
+                    top: { style: 'medium', color: { argb: '000000' } },
+                    left: { style: 'medium', color: { argb: '000000' } },
+                    bottom: { style: 'medium', color: { argb: '000000' } },
+                    right: { style: 'medium', color: { argb: '000000' } }
+                };
+                B17.border = {
+                    top: { style: 'medium', color: { argb: '000000' } },
+                    left: { style: 'medium', color: { argb: '000000' } },
+                    bottom: { style: 'medium', color: { argb: '000000' } },
+                    right: { style: 'medium', color: { argb: '000000' } }
+                };
+                B18.border = {
+                    top: { style: 'medium', color: { argb: '000000' } },
+                    left: { style: 'medium', color: { argb: '000000' } },
+                    bottom: { style: 'medium', color: { argb: '000000' } },
+                    right: { style: 'medium', color: { argb: '000000' } }
+                };
 
-                worksheet.getCell('C14').border = {
-                    top: { style: 'thin', color: { argb: '000000' } },
-                    left: { style: 'thin', color: { argb: '000000' } },
-                    bottom: { style: 'thin', color: { argb: '000000' } },
-                    right: { style: 'thin', color: { argb: '000000' } }
+
+
+               C14.border = {
+                    top: { style: 'medium', color: { argb: '000000' } },
+                    left: { style: 'medium', color: { argb: '000000' } },
+                    bottom: { style: 'medium', color: { argb: '000000' } },
+                    right: { style: 'medium', color: { argb: '000000' } }
                 };
-                worksheet.getCell('C15').border = {
-                    top: { style: 'thin', color: { argb: '000000' } },
-                    left: { style: 'thin', color: { argb: '000000' } },
-                    bottom: { style: 'thin', color: { argb: '000000' } },
-                    right: { style: 'thin', color: { argb: '000000' } }
+                C15.border = {
+                    top: { style: 'medium', color: { argb: '000000' } },
+                    left: { style: 'medium', color: { argb: '000000' } },
+                    bottom: { style: 'medium', color: { argb: '000000' } },
+                    right: { style: 'medium', color: { argb: '000000' } }
                 };
-                worksheet.getCell('C16').border = {
-                    top: { style: 'thin', color: { argb: '000000' } },
-                    left: { style: 'thin', color: { argb: '000000' } },
-                    bottom: { style: 'thin', color: { argb: '000000' } },
-                    right: { style: 'thin', color: { argb: '000000' } }
+                C16.border = {
+                    top: { style: 'medium', color: { argb: '000000' } },
+                    left: { style: 'medium', color: { argb: '000000' } },
+                    bottom: { style: 'medium', color: { argb: '000000' } },
+                    right: { style: 'medium', color: { argb: '000000' } }
                 };
-                worksheet.getCell('C17').border = {
-                    top: { style: 'thin', color: { argb: '000000' } },
-                    left: { style: 'thin', color: { argb: '000000' } },
-                    bottom: { style: 'thin', color: { argb: '000000' } },
-                    right: { style: 'thin', color: { argb: '000000' } }
+                C17.border = {
+                    top: { style: 'medium', color: { argb: '000000' } },
+                    left: { style: 'medium', color: { argb: '000000' } },
+                    bottom: { style: 'medium', color: { argb: '000000' } },
+                    right: { style: 'medium', color: { argb: '000000' } }
                 };
-                worksheet.getCell('C18').border = {
-                    top: { style: 'thin', color: { argb: '000000' } },
-                    left: { style: 'thin', color: { argb: '000000' } },
-                    bottom: { style: 'thin', color: { argb: '000000' } },
-                    right: { style: 'thin', color: { argb: '000000' } }
+                C18.border = {
+                    top: { style: 'medium', color: { argb: '000000' } },
+                    left: { style: 'medium', color: { argb: '000000' } },
+                    bottom: { style: 'medium', color: { argb: '000000' } },
+                    right: { style: 'medium', color: { argb: '000000' } }
                 };
 
 
-                worksheet.getCell('B14').value = 'Number of vehicles  used'
-                worksheet.getCell('B15').value = 'Total Km driven (Km)'
-                worksheet.getCell('B16').value = 'Average km driven per vehicle (Km)'
-                worksheet.getCell('B17').value = 'Number of vehicles in speeding'
-                worksheet.getCell('B18').value = 'max Speed'
+                B14.value = 'Number of vehicles  used'
+                B15.value = 'Total Km driven (Km)'
+                B16.value = 'Average km driven per vehicle (Km)'
+                B17.value = 'Number of vehicles in speeding'
+                B18.value = 'max Speed'
 
-                worksheet.getCell('C14').value = data['Number of vehicle used']
-                worksheet.getCell('C15').value = data['Total Km driven (Km)']
-                worksheet.getCell('C16').value = data['Average km driven per vehicle (Km)']
-                worksheet.getCell('C17').value = data['Number of vehicles in speeding']
-                worksheet.getCell('C18').value = data['max Speed']
+                C14.value = data['Number of vehicle used']?data['Number of vehicle used']:0
+                C15.value = data['Total Km driven (Km)']?data['Total Km driven (Km)']:0
+                C16.value = data['Average km driven per vehicle (Km)']?data['Average km driven per vehicle (Km)']:0
+                C17.value = data['Number of vehicles in speeding']?data['Number of vehicles in speeding']:0
+                C18.value = data['max Speed']?data['max Speed']:0
 
 
 

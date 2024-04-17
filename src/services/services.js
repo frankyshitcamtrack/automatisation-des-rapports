@@ -58,7 +58,6 @@ async function generateReportGlobal(reportResource, reportTemplate, reportObject
     let reportResourceId;
     let reportTemplateId;
     let reportObjectId;
-    let group;
     const sid = await generateSessionId()
         .then(res => res.data.eid)
         .catch(error => console.log(error));

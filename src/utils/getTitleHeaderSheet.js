@@ -13,13 +13,13 @@ function getTitleHeaderSheet(sheet){
             return 'ACTIVITY REPORT OF ADDAX PETROLEUM: EXCEPTIONS';
         break;
         case 'Excessive Idle':
-           return 'DAYLY EXCEPTION REPORT: EXCESSIVE IDLE';
+           return 'DAILY EXCEPTION REPORT: EXCESSIVE IDLE';
         break;
         case 'Éco-conduite':
-           return 'DAYLY EXCEPTION REPORT: ECO CONDUITE';
+           return 'DAILY EXCEPTION REPORT: ECO CONDUITE';
         break;
         case 'Excès de Vitesse':
-            return 'DAYLY EXCEPTION REPORT: EXCES DE VITESSE';
+            return 'DAILY EXCEPTION REPORT: EXCES DE VITESSE';
         break;
         default:
           return sheet
