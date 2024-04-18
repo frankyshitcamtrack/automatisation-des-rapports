@@ -132,7 +132,7 @@ async function generateRepport(ressourceClient,path,template,client,sheet,from,t
   const dataRepport = await getRepportData(ressourceClient,template,client,from,to,subGroup)
   
   if(dataRepport){
-   
+     //console.log(dataRepport.obj);
     const data=dataRepport.obj;
     const columns=dataRepport.excelColum
     convertJsonToExcel(data,sheet,`${path}-${reportTitleDate}.xlsx`,columns,colorSheet);

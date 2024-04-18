@@ -4,15 +4,17 @@ const { getTitleHeaderSheet } = require('../utils/getTitleHeaderSheet');
 function addImageBannerHeaderSheet(worksheet, headerColArr, sheet,banner,logo1,logo2) {
     const cols = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T']
     const arrLength = headerColArr.length;
+    lastImgPosition = arrLength-1;
 
-    const imageCell =`${cols[0]}1:${cols[arrLength-1]}6`
-    const titleHeader = [`${cols[0]}7`, `${cols[arrLength-1]}7`]
+    const imageCell =`${cols[0]}1:${cols[arrLength-1]}6`;
+    const titleHeader = [`${cols[0]}7`, `${cols[arrLength-1]}7`];
     
     worksheet.addImage(banner, imageCell);
 
-    worksheet.addImage(logo1, { tl: { col: 0}, ext: { width: 100, height: 100}});
+    worksheet.addImage(logo1, { tl: { col: 0,row:0}, ext: { width: 100, height: 100},editAs: 'oneCell'});
 
-   
+    worksheet.addImage(logo2, { tl: { col: lastImgPosition,row:0}, ext: { width: 100, height: 100},editAs: 'oneCell'});
+
     worksheet.mergeCells(titleHeader[0], titleHeader[1]);
     worksheet.getCell(titleHeader[0]).alignment = { vertical: 'middle', horizontal: 'center' };
     worksheet.getCell(titleHeader[0]).font = { name: 'calibri', size: 15, bold: true };
@@ -25,7 +27,7 @@ function addImageBannerHeaderSheet(worksheet, headerColArr, sheet,banner,logo1,l
 
     worksheet.getCell(titleHeader[0]).value = getTitleHeaderSheet(sheet);
 
-    worksheet.addImage(logo2, { tl: { col: arrLength-1}, ext: { width: 100, height: 100}});
+   
 
 }
 

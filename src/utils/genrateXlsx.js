@@ -3,7 +3,6 @@ const fs = require('fs');
 const XLSX = require('exceljs');
 
 const {addImageBannerHeaderSheet}=require('../utils/addImageBannerSheet')
-const { getTitleHeaderSheet } = require('../utils/getTitleHeaderSheet');
 const { assignStyleToHeaders } = require('../utils/assignStylesPropsToHeader');
 const { autoSizeColumnSheet } = require('../utils/autoSizeColumnSheet');
 
@@ -11,6 +10,7 @@ const { autoSizeColumnSheet } = require('../utils/autoSizeColumnSheet');
 const { addAutoFilter } = require('./addAutofilter')
 
 async function convertJsonToExcel(data, sheet, path, excelColum, colorSheet) {
+    
     const dataHeader = []
 
     const isExistPath = fs.existsSync(path);
@@ -22,15 +22,15 @@ async function convertJsonToExcel(data, sheet, path, excelColum, colorSheet) {
         extension: 'png',
     });
 
-    const logo1=workbook.addImage({
+    const logo1 = workbook.addImage({
         buffer: fs.readFileSync('rapport/Adax/assets/addax-logo.png'),
         extension: 'png',
     });
 
-   const logo2=workbook.addImage({
-    buffer: fs.readFileSync('rapport/Adax/assets/camtrack-logo.png'),
-    extension: 'png',
-});
+    const logo2 = workbook.addImage({
+        buffer: fs.readFileSync('rapport/Adax/assets/camtrack-logo.png'),
+        extension: 'png',
+    });
 
     if (excelColum) {
         excelColum.map(item => {
@@ -75,7 +75,7 @@ async function convertJsonToExcel(data, sheet, path, excelColum, colorSheet) {
                 console.log(`Generating file ${sheet} ...`);
             })
             .then(() => {
-                workbook.xlsx.writeFile(path)
+                workbook.xlsx.writeFile(path,{type: 'buffer', bookType: 'xlsx'})
                     .then(response => {
                         console.log("file generated");
                     })
@@ -118,7 +118,7 @@ async function convertJsonToExcel(data, sheet, path, excelColum, colorSheet) {
             addImageBannerHeaderSheet(worksheet,dataHeader,sheet,imageId2,logo1,logo2);
 
             // Export excel generated file
-            await workbook.xlsx.writeFile(path)
+            await workbook.xlsx.writeFile(path, {type: 'buffer', bookType: 'xlsx'})
                 .then(response => {
                     console.log("file generated");
                 })
@@ -143,6 +143,17 @@ async function generateSyntheseSheetAddax(data, path, sheet) {
         extension: 'png',
     });
 
+    const logo1 = workbook.addImage({
+        buffer: fs.readFileSync('rapport/Adax/assets/addax-logo.png'),
+        extension: 'png',
+    });
+
+    const logo2 = workbook.addImage({
+        buffer: fs.readFileSync('rapport/Adax/assets/camtrack-logo.png'),
+        extension: 'png',
+    });
+
+
     if (isExistPath) {
         workbook.xlsx.readFile(path)
             .then(() => {
@@ -150,7 +161,11 @@ async function generateSyntheseSheetAddax(data, path, sheet) {
         
                 worksheet.views = [{showGridLines:false}];
 
-                worksheet.addImage(imageId2, 'A1:D4');
+                worksheet.addImage(imageId2, 'A1:D5');
+
+                worksheet.addImage(logo1, { tl: { col: 0,row:0}, ext: { width: 100, height: 100},editAs: 'oneCell'});
+
+                worksheet.addImage(logo2, { tl: { col: 2,row:0}, ext: { width: 100, height: 100},editAs: 'oneCell'});
 
                 worksheet.mergeCells('A5', 'D5');
                 worksheet.getCell('A5').alignment = { vertical: 'middle', horizontal: 'center' };
@@ -401,7 +416,7 @@ async function generateSyntheseSheetAddax(data, path, sheet) {
 
 
 
-                return workbook.xlsx.writeFile(path)
+                return workbook.xlsx.writeFile(path, {type: 'buffer', bookType: 'xlsx'})
                     .then(response => {
                         console.log("file is written");
                     })

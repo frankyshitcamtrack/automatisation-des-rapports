@@ -1,8 +1,9 @@
 const path = require('path');
 const { generateRepport,getRepportData,getRepportDataUnit } = require('../models/models');
 const { getFirstAndLastDayMonth } = require('../utils/getFistDayAndLastDayMonth');
-const { getFistAndLastHourDay,getFistAndLastHourDay22H06H } = require('../utils/getFirstAndLastHourDay');
-const {generateSyntheseSheetAddax}=require('../utils/genrateXlsx')
+const { getFistAndLastHourDay,getFistAndLastHourDay22H06H,getfirstAndLastHourDay48H } = require('../utils/getFirstAndLastHourDay');
+const {generateSyntheseSheetAddax}=require('../utils/genrateXlsx');
+const {filterData48h}=require('../utils/filterDataBetween22H6H')
 const { sendMail } = require('../utils/sendMail');
 const pass=process.env.PASS_MAIL;
 
@@ -18,9 +19,9 @@ function generateAddaxDaylyRepport() {
     generateRepport("admin ADDAX", "rapport/adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "Éco-conduite", firstHourDay, lastHourDay, reportTitleDate, "Éco-conduite");
     generateRepport("admin ADDAX", "rapport/adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "Excès de Vitesse", firstHourDay, lastHourDay, reportTitleDate, "Excès de Vitesse");
     
-    /* setTimeout(()=>{
-        sendMail('franky.shity@camtrack.net', 'alanic.nguetsa@camtrack.net',pass, `EXCEPTION REPORT VEHICULES ADDAX PETROLEUM ${reportTitleDate}`, 'Bonjour Mr retrouvez en PJ le rapport Journalier de la flotte EXCEPTION-REPORT ', 'EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM', path.join(__dirname, `../../rapport/adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM-${reportTitleDate}.xlsx`));
-     },20000)  */
+   setTimeout(()=>{
+        sendMail('franky.shity@camtrack.net', 'frankyshiti737@gmail.com',pass, `EXCEPTION REPORT VEHICULES ADDAX PETROLEUM ${reportTitleDate}`, 'Bonjour Mr retrouvez en PJ le rapport Journalier de la flotte EXCEPTION-REPORT ', 'EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM', path.join(__dirname, `../../rapport/adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM-${reportTitleDate}.xlsx`));
+     },30000)  
  
 }
 
@@ -35,9 +36,26 @@ function generateAddaxDaylyRepport22h06h(){
     generateRepport("admin ADDAX", "rapport/adax/LIST-OF-VEHICLES-NOT-AT-ADDAX-PARKING", "LIST-OF-VEHICLES-NOT AT-ADDAX-PARKING", "ADDAX PETROLEUM", "Not at Parked",firstHour,lastHour,titleDate,"Not at Parked");
     
 
-/*    setTimeout(()=>{
-        sendMail('franky.shity@camtrack.net', 'alanic.nguetsa@camtrack.net',pass, 'LIST-OF-VEHICLES-NOT AT-ADDAX-PARKING', 'Bonjour Mr retrouvez en PJ le rapport Journalier de la flotte Not at parking ', 'EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM', path.join(__dirname, `../../rapport/adax/LIST-OF-VEHICLES-NOT-AT-ADDAX-PARKING-${titleDate}.xlsx`));
-     },20000)   */
+    setTimeout(()=>{
+        sendMail('franky.shity@camtrack.net', 'frankyshiti737@gmail.com',pass, 'LIST-OF-VEHICLES-NOT AT-ADDAX-PARKING', 'Bonjour Mr retrouvez en PJ le rapport Journalier de la flotte Not at parking ', 'EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM.xlsx', path.join(__dirname, `../../rapport/adax/LIST-OF-VEHICLES-NOT-AT-ADDAX-PARKING-${titleDate}.xlsx`));
+     },30000)  
+}
+
+
+
+async function generateAddax48HAddaxRepport(){
+    const twoDaysAgoParams=getfirstAndLastHourDay48H();
+
+    const firstHourDay=twoDaysAgoParams.firstHourDayTimestamp48H;
+    const lastHourDay= twoDaysAgoParams.lastHourDayTimestamp48H;
+    const titleDate= twoDaysAgoParams.dateTitle;
+
+    const data=await getRepportData("admin ADDAX","LIST-OF-VEHICLES-NOT AT-ADDAX-PARKING", "ADDAX PETROLEUM", firstHourDay, lastHourDay,"Not at Parked");
+
+    if(data){
+        const dataFilter=filterData48h(data.obj);
+        return dataFilter;
+    }
 }
 
 
@@ -129,9 +147,9 @@ async function AddaxMonthlyRepportSynthese(){
         
 
        generateSyntheseSheetAddax(resultTotal,`rapport/adax/ACTIVITY-REPORT-OF-ADDAX-PETROLEUM-${reportTitleDate}.xlsx`,"SYNTHESE")
-   /*     setTimeout(()=>{
-        sendMail('franky.shity@camtrack.net', 'alanic.nguetsa@camtrack.net',pass, 'Monthly ACTIVITY REPORT OF ADDAX PETROLEUM', 'Bonjour Mr retrouvez en PJ le rapport Mensuel de la flotte ACTIVITY-REPORT-OF-ADDAX-PETROLEUM ', 'ACTIVITY-REPORT-OF-ADDAX-PETROLEUM', path.join(__dirname, `../../rapport/adax/ACTIVITY-REPORT-OF-ADDAX-PETROLEUM-${reportTitleDate}.xlsx`));
-       },20000)  */
+       setTimeout(()=>{
+        sendMail('franky.shity@camtrack.net', 'frankyshiti737@gmail.com',pass, 'Monthly ACTIVITY REPORT OF ADDAX PETROLEUM', 'Bonjour Mr retrouvez en PJ le rapport Mensuel de la flotte ACTIVITY-REPORT-OF-ADDAX-PETROLEUM ', 'ACTIVITY-REPORT-OF-ADDAX-PETROLEUM', path.join(__dirname, `../../rapport/adax/ACTIVITY-REPORT-OF-ADDAX-PETROLEUM-${reportTitleDate}.xlsx`));
+       },30000)   
   }
     
 
@@ -139,12 +157,14 @@ async function AddaxMonthlyRepportSynthese(){
 
 
 function generateAddaxRepports() {
-  generateAddaxMonthlyRepport();
-  setTimeout(()=>{
-        AddaxMonthlyRepportSynthese()
-  },5000)   
-  generateAddaxDaylyRepport(); 
+/*  generateAddaxMonthlyRepport();
+ setTimeout(()=>{
+        AddaxMonthlyRepportSynthese();
+  },5000) */ 
+  //generateAddaxDaylyRepport(); 
   generateAddaxDaylyRepport22h06h();
+
+  //generateAddax48HAddaxRepport()
    
 }
 

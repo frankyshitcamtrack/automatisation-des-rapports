@@ -1,4 +1,27 @@
-const {dateInYyyyMmDdHhMmSs,dateFormatMinusOneDay,convertDateToTimeStamp} = require('./dateFormat');
+const {dateInYyyyMmDdHhMmSs,dateFormatMinusOneDay,convertDateToTimeStamp,dateFormatMinusTwoDay} = require('./dateFormat');
+
+
+function getfirstAndLastHourDay48H(){
+    let startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+    let firstHourDayFormat48H=dateFormatMinusTwoDay(startOfDay);
+    console.log(firstHourDayFormat48H);
+    let firstHourDayTimestamp48H =convertDateToTimeStamp(firstHourDayFormat48H);
+
+    let endofDay = new Date();
+    endofDay.setHours(23, 59, 59, 999);   
+    let lasthourDayFormat48H =dateInYyyyMmDdHhMmSs(endofDay);
+    console.log(lasthourDayFormat48H);
+    let lastHourDayTimestamp48H =convertDateToTimeStamp(lasthourDayFormat48H);
+    
+
+    let date= new Date();
+
+    let dateTitle=dateFormatMinusOneDay(date).split(' ')[0];
+  
+
+    return {firstHourDayTimestamp48H,lastHourDayTimestamp48H,dateTitle}
+}
 
 
 function getFistAndLastHourDay(){
@@ -20,8 +43,8 @@ function getFistAndLastHourDay(){
   
 
     return {firstHourDayTimestamp,lastHourDayTimestamp,dateTitle}
-
 }
+
 
 
 function getFistAndLastHourDay22H06H(){
@@ -46,4 +69,4 @@ function getFistAndLastHourDay22H06H(){
 
 }
 
-module.exports={getFistAndLastHourDay,getFistAndLastHourDay22H06H}
+module.exports={getFistAndLastHourDay,getFistAndLastHourDay22H06H,getfirstAndLastHourDay48H}

@@ -1,11 +1,11 @@
 const nodemailer = require('nodemailer');
 
-function sendMail(from,to,pass,subject,text,filename,path) {
+async function sendMail(from,to,pass,subject,text,filename,path) {
 
     const transporter = nodemailer.createTransport({
         host: "smtp.gmail.com",
-        port: 587,
-        secure: false, // Use `true` for port 465, `false` for all other ports
+        port: 465,
+        secure: true, // Use `true` for port 465, `false` for all other ports
         auth: {
           user: from,
           pass: pass,
@@ -21,11 +21,10 @@ function sendMail(from,to,pass,subject,text,filename,path) {
             filename: filename,
             path :path,
             contentType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            contentDispositio:'attachment'
         }]
     };
 
-    transporter.sendMail(mailOptions, function (error, info) {
+    await transporter.sendMail(mailOptions, function (error, info) {
         if (error) {
             console.log(error);
         } else {
