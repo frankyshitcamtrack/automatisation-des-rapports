@@ -39,7 +39,7 @@ async function convertJsonToExcel(data, sheet, path, excelColum, colorSheet) {
     }
 
     if (isExistPath) {
-        workbook.xlsx.readFile(path)
+       await workbook.xlsx.readFile(path)
             .then(() => {
                 if (dataHeader.length > 0) {
                     const autoFilter = addAutoFilter(dataHeader, 8)
