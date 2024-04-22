@@ -2,8 +2,6 @@ const {dateFormatPlusOneHour}=require('./dateFormat')
 const {isValidDate}=require('./checkValidDate')
 
 
-  
-
 function changePropertiesDateTOLocal(objects) {
     return objects.map((object) => {
       Object.keys(object).forEach((property) => {

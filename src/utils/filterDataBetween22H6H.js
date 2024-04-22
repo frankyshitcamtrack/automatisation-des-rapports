@@ -12,9 +12,6 @@ function filterData48h(arr){
   
    const d=propsDate.day;
    const h=propsDate.hr;
-   const m=propsDate.min;
-   const s=propsDate.sec;
-   const ms=propsDate.ms;
    
    return ((todayDate.getDate()-1===d && h>=21)  || (todayDate.getDate()===d && h>=0 && h<=7)) ;
    

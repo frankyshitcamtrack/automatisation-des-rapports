@@ -5,9 +5,8 @@ const XLSX = require('exceljs');
 const {addImageBannerHeaderSheet}=require('../utils/addImageBannerSheet')
 const { assignStyleToHeaders } = require('../utils/assignStylesPropsToHeader');
 const { autoSizeColumnSheet } = require('../utils/autoSizeColumnSheet');
+const { addAutoFilter } = require('./addAutofilter');
 
-
-const { addAutoFilter } = require('./addAutofilter')
 
 async function convertJsonToExcel(data, sheet, path, excelColum, colorSheet) {
     
@@ -39,50 +38,47 @@ async function convertJsonToExcel(data, sheet, path, excelColum, colorSheet) {
     }
 
     if (isExistPath) {
-       await workbook.xlsx.readFile(path)
-            .then(() => {
-                if (dataHeader.length > 0) {
-                    const autoFilter = addAutoFilter(dataHeader, 8)
-                    const worksheet = workbook.addWorksheet(sheet, { properties: { tabColor: { argb: colorSheet } } });
+        console.log(`Generating file ${sheet} ...`);
 
-                    worksheet.views = [{showGridLines:false}];
-        
-                    worksheet.getRow(8).values = dataHeader;
+       const p= await workbook.xlsx.readFile(path)
 
-                    worksheet.columns = excelColum;
+        if (dataHeader.length > 0 && p) {
+            const autoFilter = addAutoFilter(dataHeader, 8)
+            const worksheet = workbook.addWorksheet(sheet, { properties: { tabColor: { argb: colorSheet } } });
 
-                    worksheet.autoFilter = autoFilter;
+            worksheet.views = [{ showGridLines: false }];
 
-                    //Add data to rows
-                    data.map(item => {
-                        worksheet.addRow(item)
-                    })
+            worksheet.getRow(8).values = dataHeader;
 
+            worksheet.columns = excelColum;
 
-                    // Process each row for beautification 
-                    assignStyleToHeaders(worksheet);
+            worksheet.autoFilter = autoFilter;
 
-                    //autosize column width base on the content
-                    autoSizeColumnSheet(worksheet)
-
-                    //Center image header banner depending on number of columns
-                    addImageBannerHeaderSheet(worksheet,dataHeader,sheet,imageId2,logo1,logo2)
-
-                }
-
+            //Add data to rows
+            data.map(item => {
+                worksheet.addRow(item)
             })
-            .then(() => {
-                console.log(`Generating file ${sheet} ...`);
+
+
+            // Process each row for beautification 
+            assignStyleToHeaders(worksheet);
+
+            //autosize column width base on the content
+            autoSizeColumnSheet(worksheet)
+
+            //Center image header banner depending on number of columns
+            addImageBannerHeaderSheet(worksheet, dataHeader, sheet, imageId2, logo1, logo2)
+
+            await  workbook.xlsx.writeFile(path, { type: 'buffer', bookType: 'xlsx' })
+            .then(response => {
+                console.log("file generated");
             })
-            .then(() => {
-                workbook.xlsx.writeFile(path,{type: 'buffer', bookType: 'xlsx'})
-                    .then(response => {
-                        console.log("file generated");
-                    })
-                    .catch(err => {
-                        console.log(err);
-                    });
+            .catch(err => {
+                console.log(err);
             });
+
+        }
+
     } else {
         console.log(`Generating file ${sheet} ...`);
         if (dataHeader.length > 0) {

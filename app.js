@@ -20,7 +20,12 @@ app.use(cors());
 app.use(bodyParser.json());
 
 //generatStyleDoc();
-generalControllers();
+
+    generalControllers();
+ 
+ 
+
+
 
 app.use(express.static(path.join(__dirname,'..','public')));
 
