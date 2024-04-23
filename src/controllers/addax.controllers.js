@@ -171,11 +171,11 @@ function generateAddaxRepports() {
   const datesProps = getDate(date);
   
 
-  cron.schedule('39 18 * * *', () => {
+  cron.schedule('35 6 * * *', () => {
     console.log('repport at 17h52')
     generateAddaxDaylyRepport();
     generateAddaxDaylyRepport22h06h();
-    generateAddaxMonthlyRepport();
+    //generateAddaxMonthlyRepport();
   }, {
     scheduled: true,
     timezone: "Africa/Lagos"

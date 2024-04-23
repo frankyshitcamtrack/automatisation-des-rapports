@@ -1,6 +1,5 @@
 const adaxReceivers=[
-    { name: "shiti", address: "frankyshiti737@gmail.com" },
-    { name: "sheiguey", address: "sheigueyenterprise@gmail.com" },
+    { name: "shiti", address: "franky.shity@camtrack.net" },
     { name: "Raymond", address: "raymond.olama@camtrack.net" },
 ];
 
