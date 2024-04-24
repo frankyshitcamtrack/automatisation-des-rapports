@@ -1,8 +1,12 @@
-const adaxReceivers=[
-    { name: "shiti", address: "frankyshiti737@gmail.com" },
-    { name: "sheiguey", address: "sheigueyenterprise@gmail.com" },
-    { name: "Raymond", address: "raymond.olama@camtrack.net" },
-];
+const {getData}=require('../services/googleSheetsService');
+const {formatMailReceivers}=require('../utils/formatMailsReceivers')
 
+async function adaxReceivers(){
+ const receivers= await getData('ADDAX PETROLEUM','D');
+ if(receivers){
+    const formatReceivers=formatMailReceivers(receivers);
+    return formatReceivers;
+ }
+}
 
 module.exports={adaxReceivers}
