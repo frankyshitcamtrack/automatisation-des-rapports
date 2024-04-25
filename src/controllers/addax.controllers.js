@@ -28,11 +28,11 @@ async function generateAddaxDaylyRepport() {
   generateRepport("admin ADDAX", "rapport/adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "Éco-conduite", firstHourDay, lastHourDay, reportTitleDate, "Éco-conduite");
   generateRepport("admin ADDAX", "rapport/adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "Excès de Vitesse", firstHourDay, lastHourDay, reportTitleDate, "Excès de Vitesse");
 
-  if(sender && receivers){
+ if(sender && receivers){
     setTimeout(() => {
       sendMail(sender,receivers, pass, `EXCEPTION REPORT VEHICULES ADDAX PETROLEUM ${reportTitleDate}`, 'Bonjour Mr retrouvez en PJ le rapport Journalier de la flotte EXCEPTION-REPORT ', 'EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM', path.join(__dirname, `../../rapport/adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM-${reportTitleDate}.xlsx`));
     }, 30000)
-  }
+  } 
 
 }
 
@@ -49,7 +49,7 @@ async function generateAddaxDaylyRepport22h06h() {
 
 if(sender && receivers){
   setTimeout(() => {
-    sendMail('raymond.olama@camtrack.net', adaxReceivers, pass, 'LIST-OF-VEHICLES-NOT AT-ADDAX-PARKING', 'Bonjour Mr retrouvez en PJ le rapport Journalier de la flotte Not at parking ', 'EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM.xlsx', path.join(__dirname, `../../rapport/adax/LIST-OF-VEHICLES-NOT-AT-ADDAX-PARKING-${titleDate}.xlsx`));
+    sendMail(sender, receivers, pass, 'LIST-OF-VEHICLES-NOT AT-ADDAX-PARKING', 'Bonjour Mr retrouvez en PJ le rapport Journalier de la flotte Not at parking ', 'EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM.xlsx', path.join(__dirname, `../../rapport/adax/LIST-OF-VEHICLES-NOT-AT-ADDAX-PARKING-${titleDate}.xlsx`));
   }, 30000)
 }
 }
@@ -166,7 +166,7 @@ async function AddaxMonthlyRepportSynthese() {
 
   if(sender && receivers){
     setTimeout(() => {
-      sendMail('raymond.olama@camtrack.net', adaxReceivers, pass, 'Monthly ACTIVITY REPORT OF ADDAX PETROLEUM', 'Bonjour Mr retrouvez en PJ le rapport Mensuel de la flotte ACTIVITY-REPORT-OF-ADDAX-PETROLEUM ', 'ACTIVITY-REPORT-OF-ADDAX-PETROLEUM', path.join(__dirname, `../../rapport/adax/ACTIVITY-REPORT-OF-ADDAX-PETROLEUM-${reportTitleDate}.xlsx`));
+      sendMail(sender,receivers, pass, 'Monthly ACTIVITY REPORT OF ADDAX PETROLEUM', 'Bonjour Mr retrouvez en PJ le rapport Mensuel de la flotte ACTIVITY-REPORT-OF-ADDAX-PETROLEUM ', 'ACTIVITY-REPORT-OF-ADDAX-PETROLEUM', path.join(__dirname, `../../rapport/adax/ACTIVITY-REPORT-OF-ADDAX-PETROLEUM-${reportTitleDate}.xlsx`));
     }, 30000)
   }
 }
@@ -176,6 +176,7 @@ async function AddaxMonthlyRepportSynthese() {
 
 
 async function generateAddaxRepports() {
+  generateAddaxDaylyRepport();
   cron.schedule('30 6 * * *', async() => {
     generateAddaxDaylyRepport();
     //generateAddaxDaylyRepport22h06h();
