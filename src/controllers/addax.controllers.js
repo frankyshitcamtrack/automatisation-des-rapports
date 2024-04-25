@@ -176,7 +176,6 @@ async function AddaxMonthlyRepportSynthese() {
 
 
 async function generateAddaxRepports() {
-  generateAddaxDaylyRepport();
   cron.schedule('30 6 * * *', async() => {
     generateAddaxDaylyRepport();
     //generateAddaxDaylyRepport22h06h();
