@@ -178,7 +178,7 @@ async function AddaxMonthlyRepportSynthese() {
 async function generateAddaxRepports() {
   cron.schedule('30 6 * * *', async() => {
     generateAddaxDaylyRepport();
-    generateAddaxDaylyRepport22h06h();
+    //generateAddaxDaylyRepport22h06h();
   }, {
     scheduled: true,
     timezone: "Africa/Lagos"
