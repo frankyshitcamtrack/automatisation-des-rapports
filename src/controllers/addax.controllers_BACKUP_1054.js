@@ -175,10 +175,25 @@ async function AddaxMonthlyRepportSynthese() {
 
 
 
+<<<<<<< HEAD
+function generateAddaxRepports() {
+
+  const date = new Date();
+
+  const datesProps = getDate(date);
+  
+
+  cron.schedule('35 6 * * *', () => {
+    console.log('repport at 17h52')
+    generateAddaxDaylyRepport();
+    generateAddaxDaylyRepport22h06h();
+    //generateAddaxMonthlyRepport();
+=======
 async function generateAddaxRepports() {
   cron.schedule('30 6 * * *', async() => {
     generateAddaxDaylyRepport();
     //generateAddaxDaylyRepport22h06h();
+>>>>>>> adax
   }, {
     scheduled: true,
     timezone: "Africa/Lagos"

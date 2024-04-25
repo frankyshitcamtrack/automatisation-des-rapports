@@ -4,7 +4,7 @@ const cors = require("cors");
 const path = require('path');
 const express = require("express");
 const bodyParser = require("body-parser");
-const {generalControllers} =require('./src/controllers/generalControllers')
+const {generalControllers} =require('./src/controllers/generalControllers');
 
 
 
@@ -21,11 +21,12 @@ app.use(bodyParser.json());
 
 //generatStyleDoc();
 
-    generalControllers();
- 
- 
+async function run(){
+ await generalControllers();
+} 
 
-
+run();
+ 
 
 app.use(express.static(path.join(__dirname,'..','public')));
 
