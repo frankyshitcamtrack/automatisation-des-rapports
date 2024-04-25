@@ -1,4 +1,5 @@
 {
+  "type": "module",
   "name": "automatisation-des-rapports",
   "version": "1.0.0",
   "description": "application d'automatisation des rapport wialon",
