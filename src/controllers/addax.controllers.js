@@ -18,10 +18,10 @@ const pass = process.env.PASS_MAIL;
 
 async function generateAddaxDaylyRepport() {
   const sender= await Senders('ADDAX PETROLEUM','E');
-  const test =[
+ /*  const test =[
     { name: 'frank', address: 'franky.shity@camtrack.net' },
      {name:'mag',address:'magnouvel.mekontso@camtrack.net'}
-  ]
+  ] */
   const receivers=await Receivers('ADDAX PETROLEUM','D');
   const fistAndLastHourDay = getFistAndLastHourDay();
   const firstHourDay = fistAndLastHourDay.firstHourDayTimestamp;
@@ -36,7 +36,7 @@ async function generateAddaxDaylyRepport() {
   console.log(`${receivers}`)
   console.log(`${receivers}`)
  setTimeout(() => {
-      sendMail("raymond.olama@camtrack.net",test, pass, `EXCEPTION REPORT VEHICULES ADDAX PETROLEUM ${reportTitleDate}`, 'Bonjour Mr retrouvez en PJ le rapport Journalier de la flotte EXCEPTION-REPORT ', 'EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM', path.join(__dirname, `../../rapport/Adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM-${reportTitleDate}.xlsx`));
+      sendMail(sender,receivers, pass, `EXCEPTION REPORT VEHICULES ADDAX PETROLEUM ${reportTitleDate}`, 'Bonjour Mr retrouvez en PJ le rapport Journalier de la flotte EXCEPTION-REPORT ', 'EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM', path.join(__dirname, `../../rapport/Adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM-${reportTitleDate}.xlsx`));
     }, 30000)  
 
   }  
@@ -187,7 +187,6 @@ async function AddaxMonthlyRepportSynthese() {
 
 
 async function generateAddaxRepports() {
-  await generateAddaxDaylyRepport();
   cron.schedule('30 6 * * *', async() => {
    await generateAddaxDaylyRepport();
     //generateAddaxDaylyRepport22h06h();
