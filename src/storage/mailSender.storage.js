@@ -1,11 +1,11 @@
 const {getData}=require('../services/googleSheetsService');
 
-async function addaxSender(){
- const sender= await getData('ADDAX PETROLEUM','E');
+async function Senders(group,col){
+ const sender= await getData(group,col);
  if(sender){
     const formatSender=sender[0];
     return formatSender;
  }
 }
 
-module.exports={addaxSender}
+module.exports={Senders}

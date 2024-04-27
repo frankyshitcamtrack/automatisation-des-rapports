@@ -5,8 +5,8 @@ const { getFistAndLastHourDay, getFistAndLastHourDay22H06H, getfirstAndLastHourD
 const { generateSyntheseSheetAddax } = require('../utils/genrateXlsx');
 const { getDate } = require('../utils/getDateProps');
 const { filterData48h } = require('../utils/filterDataBetween22H6H');
-const { adaxReceivers } = require('../storage/mailReceivers.storage');
-const {addaxSender}=require('../storage/mailSender.storage')
+const { Receivers } = require('../storage/mailReceivers.storage');
+const {Senders}=require('../storage/mailSender.storage')
 const { sendMail } = require('../utils/sendMail');
 const cron = require('node-cron');
 
@@ -17,29 +17,36 @@ const pass = process.env.PASS_MAIL;
 
 
 async function generateAddaxDaylyRepport() {
-  const sender= await addaxSender();
-  const receivers=await adaxReceivers();
+  const sender= await Senders('ADDAX PETROLEUM','E');
+  const test =[
+    { name: 'frank', address: 'franky.shity@camtrack.net' },
+     
+  ]
+  const receivers=await Receivers('ADDAX PETROLEUM','D');
   const fistAndLastHourDay = getFistAndLastHourDay();
   const firstHourDay = fistAndLastHourDay.firstHourDayTimestamp;
   const lastHourDay = fistAndLastHourDay.lastHourDayTimestamp;
   const reportTitleDate = fistAndLastHourDay.dateTitle;
-
+ 
   generateRepport("admin ADDAX", "rapport/adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "Excessive Idle", firstHourDay, lastHourDay, reportTitleDate, "Excessive Idle");
   generateRepport("admin ADDAX", "rapport/adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "Éco-conduite", firstHourDay, lastHourDay, reportTitleDate, "Éco-conduite");
   generateRepport("admin ADDAX", "rapport/adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "Excès de Vitesse", firstHourDay, lastHourDay, reportTitleDate, "Excès de Vitesse");
 
  if(sender && receivers){
-    setTimeout(() => {
-      sendMail(sender,receivers, pass, `EXCEPTION REPORT VEHICULES ADDAX PETROLEUM ${reportTitleDate}`, 'Bonjour Mr retrouvez en PJ le rapport Journalier de la flotte EXCEPTION-REPORT ', 'EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM', path.join(__dirname, `../../rapport/adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM-${reportTitleDate}.xlsx`));
-    }, 30000)
-  } 
+  console.log(`sender :`)
+  console.log(`receivers :  ${receivers}`)
+ setTimeout(() => {
+      sendMail("raymond.olama@camtrack.net",test, pass, `EXCEPTION REPORT VEHICULES ADDAX PETROLEUM ${reportTitleDate}`, 'Bonjour Mr retrouvez en PJ le rapport Journalier de la flotte EXCEPTION-REPORT ', 'EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM', path.join(__dirname, `../../rapport/adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM-${reportTitleDate}.xlsx`));
+    }, 30000)  
+
+  }  
 
 }
 
 
 async function generateAddaxDaylyRepport22h06h() {
-  const sender= await addaxSender();
-  const receivers=await adaxReceivers();
+  const sender= await Senders('ADDAX PETROLEUM','E');
+  const receivers=await Receivers('ADDAX PETROLEUM','D');
   const first22h6h = getFistAndLastHourDay22H06H();
   const firstHour = first22h6h.firstHourDayTimestamp06h;
   const lastHour = first22h6h.lastHourDayTimestamp22h;
@@ -93,8 +100,8 @@ async function generateAddaxMonthlyRepport() {
 
 
 async function AddaxMonthlyRepportSynthese() {
-  const sender= await addaxSender();
-  const receivers=await adaxReceivers();
+  const sender= await Senders('ADDAX PETROLEUM','E');
+  const receivers=await Receivers('ADDAX PETROLEUM','D');
   const firstDayLastDayMonth = getFirstAndLastDayMonth();
 
   const firstDayMonth = firstDayLastDayMonth.firstDayTimestamp;
@@ -165,7 +172,7 @@ async function AddaxMonthlyRepportSynthese() {
   generateSyntheseSheetAddax(resultTotal, `rapport/adax/ACTIVITY-REPORT-OF-ADDAX-PETROLEUM-${reportTitleDate}.xlsx`, "SYNTHESE");
 
   if(sender && receivers){
-    setTimeout(() => {
+   setTimeout(() => {
       sendMail(sender,receivers, pass, 'Monthly ACTIVITY REPORT OF ADDAX PETROLEUM', 'Bonjour Mr retrouvez en PJ le rapport Mensuel de la flotte ACTIVITY-REPORT-OF-ADDAX-PETROLEUM ', 'ACTIVITY-REPORT-OF-ADDAX-PETROLEUM', path.join(__dirname, `../../rapport/adax/ACTIVITY-REPORT-OF-ADDAX-PETROLEUM-${reportTitleDate}.xlsx`));
     }, 30000)
   }
@@ -176,8 +183,9 @@ async function AddaxMonthlyRepportSynthese() {
 
 
 async function generateAddaxRepports() {
+  await generateAddaxDaylyRepport();
   cron.schedule('30 6 * * *', async() => {
-    generateAddaxDaylyRepport();
+   await generateAddaxDaylyRepport();
     //generateAddaxDaylyRepport22h06h();
   }, {
     scheduled: true,
