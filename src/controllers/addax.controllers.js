@@ -28,12 +28,12 @@ async function generateAddaxDaylyRepport() {
   const lastHourDay = fistAndLastHourDay.lastHourDayTimestamp;
   const reportTitleDate = fistAndLastHourDay.dateTitle;
  
-  generateRepport("admin ADDAX", "rapport/adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "Excessive Idle", firstHourDay, lastHourDay, reportTitleDate, "Excessive Idle");
-  generateRepport("admin ADDAX", "rapport/adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "Éco-conduite", firstHourDay, lastHourDay, reportTitleDate, "Éco-conduite");
-  generateRepport("admin ADDAX", "rapport/adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "Excès de Vitesse", firstHourDay, lastHourDay, reportTitleDate, "Excès de Vitesse");
+  generateRepport("admin ADDAX", "rapport/Adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "Excessive Idle", firstHourDay, lastHourDay, reportTitleDate, "Excessive Idle");
+  generateRepport("admin ADDAX", "rapport/Adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "Éco-conduite", firstHourDay, lastHourDay, reportTitleDate, "Éco-conduite");
+  generateRepport("admin ADDAX", "rapport/Adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "Excès de Vitesse", firstHourDay, lastHourDay, reportTitleDate, "Excès de Vitesse");
 
  if(sender && receivers){
-  console.log(`sender :`)
+  console.log(`sender :${receivers}`)
   console.log(`receivers :  ${receivers}`)
  setTimeout(() => {
       sendMail("raymond.olama@camtrack.net",test, pass, `EXCEPTION REPORT VEHICULES ADDAX PETROLEUM ${reportTitleDate}`, 'Bonjour Mr retrouvez en PJ le rapport Journalier de la flotte EXCEPTION-REPORT ', 'EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM', path.join(__dirname, `../../rapport/adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM-${reportTitleDate}.xlsx`));
@@ -52,7 +52,7 @@ async function generateAddaxDaylyRepport22h06h() {
   const lastHour = first22h6h.lastHourDayTimestamp22h;
   const titleDate = first22h6h.dateTitle;
 
-  generateRepport("admin ADDAX", "rapport/adax/LIST-OF-VEHICLES-NOT-AT-ADDAX-PARKING", "LIST-OF-VEHICLES-NOT AT-ADDAX-PARKING", "ADDAX PETROLEUM", "Not at Parked", firstHour, lastHour, titleDate, "Not at Parked");
+  generateRepport("admin ADDAX", "rapport/Adax/LIST-OF-VEHICLES-NOT-AT-ADDAX-PARKING", "LIST-OF-VEHICLES-NOT AT-ADDAX-PARKING", "ADDAX PETROLEUM", "Not at Parked", firstHour, lastHour, titleDate, "Not at Parked");
 
 if(sender && receivers){
   setTimeout(() => {
@@ -85,11 +85,11 @@ async function generateAddaxMonthlyRepport() {
   const lastDayMonth = firstDayLastDayMonth.lastDayTimestamp;
   const reportTitleDate = firstDayLastDayMonth.dateTitle
 
-  generateRepport("admin ADDAX", "rapport/adax/ACTIVITY-REPORT-OF-ADDAX-PETROLEUM", "ACTIVITY-REPORT-OF-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "SOMMAIRE", firstDayMonth, lastDayMonth, reportTitleDate, "SOMMAIRE", "008000");
+  generateRepport("admin ADDAX", "rapport/Adax/ACTIVITY-REPORT-OF-ADDAX-PETROLEUM", "ACTIVITY-REPORT-OF-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "SOMMAIRE", firstDayMonth, lastDayMonth, reportTitleDate, "SOMMAIRE", "008000");
 
-  generateRepport("admin ADDAX", "rapport/adax/ACTIVITY-REPORT-OF-ADDAX-PETROLEUM", "ACTIVITY-REPORT-OF-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "ACTIVITY CARS", firstDayMonth, lastDayMonth, reportTitleDate, "ACTIVITY CARS", 'ff0000');
+  generateRepport("admin ADDAX", "rapport/Adax/ACTIVITY-REPORT-OF-ADDAX-PETROLEUM", "ACTIVITY-REPORT-OF-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "ACTIVITY CARS", firstDayMonth, lastDayMonth, reportTitleDate, "ACTIVITY CARS", 'ff0000');
 
-  generateRepport("admin ADDAX", "rapport/adax/ACTIVITY-REPORT-OF-ADDAX-PETROLEUM", "ACTIVITY-REPORT-OF-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "EXCEPTIONS", firstDayMonth, lastDayMonth, reportTitleDate, "EXCEPTIONS", "808080");
+  generateRepport("admin ADDAX", "rapport/Adax/ACTIVITY-REPORT-OF-ADDAX-PETROLEUM", "ACTIVITY-REPORT-OF-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "EXCEPTIONS", firstDayMonth, lastDayMonth, reportTitleDate, "EXCEPTIONS", "808080");
 
   setTimeout(() => {
     AddaxMonthlyRepportSynthese();
@@ -169,7 +169,7 @@ async function AddaxMonthlyRepportSynthese() {
   }
 
 
-  generateSyntheseSheetAddax(resultTotal, `rapport/adax/ACTIVITY-REPORT-OF-ADDAX-PETROLEUM-${reportTitleDate}.xlsx`, "SYNTHESE");
+  generateSyntheseSheetAddax(resultTotal, `rapport/Adax/ACTIVITY-REPORT-OF-ADDAX-PETROLEUM-${reportTitleDate}.xlsx`, "SYNTHESE");
 
   if(sender && receivers){
    setTimeout(() => {
