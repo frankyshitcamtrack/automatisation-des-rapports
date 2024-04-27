@@ -20,7 +20,7 @@ async function generateAddaxDaylyRepport() {
   const sender= await Senders('ADDAX PETROLEUM','E');
   const test =[
     { name: 'frank', address: 'franky.shity@camtrack.net' },
-     
+     {name:'mag',address:'magnouvel.mekontso@camtrack.net'}
   ]
   const receivers=await Receivers('ADDAX PETROLEUM','D');
   const fistAndLastHourDay = getFistAndLastHourDay();
@@ -45,6 +45,10 @@ async function generateAddaxDaylyRepport() {
 
 
 async function generateAddaxDaylyRepport22h06h() {
+  const test =[
+    { name: 'frank', address: 'franky.shity@camtrack.net' },
+     
+  ]
   const sender= await Senders('ADDAX PETROLEUM','E');
   const receivers=await Receivers('ADDAX PETROLEUM','D');
   const first22h6h = getFistAndLastHourDay22H06H();
