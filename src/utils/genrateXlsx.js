@@ -40,43 +40,44 @@ async function convertJsonToExcel(data, sheet, path, excelColum, colorSheet) {
     if (isExistPath) {
         console.log(`Generating file ${sheet} ...`);
 
-       const p= await workbook.xlsx.readFile(path)
-
-        if (dataHeader.length > 0 && p) {
-            const autoFilter = addAutoFilter(dataHeader, 8)
-            const worksheet = workbook.addWorksheet(sheet, { properties: { tabColor: { argb: colorSheet } } });
-
-            worksheet.views = [{ showGridLines: false }];
-
-            worksheet.getRow(8).values = dataHeader;
-
-            worksheet.columns = excelColum;
-
-            worksheet.autoFilter = autoFilter;
-
-            //Add data to rows
-            data.map(item => {
-                worksheet.addRow(item)
+        if (dataHeader.length > 0 ) {
+            workbook.xlsx.readFile(path).then(async ()=>{
+                const autoFilter = addAutoFilter(dataHeader, 8)
+                const worksheet = workbook.addWorksheet(sheet, { properties: { tabColor: { argb: colorSheet } } });
+    
+                worksheet.views = [{ showGridLines: false }];
+    
+                worksheet.getRow(8).values = dataHeader;
+    
+                worksheet.columns = excelColum;
+    
+                worksheet.autoFilter = autoFilter;
+    
+                //Add data to rows
+                data.map(item => {
+                    worksheet.addRow(item)
+                })
+    
+    
+                // Process each row for beautification 
+                assignStyleToHeaders(worksheet);
+    
+                //autosize column width base on the content
+                autoSizeColumnSheet(worksheet)
+    
+                //Center image header banner depending on number of columns
+                addImageBannerHeaderSheet(worksheet, dataHeader, sheet, imageId2, logo1, logo2)
+    
+                await  workbook.xlsx.writeFile(path, { type: 'buffer', bookType: 'xlsx' })
+                .then(response => {
+                    console.log("file generated");
+                })
+                .catch(err => {
+                    console.log(err);
+                });
+    
             })
-
-
-            // Process each row for beautification 
-            assignStyleToHeaders(worksheet);
-
-            //autosize column width base on the content
-            autoSizeColumnSheet(worksheet)
-
-            //Center image header banner depending on number of columns
-            addImageBannerHeaderSheet(worksheet, dataHeader, sheet, imageId2, logo1, logo2)
-
-            await  workbook.xlsx.writeFile(path, { type: 'buffer', bookType: 'xlsx' })
-            .then(response => {
-                console.log("file generated");
-            })
-            .catch(err => {
-                console.log(err);
-            });
-
+         
         }
 
     } else {
