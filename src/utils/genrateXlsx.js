@@ -38,9 +38,10 @@ async function convertJsonToExcel(data, sheet, path, excelColum, colorSheet) {
     }
 
     if (isExistPath && dataHeader.length > 0) {
-        console.log(`Generating file ${sheet} ...`);
-       
-        workbook.xlsx.readFile(path).then(function(){
+        setTimeout(async()=>{
+          console.log(`Generating file ${sheet} ...`);
+          const readFile = await workbook.xlsx.readFile(path);
+          if(readFile){
             const autoFilter = addAutoFilter(dataHeader, 8)
             const worksheet = workbook.addWorksheet(sheet, { properties: { tabColor: { argb: colorSheet } } });
 
@@ -74,11 +75,11 @@ async function convertJsonToExcel(data, sheet, path, excelColum, colorSheet) {
             .catch(err => {
                 console.log(err);
             });
-
-        })
-         
+        }else{
+            console.log(`not able to readfile ${path}`)
+        }
+        },15000)
         
-
     } else {
         console.log(`Generating file ${sheet} ...`);
         if (dataHeader.length > 0) {
