@@ -33,7 +33,7 @@ async function generateAddaxDaylyRepport() {
   generateRepport("admin ADDAX", "rapport/Adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "Excès de Vitesse", firstHourDay, lastHourDay, reportTitleDate, "Excès de Vitesse");
 
  if(sender && receivers){
- setTimeout(() => {
+setTimeout(() => {
       sendMail(sender,receivers, pass, `EXCEPTION REPORT VEHICULES ADDAX PETROLEUM ${reportTitleDate}`, 'Bonjour Mr retrouvez en PJ le rapport Journalier de la flotte EXCEPTION-REPORT ', 'EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM', path.join(__dirname, `../../rapport/Adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM-${reportTitleDate}.xlsx`));
     }, 30000)  
 
@@ -43,10 +43,6 @@ async function generateAddaxDaylyRepport() {
 
 
 async function generateAddaxDaylyRepport22h06h() {
-  const test =[
-    { name: 'frank', address: 'franky.shity@camtrack.net' },
-     
-  ]
   const sender= await Senders('ADDAX PETROLEUM','E');
   const receivers=await Receivers('ADDAX PETROLEUM','D');
   const first22h6h = getFistAndLastHourDay22H06H();
