@@ -126,18 +126,4 @@ async function getRepportData(ressourceClient,template,client,from,to,subGroup){
 
 
 
-async function generateRepport(ressourceClient,path,template,client,sheet,from,to,reportTitleDate,subGroup,colorSheet){
-  const dataRepport = await getRepportData(ressourceClient,template,client,from,to,subGroup)
-  
-  if(dataRepport){
-     //console.log(dataRepport.obj);
-    const data=dataRepport.obj;
-    const columns=dataRepport.excelColum
-    convertJsonToExcel(data,sheet,`${path}-${reportTitleDate}.xlsx`,columns,colorSheet);
-  }else{
-    console.log(`no data found in ${template} ${subGroup}`);
-  }
-
-}
-
-module.exports={generateRepport,getRepportData,getRepportDataUnit}
+module.exports={getRepportData,getRepportDataUnit}

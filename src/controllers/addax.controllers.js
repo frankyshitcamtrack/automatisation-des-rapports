@@ -1,6 +1,6 @@
 const path = require('path');
 const cron = require('node-cron');
-const { generateRepport, getRepportData, getRepportDataUnit } = require('../models/models');
+const {getRepportData, getRepportDataUnit } = require('../models/models');
 const { getFirstAndLastDayMonth } = require('../utils/getFistDayAndLastDayMonth');
 const { getFistAndLastHourDay, getFistAndLastHourDay22H06H, getfirstAndLastHourDay48H } = require('../utils/getFirstAndLastHourDay');
 const { generateSyntheseSheetAddax, convertJsonToExcel } = require('../utils/generateExcelFile/genrateXlsx');
@@ -75,7 +75,7 @@ async function generateAddaxDaylyRepport() {
 .then(()=>{
     if (sender && receivers) {
       setTimeout(() => {
-        sendMail(sender, receivers, pass, EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM, `${EXCEPTION_REPORT_SUBJECT_MAIL}`,`${EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM}.xlsx`, path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
+        sendMail(sender,test,receivers, EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM, `${EXCEPTION_REPORT_SUBJECT_MAIL}`,`${EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM}.xlsx`, path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
       }, 30000)
     } 
   }) 
@@ -269,6 +269,7 @@ async function generateAddaxRepports() {
     timezone: "Africa/Lagos"
   });
 }
+
 
 
 
