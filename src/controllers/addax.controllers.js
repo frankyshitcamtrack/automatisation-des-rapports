@@ -17,6 +17,7 @@ const {ADDAX_NOT_AT_PARKING_SUBJECT_MAIL,EXCEPTION_REPORT_SUBJECT_MAIL,ACTIVITY_
 
 const test =[
   { name: 'frank', address: 'franky.shity@camtrack.net' },
+  { name: 'magnouvel', address: 'magnouvel.mekontso@camtrack.net' },
 ] 
 
 const pass = process.env.PASS_MAIL;
@@ -105,7 +106,7 @@ async function generateAddaxDaylyRepport22h06h() {
 .then(()=>{
   if (sender && receivers) {
     setTimeout(() => {
-      sendMail(sender, receivers, pass, LIST_OF_VEHICLES_NOT_AT_ADDAX_PARKING,`${ADDAX_NOT_AT_PARKING_SUBJECT_MAIL}`, `${LIST_OF_VEHICLES_NOT_AT_ADDAX_PARKING}.xlsx`, path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
+      sendMail(sender,test, pass, LIST_OF_VEHICLES_NOT_AT_ADDAX_PARKING,`${ADDAX_NOT_AT_PARKING_SUBJECT_MAIL}`, `${LIST_OF_VEHICLES_NOT_AT_ADDAX_PARKING}.xlsx`, path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
     }, 30000)
   }  
  }) 
@@ -245,7 +246,7 @@ async function AddaxMonthlyRepportSynthese() {
 
   if (sender && receivers) {
     setTimeout(() => {
-      sendMail(sender,receivers, pass,`${ACTIVITY_REPORT_OF_ADDAX_PETROLEUM}`,`${ACTIVITY_REPORT_SUBJECT_MAIL}`,`${ACTIVITY_REPORT_SUBJECT_MAIL}.xlsx`, path.join(__dirname, `../../${pathFile}-${reportTitleDate}.xlsx`));
+      sendMail(sender,test, pass,`${ACTIVITY_REPORT_OF_ADDAX_PETROLEUM}`,`${ACTIVITY_REPORT_SUBJECT_MAIL}`,`${ACTIVITY_REPORT_SUBJECT_MAIL}.xlsx`, path.join(__dirname, `../../${pathFile}-${reportTitleDate}.xlsx`));
     }, 30000)
   } 
 }
@@ -254,6 +255,9 @@ async function AddaxMonthlyRepportSynthese() {
 
 
 async function generateAddaxRepports() {  
+  await generateAddaxDaylyRepport();
+  await generateAddaxDaylyRepport22h06h();
+  await generateAddaxMonthlyRepport();
   cron.schedule('30 6 * * *', async () => {
     await generateAddaxDaylyRepport();
     await generateAddaxDaylyRepport22h06h();
