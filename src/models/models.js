@@ -1,7 +1,7 @@
 const {generateReportGlobal}=require('../services/services');
 const {convertArrayObject}=require('../utils/ArrToObject');
 const {changeObjectKeys}=require('../utils/changeObjectKeys');
-const {convertJsonToExcel}=require('../utils/genrateXlsx');
+const {convertJsonToExcel}=require('../utils/generateExcelFile/genrateXlsx');
 const {changePropertiesDateTOLocal}= require('../utils/convertDatePropertiesToLocaltime');
 const {removeProperties}= require('../utils/removeProperties');
 const {changeHeaderToColum}= require('../utils/changeHeaderToColum')
@@ -63,13 +63,13 @@ async function getRepportDataUnit(ressourceClient,template,client,from,to,subGro
 
 
 async function getRepportData(ressourceClient,template,client,from,to,subGroup){
-
    let items=[];
    let repportDetail;
    let group;
-   const generateRepport =await generateReportGlobal(ressourceClient,template,client,from,to,subGroup);
+   const generateRepport = await generateReportGlobal(ressourceClient,template,client,from,to,subGroup);
    
   if(generateRepport){
+  
      repportDetail = generateRepport.repportDetail;
      group = generateRepport.group;
      if(repportDetail && group){
@@ -118,7 +118,6 @@ async function getRepportData(ressourceClient,template,client,from,to,subGroup){
       //replaceProps(obj,"Grouping","Véhicules");
       
       return {obj,excelColum}
-      
      }
 
    }
@@ -131,7 +130,7 @@ async function generateRepport(ressourceClient,path,template,client,sheet,from,t
   const dataRepport = await getRepportData(ressourceClient,template,client,from,to,subGroup)
   
   if(dataRepport){
-    //console.log(dataRepport.obj);
+     //console.log(dataRepport.obj);
     const data=dataRepport.obj;
     const columns=dataRepport.excelColum
     convertJsonToExcel(data,sheet,`${path}-${reportTitleDate}.xlsx`,columns,colorSheet);
