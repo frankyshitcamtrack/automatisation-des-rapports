@@ -64,7 +64,6 @@ async function generateReportGlobal(reportResource, reportTemplate, reportObject
 
     if (sid) {
         const reportResourceAndTemplateId = await vehicleRessourceAndTemplateId(reportResource, reportTemplate, sid);
-
         reportObjectId = await vehicleGroupRessourceId(reportObject, sid);
         reportResourceId = reportResourceAndTemplateId.ressourceId;
         reportTemplateId = reportResourceAndTemplateId.reportTemplateId;
@@ -72,10 +71,10 @@ async function generateReportGlobal(reportResource, reportTemplate, reportObject
 
     if (reportResourceId && reportTemplateId && reportObjectId) {
         const generateReport = await axios.get(`${baseUrl}svc=report/exec_report&params={"reportResourceId":${reportResourceId},"reportTemplateId":${reportTemplateId},"reportObjectId":${reportObjectId},"reportObjectSecId":0,"interval":{"from":${from},"to":${to},"flags":0}}&sid=${sid}`)
-            .then(res =>res.data)
+            .then(res => res.data)
             .catch(err => console.log(err))
 
-        if (generateReport && generateReport.reportResult && generateReport.reportResult.tables) {
+        if (generateReport?.reportResult?.tables) {
             let tableIndex;
             let row;
             let level;
@@ -83,7 +82,6 @@ async function generateReportGlobal(reportResource, reportTemplate, reportObject
             const tables = generateReport.reportResult.tables;
             
             if (tables.length > 0) {
-                //console.log(tables)
                 if (subRepport) {
                     tableIndex = tables.findIndex(data => data.label === subRepport);
                   
