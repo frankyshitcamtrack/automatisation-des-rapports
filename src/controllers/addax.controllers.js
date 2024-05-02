@@ -1,114 +1,192 @@
 const path = require('path');
+const cron = require('node-cron');
 const { generateRepport, getRepportData, getRepportDataUnit } = require('../models/models');
 const { getFirstAndLastDayMonth } = require('../utils/getFistDayAndLastDayMonth');
 const { getFistAndLastHourDay, getFistAndLastHourDay22H06H, getfirstAndLastHourDay48H } = require('../utils/getFirstAndLastHourDay');
-const { generateSyntheseSheetAddax } = require('../utils/genrateXlsx');
+const { generateSyntheseSheetAddax, convertJsonToExcel } = require('../utils/generateExcelFile/genrateXlsx');
 const { getDate } = require('../utils/getDateProps');
 const { filterData48h } = require('../utils/filterDataBetween22H6H');
 const { Receivers } = require('../storage/mailReceivers.storage');
 const { Senders } = require('../storage/mailSender.storage')
 const { sendMail } = require('../utils/sendMail');
-const cron = require('node-cron');
+const {ADDAX_PETROLEUM}=require('../constants/clients');
+const {ADMIN_ADDAX}=require('../constants/ressourcesClient');
+const {ACTIVITY_REPORT_OF_ADDAX_PETROLEUM,LIST_OF_VEHICLES_NOT_AT_ADDAX_PARKING,EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM} =require('../constants/template');
+const {SYNTHESE,ACTIVITY_CARS,EXCEPTIONS,SOMMAIRE,NOT_AT_PARKED,ECO_CONDUITE,EXCES_DE_VITESSE,EXCESSIVE_IDLE}=require('../constants/subGroups');
+const {ADDAX_NOT_AT_PARKING_SUBJECT_MAIL,EXCEPTION_REPORT_SUBJECT_MAIL,ACTIVITY_REPORT_SUBJECT_MAIL}=require('../constants/mailSubjects');
 
-
+const test =[
+  { name: 'frank', address: 'franky.shity@camtrack.net' },
+] 
 
 const pass = process.env.PASS_MAIL;
 
 
-
 async function generateAddaxDaylyRepport() {
-  const sender = await Senders('ADDAX PETROLEUM', 'E');
-  /*  const test =[
-     { name: 'frank', address: 'franky.shity@camtrack.net' },
-      {name:'mag',address:'magnouvel.mekontso@camtrack.net'}
-   ] */
-  const receivers = await Receivers('ADDAX PETROLEUM', 'D');
+  const sender = await Senders(ADDAX_PETROLEUM, 'E');
+  const receivers = await Receivers(ADDAX_PETROLEUM, 'D');
   const fistAndLastHourDay = getFistAndLastHourDay();
   const firstHourDay = fistAndLastHourDay.firstHourDayTimestamp;
   const lastHourDay = fistAndLastHourDay.lastHourDayTimestamp;
-  const reportTitleDate = fistAndLastHourDay.dateTitle;
+  const titleDate = fistAndLastHourDay.dateTitle;
+  const pathFile = "rapport/Adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM";
 
-  generateRepport("admin ADDAX", "rapport/Adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "Excessive Idle", firstHourDay, lastHourDay, reportTitleDate, "Excessive Idle");
-  generateRepport("admin ADDAX", "rapport/Adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "Éco-conduite", firstHourDay, lastHourDay, reportTitleDate, "Éco-conduite");
-  generateRepport("admin ADDAX", "rapport/Adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "Excès de Vitesse", firstHourDay, lastHourDay, reportTitleDate, "Excès de Vitesse");
+  await getRepportData(ADMIN_ADDAX,EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM,ADDAX_PETROLEUM,firstHourDay,lastHourDay,EXCESSIVE_IDLE)
+  .then(async (res)=>{
+    const objLenth=res?.obj.length;
+    if(objLenth>0){
+      const data= res.obj;
+      const column=res.excelColum;
+      await convertJsonToExcel(data,EXCESSIVE_IDLE,`${pathFile}-${titleDate}.xlsx`,column);
+    }else{
+      console.log(`no data found in ${EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM} ${EXCESSIVE_IDLE}`);
+    }
+  })
 
-  if (sender && receivers) {
-    setTimeout(() => {
-      sendMail(sender, receivers, pass, `EXCEPTION REPORT VEHICULES ADDAX PETROLEUM ${reportTitleDate}`, 'Bonjour Mr retrouvez en PJ le rapport Journalier de la flotte EXCEPTION-REPORT ', 'EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM', path.join(__dirname, `../../rapport/Adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM-${reportTitleDate}.xlsx`));
-    }, 60000)
+  .then(async ()=>{
+    await getRepportData(ADMIN_ADDAX,EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM,ADDAX_PETROLEUM,firstHourDay,lastHourDay,ECO_CONDUITE)
+    .then(async (res)=>{
+      const objLenth=res?.obj.length;
+      if(objLenth>0){
+        const data= res.obj;
+        const column=res.excelColum;
+        await convertJsonToExcel(data,ECO_CONDUITE,`${pathFile}-${titleDate}.xlsx`,column);
+      }else{
+        console.log(`no data found in ${EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM} ${ECO_CONDUITE}`);
+      }
+    }) 
+    .catch(err => console.log(err))
+  })
 
-  }
+  .then(async()=>{
+    await getRepportData(ADMIN_ADDAX,EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM,ADDAX_PETROLEUM,firstHourDay,lastHourDay,EXCES_DE_VITESSE)
+    .then(async(res)=>{
+      const objLenth=res?.obj.length;
+      if(objLenth>0){
+        const data= res.obj;
+        const column=res.excelColum;
+        await convertJsonToExcel(data,EXCES_DE_VITESSE,`${pathFile}-${titleDate}.xlsx`,column);
+      }else{
+        console.log(`no data found in ${EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM} ${EXCES_DE_VITESSE}`);
+      }
+    }).catch(err => console.log(err))
+  })
 
+.then(()=>{
+    if (sender && receivers) {
+      setTimeout(() => {
+        sendMail(sender, receivers, pass, EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM, `${EXCEPTION_REPORT_SUBJECT_MAIL}`,`${EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM}.xlsx`, path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
+      }, 30000)
+    } 
+  }) 
+ .catch(err => console.log(err))
 }
 
 
 async function generateAddaxDaylyRepport22h06h() {
-  const sender = await Senders('ADDAX PETROLEUM', 'E');
-  const receivers = await Receivers('ADDAX PETROLEUM', 'D');
+  const sender = await Senders(ADDAX_PETROLEUM, 'E');
+  const receivers = await Receivers(ADDAX_PETROLEUM, 'D');
   const first22h6h = getFistAndLastHourDay22H06H();
   const firstHour = first22h6h.firstHourDayTimestamp06h;
   const lastHour = first22h6h.lastHourDayTimestamp22h;
   const titleDate = first22h6h.dateTitle;
+  const pathFile="rapport/Adax/LIST-OF-VEHICLES-NOT-AT-ADDAX-PARKING";
 
-  generateRepport("admin ADDAX", "rapport/Adax/LIST-OF-VEHICLES-NOT-AT-ADDAX-PARKING", "LIST-OF-VEHICLES-NOT AT-ADDAX-PARKING", "ADDAX PETROLEUM", "Not at Parked", firstHour, lastHour, titleDate, "Not at Parked");
-
+ await getRepportData(ADMIN_ADDAX,LIST_OF_VEHICLES_NOT_AT_ADDAX_PARKING,ADDAX_PETROLEUM,firstHour,lastHour,NOT_AT_PARKED)
+ .then(async (res)=>{
+  if(res.obj.length>0){
+    const data= res.obj;
+    const column=res.excelColum;
+    await convertJsonToExcel(data,NOT_AT_PARKED,`${pathFile}-${titleDate}.xlsx`,column);
+  }else{
+    console.log(`no data found in ${LIST_OF_VEHICLES_NOT_AT_ADDAX_PARKING} ${NOT_AT_PARKED}`);
+  }
+ })
+.then(()=>{
   if (sender && receivers) {
     setTimeout(() => {
-      sendMail(sender, receivers, pass, 'LIST-OF-VEHICLES-NOT AT-ADDAX-PARKING', 'Bonjour Mr retrouvez en PJ le rapport Journalier de la flotte Not at parking ', 'EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM.xlsx', path.join(__dirname, `../../rapport/Adax/LIST-OF-VEHICLES-NOT-AT-ADDAX-PARKING-${titleDate}.xlsx`));
-    }, 60000)
-  }
+      sendMail(sender, receivers, pass, LIST_OF_VEHICLES_NOT_AT_ADDAX_PARKING,`${ADDAX_NOT_AT_PARKING_SUBJECT_MAIL}`, `${LIST_OF_VEHICLES_NOT_AT_ADDAX_PARKING}.xlsx`, path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
+    }, 30000)
+  }  
+ }) 
+ .catch(err => console.log(err))
 }
 
-
-/* 
- function generateAddax48HAddaxRepport() {
-  const twoDaysAgoParams = getfirstAndLastHourDay48H();
-
-  const firstHourDay = twoDaysAgoParams.firstHourDayTimestamp48H;
-  const lastHourDay = twoDaysAgoParams.lastHourDayTimestamp48H;
-  const titleDate = twoDaysAgoParams.dateTitle;
-
-  const data = await getRepportData("admin ADDAX", "LIST-OF-VEHICLES-NOT AT-ADDAX-PARKING", "ADDAX PETROLEUM", firstHourDay, lastHourDay, "Not at Parked");
-
-  if (data) {
-    const dataFilter = filterData48h(data.obj);
-    return dataFilter;
-  }
-} */
 
 async function generateAddaxMonthlyRepport() {
   const firstDayLastDayMonth = getFirstAndLastDayMonth();
 
   const firstDayMonth = firstDayLastDayMonth.firstDayTimestamp;
   const lastDayMonth = firstDayLastDayMonth.lastDayTimestamp;
-  const reportTitleDate = firstDayLastDayMonth.dateTitle
+  const titleDate = firstDayLastDayMonth.dateTitle
+  const pathFile ="rapport/Adax/ACTIVITY-REPORT-OF-ADDAX-PETROLEUM";
 
-  generateRepport("admin ADDAX", "rapport/Adax/ACTIVITY-REPORT-OF-ADDAX-PETROLEUM", "ACTIVITY-REPORT-OF-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "SOMMAIRE", firstDayMonth, lastDayMonth, reportTitleDate, "SOMMAIRE", "008000");
 
-  generateRepport("admin ADDAX", "rapport/Adax/ACTIVITY-REPORT-OF-ADDAX-PETROLEUM", "ACTIVITY-REPORT-OF-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "ACTIVITY CARS", firstDayMonth, lastDayMonth, reportTitleDate, "ACTIVITY CARS", 'ff0000');
+  getRepportData(ADMIN_ADDAX,ACTIVITY_REPORT_OF_ADDAX_PETROLEUM,ADDAX_PETROLEUM,firstDayMonth,lastDayMonth,SOMMAIRE)
+  .then(async(res)=>{
+    const objLenth=res.obj.length;
+    if(objLenth>0){
+      const data= res.obj;
+      const column=res.excelColum;
+      const sheetName="SOMMAIRE"
+      await convertJsonToExcel(data,sheetName,`${pathFile }-${titleDate}.xlsx`,column,"008000");
+    }else{
+      console.log(`no data found in ${ACTIVITY_REPORT_OF_ADDAX_PETROLEUM} ${SOMMAIRE}`);
+    }
+  })
 
-  generateRepport("admin ADDAX", "rapport/Adax/ACTIVITY-REPORT-OF-ADDAX-PETROLEUM", "ACTIVITY-REPORT-OF-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "EXCEPTIONS", firstDayMonth, lastDayMonth, reportTitleDate, "EXCEPTIONS", "808080");
+  .then(async()=>{
+    await getRepportData(ADMIN_ADDAX,ACTIVITY_REPORT_OF_ADDAX_PETROLEUM, ADDAX_PETROLEUM, firstDayMonth, lastDayMonth,ACTIVITY_CARS)
+    .then(async (res)=>{
+      const objLenth=res.obj.length;
+      if(objLenth>0){
+        const data = res.obj;
+        const column =res.excelColum;
+        const sheetName="ACTIVITY CARS"
+        await convertJsonToExcel(data,sheetName,`${pathFile }-${titleDate}.xlsx`,column,"ff0000");
+      }else{
+        console.log(`no data found in ${ACTIVITY_REPORT_OF_ADDAX_PETROLEUM} ${ACTIVITY_CARS}`);
+      }
+    }).catch(err => console.log(err))
+  })
 
-  setTimeout(() => {
+  .then(async()=>{
+    await getRepportData(ADMIN_ADDAX,ACTIVITY_REPORT_OF_ADDAX_PETROLEUM,ADDAX_PETROLEUM,firstDayMonth,lastDayMonth,EXCEPTIONS)
+    .then(async (res)=>{
+      const objLenth=res.obj.length;
+      if(objLenth>0){
+        const data = res.obj;
+        const column = res.excelColum;
+        const sheetName="EXCEPTIONS";
+        await convertJsonToExcel(data,sheetName,`${pathFile }-${titleDate}.xlsx`,column,"808080");
+      }else{
+        console.log(`no data found in ${ACTIVITY_REPORT_OF_ADDAX_PETROLEUM} ${EXCEPTIONS}`);
+      }
+    }).catch(err => console.log(err))
+  })
+
+  .then(()=>{
     AddaxMonthlyRepportSynthese();
-  }, 5000)
+  })
+  .catch(err => console.log(err))
 }
 
 
 
-
 async function AddaxMonthlyRepportSynthese() {
-  const sender = await Senders('ADDAX PETROLEUM', 'E');
-  const receivers = await Receivers('ADDAX PETROLEUM', 'D');
+  const sender = await Senders(ADDAX_PETROLEUM, 'E');
+  const receivers = await Receivers(ADDAX_PETROLEUM, 'D');
+
   const firstDayLastDayMonth = getFirstAndLastDayMonth();
+  const pathFile ='rapport/Adax/ACTIVITY-REPORT-OF-ADDAX-PETROLEUM'
 
   const firstDayMonth = firstDayLastDayMonth.firstDayTimestamp;
   const lastDayMonth = firstDayLastDayMonth.lastDayTimestamp;
   const reportTitleDate = firstDayLastDayMonth.dateTitle
 
-  const sommaireData = await getRepportData("admin ADDAX", "ACTIVITY-REPORT-OF-ADDAX-PETROLEUM", "ADDAX PETROLEUM", firstDayMonth, lastDayMonth, "SOMMAIRE");
-  const syntheseData = await getRepportData("admin ADDAX", "SYNTHESE", "ADDAX PETROLEUM", firstDayMonth, lastDayMonth, "Total number of vehicle/véhicle communicating");
-  const speedingData = await getRepportDataUnit("admin ADDAX", "EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "ADDAX PETROLEUM", firstDayMonth, lastDayMonth, "Excès de Vitesse")
+  const sommaireData = await getRepportData(ADMIN_ADDAX, ACTIVITY_REPORT_OF_ADDAX_PETROLEUM, ADDAX_PETROLEUM, firstDayMonth, lastDayMonth, SOMMAIRE);
+  const syntheseData = await getRepportData(ADMIN_ADDAX,SYNTHESE, ADDAX_PETROLEUM, firstDayMonth, lastDayMonth, "Total number of vehicle/véhicle communicating");
+  const speedingData = await getRepportDataUnit(ADMIN_ADDAX, EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM, ADDAX_PETROLEUM, firstDayMonth, lastDayMonth, EXCES_DE_VITESSE)
 
   let totalVehicle;
   let TotalVehiculCom;
@@ -146,14 +224,11 @@ async function AddaxMonthlyRepportSynthese() {
     TotalVehiculCom = vehiculCom.length;
   }
 
-
   if (speedingData) {
     const speedingArr = speedingData.obj;
     const overSpeedVehicleArr = speedingArr.filter(item => parseInt(item['Vitesse maxi']) > 110);
     numberSpeedingVehicle = overSpeedVehicleArr.length;
   }
-
-
 
   const resultTotal = {
     'Total Number of Vehicle': totalVehicle,
@@ -166,22 +241,22 @@ async function AddaxMonthlyRepportSynthese() {
     'max Speed': vitesseMax
   }
 
-
-  generateSyntheseSheetAddax(resultTotal, `rapport/Adax/ACTIVITY-REPORT-OF-ADDAX-PETROLEUM-${reportTitleDate}.xlsx`, "SYNTHESE");
+  generateSyntheseSheetAddax(resultTotal, `${pathFile}-${reportTitleDate}.xlsx`,SYNTHESE);
 
   if (sender && receivers) {
     setTimeout(() => {
-      sendMail(sender, receivers, pass, 'Monthly ACTIVITY REPORT OF ADDAX PETROLEUM', 'Bonjour Mr retrouvez en PJ le rapport Mensuel de la flotte ACTIVITY-REPORT-OF-ADDAX-PETROLEUM ', 'ACTIVITY-REPORT-OF-ADDAX-PETROLEUM', path.join(__dirname, `../../rapport/Adax/ACTIVITY-REPORT-OF-ADDAX-PETROLEUM-${reportTitleDate}.xlsx`));
+      sendMail(sender,receivers, pass,`${ACTIVITY_REPORT_OF_ADDAX_PETROLEUM}`,`${ACTIVITY_REPORT_SUBJECT_MAIL}`,`${ACTIVITY_REPORT_SUBJECT_MAIL}.xlsx`, path.join(__dirname, `../../${pathFile}-${reportTitleDate}.xlsx`));
     }, 30000)
-  }
+  } 
 }
 
 
 
-async function generateAddaxRepports() {
+
+async function generateAddaxRepports() {  
   cron.schedule('30 6 * * *', async () => {
     await generateAddaxDaylyRepport();
-    //generateAddaxDaylyRepport22h06h();
+    await generateAddaxDaylyRepport22h06h();
   }, {
     scheduled: true,
     timezone: "Africa/Lagos"
@@ -195,6 +270,23 @@ async function generateAddaxRepports() {
   });
 }
 
+
+
+/* 
+ function generateAddax48HAddaxRepport() {
+  const twoDaysAgoParams = getfirstAndLastHourDay48H();
+
+  const firstHourDay = twoDaysAgoParams.firstHourDayTimestamp48H;
+  const lastHourDay = twoDaysAgoParams.lastHourDayTimestamp48H;
+  const titleDate = twoDaysAgoParams.dateTitle;
+
+  const data = await getRepportData(ADMIN_ADDAX, LIST_OF_VEHICLES_NOT_AT_ADDAX_PARKING, ADDAX_PETROLEUM, firstHourDay, lastHourDay, "Not at Parked");
+
+  if (data) {
+    const dataFilter = filterData48h(data.obj);
+    return dataFilter;
+  }
+} */
 
 
 module.exports = { generateAddaxRepports }

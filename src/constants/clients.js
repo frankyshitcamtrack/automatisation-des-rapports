@@ -1,0 +1,5 @@
+const ADDAX_PETROLEUM="ADDAX PETROLEUM"
+
+
+
+module.exports={ ADDAX_PETROLEUM }

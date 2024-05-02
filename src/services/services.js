@@ -64,7 +64,6 @@ async function generateReportGlobal(reportResource, reportTemplate, reportObject
 
     if (sid) {
         const reportResourceAndTemplateId = await vehicleRessourceAndTemplateId(reportResource, reportTemplate, sid);
-
         reportObjectId = await vehicleGroupRessourceId(reportObject, sid);
         reportResourceId = reportResourceAndTemplateId.ressourceId;
         reportTemplateId = reportResourceAndTemplateId.reportTemplateId;
@@ -75,7 +74,7 @@ async function generateReportGlobal(reportResource, reportTemplate, reportObject
             .then(res => res.data)
             .catch(err => console.log(err))
 
-        if (generateReport) {
+        if (generateReport?.reportResult?.tables) {
             let tableIndex;
             let row;
             let level;
@@ -83,7 +82,6 @@ async function generateReportGlobal(reportResource, reportTemplate, reportObject
             const tables = generateReport.reportResult.tables;
             
             if (tables.length > 0) {
-                //console.log(tables)
                 if (subRepport) {
                     tableIndex = tables.findIndex(data => data.label === subRepport);
                   
