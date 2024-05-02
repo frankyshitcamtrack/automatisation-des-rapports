@@ -28,16 +28,17 @@ async function generateAddaxDaylyRepport() {
   const lastHourDay = fistAndLastHourDay.lastHourDayTimestamp;
   const reportTitleDate = fistAndLastHourDay.dateTitle;
 
+
   generateRepport("admin ADDAX", "rapport/Adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "Excessive Idle", firstHourDay, lastHourDay, reportTitleDate, "Excessive Idle");
   generateRepport("admin ADDAX", "rapport/Adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "Éco-conduite", firstHourDay, lastHourDay, reportTitleDate, "Éco-conduite");
   generateRepport("admin ADDAX", "rapport/Adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM", "ADDAX PETROLEUM", "Excès de Vitesse", firstHourDay, lastHourDay, reportTitleDate, "Excès de Vitesse");
 
-  if (sender && receivers) {
+ if (sender && receivers) {
     setTimeout(() => {
       sendMail(sender, receivers, pass, `EXCEPTION REPORT VEHICULES ADDAX PETROLEUM ${reportTitleDate}`, 'Bonjour Mr retrouvez en PJ le rapport Journalier de la flotte EXCEPTION-REPORT ', 'EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM', path.join(__dirname, `../../rapport/Adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM-${reportTitleDate}.xlsx`));
     }, 60000)
 
-  }
+  } 
 
 }
 
@@ -179,6 +180,7 @@ async function AddaxMonthlyRepportSynthese() {
 
 
 async function generateAddaxRepports() {
+  await generateAddaxDaylyRepport();
   cron.schedule('30 6 * * *', async () => {
     await generateAddaxDaylyRepport();
     //generateAddaxDaylyRepport22h06h();

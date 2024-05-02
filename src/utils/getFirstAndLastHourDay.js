@@ -28,7 +28,6 @@ function getFistAndLastHourDay(){
     let startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
     let firstHourDayFormat=dateFormatMinusOneDay(startOfDay);
-    
     let firstHourDayTimestamp =convertDateToTimeStamp(firstHourDayFormat);
 
     let endofDay = new Date();

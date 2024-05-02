@@ -72,10 +72,10 @@ async function generateReportGlobal(reportResource, reportTemplate, reportObject
 
     if (reportResourceId && reportTemplateId && reportObjectId) {
         const generateReport = await axios.get(`${baseUrl}svc=report/exec_report&params={"reportResourceId":${reportResourceId},"reportTemplateId":${reportTemplateId},"reportObjectId":${reportObjectId},"reportObjectSecId":0,"interval":{"from":${from},"to":${to},"flags":0}}&sid=${sid}`)
-            .then(res => res.data)
+            .then(res =>res.data)
             .catch(err => console.log(err))
 
-        if (generateReport) {
+        if (generateReport && generateReport.reportResult && generateReport.reportResult.tables) {
             let tableIndex;
             let row;
             let level;

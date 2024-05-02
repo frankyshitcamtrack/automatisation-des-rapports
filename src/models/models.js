@@ -70,7 +70,6 @@ async function getRepportData(ressourceClient,template,client,from,to,subGroup){
    const generateRepport =await generateReportGlobal(ressourceClient,template,client,from,to,subGroup);
    
   if(generateRepport){
-  
      repportDetail = generateRepport.repportDetail;
      group = generateRepport.group;
      if(repportDetail && group){
@@ -132,7 +131,7 @@ async function generateRepport(ressourceClient,path,template,client,sheet,from,t
   const dataRepport = await getRepportData(ressourceClient,template,client,from,to,subGroup)
   
   if(dataRepport){
-     //console.log(dataRepport.obj);
+    //console.log(dataRepport.obj);
     const data=dataRepport.obj;
     const columns=dataRepport.excelColum
     convertJsonToExcel(data,sheet,`${path}-${reportTitleDate}.xlsx`,columns,colorSheet);
