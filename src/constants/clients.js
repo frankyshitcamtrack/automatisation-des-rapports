@@ -1,5 +1,6 @@
 const ADDAX_PETROLEUM="ADDAX PETROLEUM"
+const PERENCO ="PERENCO(TAM)"
 
 
 
-module.exports={ ADDAX_PETROLEUM }
+module.exports={ ADDAX_PETROLEUM,PERENCO }

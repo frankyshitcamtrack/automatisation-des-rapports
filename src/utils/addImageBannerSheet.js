@@ -5,7 +5,7 @@ const cols = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', '
 
 function addLogos(worksheet, headerColArr, logo1, logo2) {
     const arrLength = headerColArr.length;
-    const lastImgPosition = arrLength - 1;
+    const lastImgPosition = arrLength-1;
     worksheet.addImage(logo1, { tl: { col: 0, row: 0 }, ext: { width: 100, height: 100 }, editAs: 'oneCell' });
     worksheet.addImage(logo2, { tl: { col: lastImgPosition, row: 0 }, ext: { width: 100, height: 100 }, editAs: 'oneCell' });
 
@@ -39,20 +39,23 @@ function addImageBannerHeaderSheet(worksheet, headerColArr, sheet, banner, logo1
 
 function perencoHeaderSheet(worksheet, headerColArr, sheet, logo1, logo2) {
     const addLogo = addLogos(worksheet, headerColArr, logo1, logo2);
-    const title = [`${cols[1]}2`, `${cols[addLogo - 1]}2`];
+    const title = [`${cols[1]}1`,`${cols[1]}2`,`${cols[1]}3`,`${cols[1]}4`,`${cols[addLogo-3]}1`,`${cols[addLogo-3]}2` ,`${cols[addLogo-3]}3`,`${cols[addLogo-3]}4`];
 
-    worksheet.mergeCells(title[0], title[1]);
+    worksheet.mergeCells(title[1],title[7]);
+   
 
-    const titleCell = worksheet.getCell(title[0]);
+    const titleCell = worksheet.getCell(title[1]);
+
 
     titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
     titleCell.font = { name: 'calibri', size: 15, bold: true, color: { argb: 'FFFFFF' } };
     titleCell.fill = {
         type: 'pattern',
         pattern: 'solid',
-        fgColor: { argb: "#77AAFF" }
+        fgColor: { argb: "5c9bd5" }
     }
 
+    
     titleCell.value = getTitleHeaderSheetPerenco(sheet);
 }
 

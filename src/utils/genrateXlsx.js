@@ -1,8 +1,8 @@
 const fs = require('fs');
 
 const XLSX = require('exceljs');
-const { addImageBannerHeaderSheet } = require('../addImageBannerSheet')
-const { prepareSheet } = require('../prepareSheet')
+const { addImageBannerHeaderSheet,perencoHeaderSheet } = require('./addImageBannerSheet')
+const { prepareSheet } = require('./prepareSheet')
 
 
 async function convertJsonToExcel(data, sheet, path, excelColum, colorSheet) {
@@ -381,7 +381,78 @@ async function generateSyntheseSheetAddax(data, path, sheet) {
 }
 
 
+async function perencoXlsx(data, sheet, path, excelColum, colorSheet) {
+    const dataHeader = []
+
+    const isExistPath = fs.existsSync(path);
+
+    let workbook = new XLSX.Workbook();
+
+    const logo1 = workbook.addImage({
+        buffer: fs.readFileSync('rapport/Perenco/assets/tractafric.png'),
+        extension: 'png',
+    });
+
+    const logo2 = workbook.addImage({
+        buffer: fs.readFileSync('rapport/Perenco/assets/perenco.png'),
+        extension: 'png',
+    });
+
+    if (excelColum) {
+        excelColum.map(item => {
+            dataHeader.push(item.key);
+        })
+    }
+
+    if (dataHeader.length > 0) {
+        if (isExistPath) {
+            setTimeout(async () => {
+                console.log(`Generating file ${sheet} ...`);
+                const readFile = await workbook.xlsx.readFile(path);
+                if (readFile) {
+                    const worksheet = workbook.addWorksheet(sheet, { properties: { tabColor: { argb: colorSheet } } });
+
+                    prepareSheet(worksheet, data, dataHeader, excelColum);
+
+                    //Center image header banner depending on number of columns
+                    perencoHeaderSheet(worksheet, dataHeader, sheet, logo1, logo2)
+
+                    // Export excel generated file
+                    workbook.xlsx.writeFile(path, { type: 'buffer', bookType: 'xlsx' })
+                        .then(response => {
+                            console.log("file generated");
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        });
+                }
+            }, 15000)
+
+        }else{
+            console.log(`Generating file ${sheet} ...`);
+
+            // creation of new sheet
+            const worksheet = workbook.addWorksheet(sheet, { properties: { tabColor: { argb: colorSheet } } });
+
+            prepareSheet(worksheet, data, dataHeader, excelColum);
+
+            //Center image header banner depending on number of columns
+            perencoHeaderSheet(worksheet, dataHeader, sheet,logo1, logo2);
+
+            // Export excel generated file
+             workbook.xlsx.writeFile(path, { type: 'buffer', bookType: 'xlsx' })
+                .then(response => {
+                    console.log("file generated");
+                })
+                .catch(err => {
+                    console.log(err);
+                });
+        }
+    }
+}
 
 
 
-module.exports = { convertJsonToExcel, generateSyntheseSheetAddax }
+
+
+module.exports = { convertJsonToExcel, generateSyntheseSheetAddax,perencoXlsx }

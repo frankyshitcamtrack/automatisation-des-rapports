@@ -3,7 +3,7 @@ const cron = require('node-cron');
 const {getRepportData, getRepportDataUnit } = require('../models/models');
 const { getFirstAndLastDayMonth } = require('../utils/getFistDayAndLastDayMonth');
 const { getFistAndLastHourDay, getFistAndLastHourDay22H06H, getfirstAndLastHourDay48H } = require('../utils/getFirstAndLastHourDay');
-const { generateSyntheseSheetAddax, convertJsonToExcel } = require('../utils/generateExcelFile/genrateXlsx');
+const { generateSyntheseSheetAddax, convertJsonToExcel } = require('../utils/genrateXlsx');
 const { getDate } = require('../utils/getDateProps');
 const { filterData48h } = require('../utils/filterDataBetween22H6H');
 const { Receivers } = require('../storage/mailReceivers.storage');
@@ -255,9 +255,6 @@ async function AddaxMonthlyRepportSynthese() {
 
 
 async function generateAddaxRepports() {  
-  await generateAddaxDaylyRepport();
-  await generateAddaxDaylyRepport22h06h();
-  await generateAddaxMonthlyRepport();
   cron.schedule('30 6 * * *', async () => {
     await generateAddaxDaylyRepport();
     await generateAddaxDaylyRepport22h06h();

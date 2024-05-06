@@ -1,7 +1,7 @@
 const {generateReportGlobal}=require('../services/services');
 const {convertArrayObject}=require('../utils/ArrToObject');
 const {changeObjectKeys}=require('../utils/changeObjectKeys');
-const {convertJsonToExcel}=require('../utils/generateExcelFile/genrateXlsx');
+const {convertJsonToExcel}=require('../utils/genrateXlsx');
 const {changePropertiesDateTOLocal}= require('../utils/convertDatePropertiesToLocaltime');
 const {removeProperties}= require('../utils/removeProperties');
 const {changeHeaderToColum}= require('../utils/changeHeaderToColum')

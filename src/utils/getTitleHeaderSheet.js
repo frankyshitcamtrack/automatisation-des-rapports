@@ -27,9 +27,10 @@ function getTitleHeaderSheet(sheet){
     }
 }
 
+
 function getTitleHeaderSheetPerenco(sheet){
    switch(sheet){
-       case 'Éco driving':
+       case 'Eco driving':
           return 'RAPPORT DETAIL EXCEPTION JOURNALIER';
        break;
        case 'Conduite de NUIT':
@@ -38,15 +39,16 @@ function getTitleHeaderSheetPerenco(sheet){
        case 'Détail Trajet':
           return 'RAPPORT DETAIL TRAJET JOURNALIER';
        break;
-       case 'speeding':
+       case 'Speedings':
            return 'RAPPORT DETAIL EXES DE VITESSE JOURNALIER';
        break;
        case 'SYNTHESE':
           return 'RAPPORT D\'ACTIVITE JOURNALIER: SYNTHESE';
        break;
+       case 'Detail trajet':
+         return 'RAPPORT DETAIL TRAJET JOURNALIER';
        default:
          return sheet
-
    }
 }
 
