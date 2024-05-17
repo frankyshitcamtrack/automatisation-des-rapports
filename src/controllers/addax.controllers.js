@@ -76,7 +76,7 @@ async function generateAddaxDaylyRepport() {
 .then(()=>{
     if (sender && receivers) {
       setTimeout(() => {
-        sendMail(sender,test,pass, EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM, `${EXCEPTION_REPORT_SUBJECT_MAIL}`,`${EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM}.xlsx`, path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
+        sendMail(sender,receivers,pass, EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM, `${EXCEPTION_REPORT_SUBJECT_MAIL}`,`${EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM}.xlsx`, path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
       }, 30000)
     } 
   }) 
@@ -105,11 +105,12 @@ async function generateAddaxDaylyRepport22h06h() {
  })
 .then(()=>{
   if (sender && receivers) {
+    console.log(sender);
     setTimeout(() => {
-      sendMail(sender,test,pass, LIST_OF_VEHICLES_NOT_AT_ADDAX_PARKING,`${ADDAX_NOT_AT_PARKING_SUBJECT_MAIL}`,`${LIST_OF_VEHICLES_NOT_AT_ADDAX_PARKING}.xlsx`, path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
+      sendMail(sender,receivers,pass, LIST_OF_VEHICLES_NOT_AT_ADDAX_PARKING,`${ADDAX_NOT_AT_PARKING_SUBJECT_MAIL}`,`${LIST_OF_VEHICLES_NOT_AT_ADDAX_PARKING}.xlsx`, path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
     }, 30000)
   }  
- }) 
+ })  
  .catch(err => console.log(err))
 }
 
@@ -255,8 +256,6 @@ async function AddaxMonthlyRepportSynthese() {
 
 
 async function generateAddaxRepports() { 
-  await generateAddaxDaylyRepport();
-  await generateAddaxDaylyRepport22h06h();
   cron.schedule('30 6 * * *', async () => {
     await generateAddaxDaylyRepport();
     await generateAddaxDaylyRepport22h06h();

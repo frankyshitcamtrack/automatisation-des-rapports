@@ -9,7 +9,7 @@ const { sendMail } = require('../utils/sendMail');
 const {PERENCO}=require('../constants/clients');
 const {ADMIN_PERENCO}=require('../constants/ressourcesClient');
 const {RAPPORT_ACTIVITE_FLOTTE_PERENCO}=require('../constants/template');
-const { SPEEDING,ECO_DRIVING,DETAIL_TRAJET,CONDUITE_DE_NUIT,EXCES_DE_VITESSE,EXCES_DE_VITESSE_BASE_PERENCO,EXCES_DE_VITESSE_NAT3,EXCES_DE_VITESSE_VILLE,EXCES_DE_VITESSE_HORS_VILLE}=require('../constants/subGroups');
+const { SPEEDING,ECO_DRIVING,DETAIL_TRAJET,CONDUITE_DE_NUIT,EXCES_DE_VITESSE,SPEEDING_DETAIL,EXCES_DE_VITESSE_BASE_PERENCO,EXCES_DE_VITESSE_NAT3,EXCES_DE_VITESSE_VILLE,EXCES_DE_VITESSE_HORS_VILLE}=require('../constants/subGroups');
 
 
 async function generateDaylyRepportPerenco() {
@@ -68,7 +68,8 @@ async function generateDaylyRepportPerenco() {
         if(objLenth>0){
           const data= res.obj;
           const column=res.excelColum;
-          await perencoXlsx(data,EXCES_DE_VITESSE_NAT3,`${pathFile}-${titleDate}.xlsx`,column);
+          const filterData=data.filter((item)=>parseInt(item['Vitesse maxi'])>=81)
+          await perencoXlsx(filterData,SPEEDING_DETAIL,`${pathFile}-${titleDate}.xlsx`,column);
         }else{
           console.log(`no data found in ${RAPPORT_ACTIVITE_FLOTTE_PERENCO} ${EXCES_DE_VITESSE_NAT3}`);
         }
@@ -81,7 +82,8 @@ async function generateDaylyRepportPerenco() {
         if(objLenth>0){
           const data= res.obj;
           const column=res.excelColum;
-          await perencoXlsx(data,EXCES_DE_VITESSE_HORS_VILLE,`${pathFile}-${titleDate}.xlsx`,column);
+          const filterData=data.filter((item)=>parseInt(item['Vitesse maxi'])>=111)
+          await perencoXlsx(filterData,SPEEDING_DETAIL,`${pathFile}-${titleDate}.xlsx`,column);
         }else{
           console.log(`no data found in ${RAPPORT_ACTIVITE_FLOTTE_PERENCO} ${EXCES_DE_VITESSE_HORS_VILLE}`);
         }
@@ -94,7 +96,8 @@ async function generateDaylyRepportPerenco() {
         if(objLenth>0){
           const data= res.obj;
           const column=res.excelColum;
-          await perencoXlsx(data,EXCES_DE_VITESSE_BASE_PERENCO,`${pathFile}-${titleDate}.xlsx`,column);
+          const filterData=data.filter((item)=>parseInt(item['Vitesse maxi'])>=21)
+          await perencoXlsx(filterData,SPEEDING_DETAIL,`${pathFile}-${titleDate}.xlsx`,column);
         }else{
           console.log(`no data found in ${RAPPORT_ACTIVITE_FLOTTE_PERENCO} ${EXCES_DE_VITESSE_BASE_PERENCO}`);
         }
@@ -107,7 +110,8 @@ async function generateDaylyRepportPerenco() {
         if(objLenth>0){
           const data= res.obj;
           const column=res.excelColum;
-          await perencoXlsx(data,EXCES_DE_VITESSE_VILLE,`${pathFile}-${titleDate}.xlsx`,column);
+          const filterData=data.filter((item)=>parseInt(item['Vitesse maxi'])>=61)
+          await perencoXlsx(filterData,SPEEDING_DETAIL,`${pathFile}-${titleDate}.xlsx`,column);
         }else{
           console.log(`no data found in ${RAPPORT_ACTIVITE_FLOTTE_PERENCO} ${EXCES_DE_VITESSE_VILLE}`);
         }

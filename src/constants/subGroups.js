@@ -2,6 +2,7 @@
 const SYNTHESE = "SYNTHESE"
 const EXCES_DE_VITESSE="Excès de Vitesse"
 
+
 //Addax
 const EXCEPTIONS = "EXCEPTIONS"
 const ACTIVITY_CARS = "ACTIVITY CARS"
@@ -20,6 +21,7 @@ const EXCES_DE_VITESSE_NAT3="Excès de Vitesse NAT3"
 const EXCES_DE_VITESSE_VILLE="Excès de Vitesse Ville"
 const EXCES_DE_VITESSE_BASE_PERENCO="Excès de Vitesse BASE PERENCO"
 const EXCES_DE_VITESSE_HORS_VILLE="Excès de Vitesse HORS VILLE"
+const SPEEDING_DETAIL = "Speeding Détail"
 
 
 
@@ -41,6 +43,6 @@ module.exports = {
     EXCES_DE_VITESSE_BASE_PERENCO,
     EXCES_DE_VITESSE_HORS_VILLE,
     EXCES_DE_VITESSE_NAT3,
-    EXCES_DE_VITESSE_VILLE
-    
+    EXCES_DE_VITESSE_VILLE,
+    SPEEDING_DETAIL
 }

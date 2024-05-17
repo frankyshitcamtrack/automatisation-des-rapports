@@ -40,13 +40,21 @@ async function convertJsonToExcel(data, sheet, path, excelColum, colorSheet) {
                 console.log(`Generating file ${sheet} ...`);
                 const readFile = await workbook.xlsx.readFile(path);
                 if (readFile) {
-                    const worksheet = workbook.addWorksheet(sheet, { properties: { tabColor: { argb: colorSheet } } });
+                    const existWorkSheet = workbook.getWorksheet(sheet);
+                    if (existWorkSheet) {
+                        const existWorkSheetName= existWorkSheet.name;
+                         if(existWorkSheetName===sheet){
+                            addRowExistSheet(existWorkSheet, data);
+                         } 
+                    } else {
+                        const worksheet = workbook.addWorksheet(sheet, { properties: { tabColor: { argb: colorSheet } } });
 
-                    prepareSheet(worksheet, data, dataHeader, excelColum);
+                        prepareSheet(worksheet, data, dataHeader, excelColum);
+    
+                        //Center image header banner depending on number of columns
+                        addImageBannerHeaderSheet(worksheet, dataHeader, sheet, imageId2, logo1, logo2)
 
-                    //Center image header banner depending on number of columns
-                    addImageBannerHeaderSheet(worksheet, dataHeader, sheet, imageId2, logo1, logo2)
-
+                    } 
                     // Export excel generated file
                     workbook.xlsx.writeFile(path, { type: 'buffer', bookType: 'xlsx' })
                         .then(response => {
@@ -410,16 +418,20 @@ async function perencoXlsx(data, sheet, path, excelColum, colorSheet) {
             setTimeout(async () => {
                 console.log(`Generating file ${sheet} ...`);
                 const readFile = await workbook.xlsx.readFile(path);
-                const existWorkSheet = workbook.getWorksheet(sheet).name;
-                console.log(existWorkSheet);
                 if (readFile) {
-                   
+                    const existWorkSheet = workbook.getWorksheet(sheet);
+                    if (existWorkSheet) {
+                        const existWorkSheetName= existWorkSheet.name;
+                         if(existWorkSheetName===sheet){
+                            prepareSheet(existWorkSheet, data, dataHeader, excelColum);
+                         } 
+                    } else {
                         const worksheet = workbook.addWorksheet(sheet, { properties: { tabColor: { argb: colorSheet } } });
                         prepareSheet(worksheet, data, dataHeader, excelColum);
 
                         //Center image header banner depending on number of columns
                         perencoHeaderSheet(worksheet, dataHeader, sheet, logo1, logo2)
-                    
+                    }
                     // Export excel generated file
                     workbook.xlsx.writeFile(path, { type: 'buffer', bookType: 'xlsx' })
                         .then(response => {

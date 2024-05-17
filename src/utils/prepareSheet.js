@@ -16,9 +16,8 @@ function prepareSheet(worksheet,data,dataHeader,excelColum){
 
     //Add data to rows
     data.map(item => {
-        worksheet.addRow(item)
+        worksheet.addRow(item).commit()
     })
-
 
     // Process each row for beautification 
     assignStyleToHeaders(worksheet);
