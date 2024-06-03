@@ -36,7 +36,7 @@ function getTitleHeaderSheetPerenco(sheet){
        case 'Conduite de NUIT':
           return 'RAPPORT DETAIL CONDUITE DE NUIT';
        break;
-       case 'Détail Trajet':
+       case 'Detail Trajet':
           return 'RAPPORT DETAIL TRAJET JOURNALIER';
        break;
        case 'Speedings':
@@ -45,8 +45,6 @@ function getTitleHeaderSheetPerenco(sheet){
        case 'SYNTHESE':
           return 'RAPPORT D\'ACTIVITE JOURNALIER: SYNTHESE';
        break;
-       case 'Detail trajet':
-         return 'RAPPORT DETAIL TRAJET JOURNALIER';
        default:
          return sheet
    }

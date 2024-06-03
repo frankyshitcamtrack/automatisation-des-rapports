@@ -17,14 +17,19 @@ const ECO_DRIVING="Eco driving"
 const DETAIL_TRAJET="Détail trajet"
 const CONDUITE_DE_NUIT="Conduite de NUIT"
 const SPEEDING ="Speeding Detail"
-const EXCES_DE_VITESSE_NAT3="Excès de Vitesse NAT3"
+const EXCES_DE_VITESSE_NAT3="Excès de Vitesse Nat3"
 const EXCES_DE_VITESSE_VILLE="Excès de Vitesse Ville"
 const EXCES_DE_VITESSE_BASE_PERENCO="Excès de Vitesse BASE PERENCO"
 const EXCES_DE_VITESSE_HORS_VILLE="Excès de Vitesse HORS VILLE"
 const SPEEDING_DETAIL = "Speeding Détail"
-
-
-
+const EXCES_DE_VITESSE_LEGERE_VILLE  ="Excès de vitesse Légère ville"
+const EXCES_DE_VITESSE_SEVERE_VILLE  ="Excès de vitesse Sévère ville"
+const EXCES_DE_VITESSE_LEGERE_HORS_VILLE  ="Excès de vitesse Légère hors ville"
+const EXCES_DE_VITESSE_SEVERE_HORS_VILLE  ="Excès de vitesse Sévère hors ville"
+const EXCES_DE_VITESSE_LEGERE_NAT3_VILLE  ="Excès de vitesse Légère Nat3"
+const EXCES_DE_VITESSE_SEVERE_NAT3_VILLE  ="Excès de vitesse Sévère Nat3"
+const EXCES_DE_VITESSE_BASE_WOURI ="Excès de vitesse Base WOURI"
+const EXCES_DE_VITESSE_PISTE_BIPAGA ="Excès de vitesse Piste BIPAGA"
 
 
 module.exports = {
@@ -44,5 +49,13 @@ module.exports = {
     EXCES_DE_VITESSE_HORS_VILLE,
     EXCES_DE_VITESSE_NAT3,
     EXCES_DE_VITESSE_VILLE,
-    SPEEDING_DETAIL
+    SPEEDING_DETAIL,
+    EXCES_DE_VITESSE_LEGERE_VILLE,
+    EXCES_DE_VITESSE_SEVERE_VILLE,
+    EXCES_DE_VITESSE_LEGERE_HORS_VILLE,
+    EXCES_DE_VITESSE_SEVERE_HORS_VILLE,
+    EXCES_DE_VITESSE_LEGERE_NAT3_VILLE,
+    EXCES_DE_VITESSE_SEVERE_NAT3_VILLE,
+    EXCES_DE_VITESSE_BASE_WOURI,
+    EXCES_DE_VITESSE_PISTE_BIPAGA
 }

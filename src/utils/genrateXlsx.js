@@ -1,7 +1,8 @@
 const fs = require('fs');
 
 const XLSX = require('exceljs');
-const { addImageBannerHeaderSheet, perencoHeaderSheet } = require('./addImageBannerSheet');
+const { addImageBannerHeaderSheet, perencoHeaderSheet } = require('./bannerSheet');
+const {asignStyleToPerencoInfraction}=require('./assignStylesProps')
 const { prepareSheet } = require('./prepareSheet');
 const { addRowExistSheet } = require('./addRowExistSheet')
 
@@ -421,9 +422,10 @@ async function perencoXlsx(data, sheet, path, excelColum, colorSheet) {
                 if (readFile) {
                     const existWorkSheet = workbook.getWorksheet(sheet);
                     if (existWorkSheet) {
-                        const existWorkSheetName= existWorkSheet.name;
+                        const existWorkSheetName=existWorkSheet.name;
                          if(existWorkSheetName===sheet){
                             prepareSheet(existWorkSheet, data, dataHeader, excelColum);
+                            asignStyleToPerencoInfraction(existWorkSheet);
                          } 
                     } else {
                         const worksheet = workbook.addWorksheet(sheet, { properties: { tabColor: { argb: colorSheet } } });
@@ -431,6 +433,8 @@ async function perencoXlsx(data, sheet, path, excelColum, colorSheet) {
 
                         //Center image header banner depending on number of columns
                         perencoHeaderSheet(worksheet, dataHeader, sheet, logo1, logo2)
+
+                        asignStyleToPerencoInfraction(worksheet);
                     }
                     // Export excel generated file
                     workbook.xlsx.writeFile(path, { type: 'buffer', bookType: 'xlsx' })
@@ -453,6 +457,8 @@ async function perencoXlsx(data, sheet, path, excelColum, colorSheet) {
 
             //Center image header banner depending on number of columns
             perencoHeaderSheet(worksheet, dataHeader, sheet, logo1, logo2);
+
+            asignStyleToPerencoInfraction(worksheet);
 
             // Export excel generated file
             workbook.xlsx.writeFile(path, { type: 'buffer', bookType: 'xlsx' })

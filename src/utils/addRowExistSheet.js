@@ -1,4 +1,4 @@
-const { assignStyleToHeaders } = require('../utils/assignStylesPropsToHeader');
+const { assignStyleToHeaders } = require('./assignStylesProps');
 const { autoSizeColumnSheet } = require('../utils/autoSizeColumnSheet');
 const { addAutoFilter } = require('./addAutofilter');
 

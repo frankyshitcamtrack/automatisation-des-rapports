@@ -3,8 +3,8 @@ const {generateDaylyRepportPerenco}=require('../controllers/perenco.controllers'
 
 
 async function generalControllers(){
- await generateAddaxRepports();
- //await generateDaylyRepportPerenco()
+ //await generateAddaxRepports();
+ await generateDaylyRepportPerenco()
 }
 
 

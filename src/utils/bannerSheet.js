@@ -1,4 +1,4 @@
-const { getTitleHeaderSheet,getTitleHeaderSheetPerenco } = require('../utils/getTitleHeaderSheet');
+const { getTitleHeaderSheet,getTitleHeaderSheetPerenco } = require('./getTitleHeaderSheet');
 
 const cols = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T'];
 
@@ -48,14 +48,15 @@ function perencoHeaderSheet(worksheet, headerColArr, sheet, logo1, logo2) {
 
 
     titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
-    titleCell.font = { name: 'calibri', size: 15, bold: true, color: { argb: 'FFFFFF' } };
+
     titleCell.fill = {
         type: 'pattern',
         pattern: 'solid',
         fgColor: { argb: "5c9bd5" }
     }
 
-    
+    titleCell.font = { color: { argb: "FFFFFF" }, bold: true, name: 'calibri', size: 15};
+
     titleCell.value = getTitleHeaderSheetPerenco(sheet);
 }
 
