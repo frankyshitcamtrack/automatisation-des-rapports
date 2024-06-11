@@ -72,6 +72,22 @@ function dateFormatMinusTwoDay(date) {
   );
 }
 
+function dateFormatMinusSevenDay(date) {
+  return (
+    [
+      date.getFullYear(),
+      padTwoDigits(date.getMonth() + 1),
+      padTwoDigits(date.getDate()-7),
+    ].join("-") +
+    " " +
+    [
+      padTwoDigits(date.getHours()),
+      padTwoDigits(date.getMinutes()),
+      padTwoDigits(date.getSeconds()),
+    ].join(":")
+  );
+}
+
 
 
 function dateFormatPlusOneHour(val) {
@@ -100,4 +116,4 @@ function convertDateToTimeStamp(date){
 
 
 
-module.exports = {dateInYyyyMmDdHhMmSs, dateFormatMinusTwoDay ,dateFormatMinusOneDay,convertDateToTimeStamp,dateFormatPlusOneHour};
+module.exports = {dateInYyyyMmDdHhMmSs, dateFormatMinusTwoDay ,dateFormatMinusOneDay,convertDateToTimeStamp,dateFormatPlusOneHour,dateFormatMinusSevenDay};

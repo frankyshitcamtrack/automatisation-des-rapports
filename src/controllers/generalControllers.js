@@ -1,10 +1,11 @@
 const {generateAddaxRepports}=require('../controllers/addax.controllers');
-const {generateDaylyRepportPerenco}=require('../controllers/perenco.controllers')
+const {generateDaylyRepportPerenco,generateHebdoRepportPerenco}=require('../controllers/perenco.controllers')
 
 
 async function generalControllers(){
- //await generateAddaxRepports();
- await generateDaylyRepportPerenco()
+//await generateAddaxRepports();
+await generateDaylyRepportPerenco()
+//await generateHebdoRepportPerenco()
 }
 
 

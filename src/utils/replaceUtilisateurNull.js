@@ -13,7 +13,7 @@ function utilisateurNullEcodriving(arr){
                 "Lieu d'arrivée":item["Lieu d'arrivée"],
                 "Vitesse maxi": item['Vitesse maxi'],
                 'Violation duration': item['Violation duration'],
-                Kilométrage: item['Kilométrage']
+                Kilométrage: item['Kilométrage'],
    
              }
         }else{
@@ -41,8 +41,7 @@ function utilisateurNullDetailTrajet(arr){
                  Distance: item.Distance,
                 'Temps total': item['Temps total'],
                  Arrêts: item['Arrêts'],
-                'Vitesse maxi': item['Vitesse maxi']
-   
+                'Vitesse maxi': item['Vitesse maxi'],
              }
         }else{
             return item
@@ -68,7 +67,7 @@ function utilisateurNullConduiteDeNuit(arr){
                 'En mouvement':item['En mouvement'],
                 'Ralenti moteur': item['Ralenti moteur'],
                 Distance: item.Distance,
-                'Vitesse maxi':item['Vitesse maxi']
+                'Vitesse maxi':item['Vitesse maxi'],
              }
         }else{
             return item

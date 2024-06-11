@@ -38,7 +38,10 @@ function addImageBannerHeaderSheet(worksheet, headerColArr, sheet, banner, logo1
 
 
 function perencoHeaderSheet(worksheet, headerColArr, sheet, logo1, logo2) {
+    
+    
     const addLogo = addLogos(worksheet, headerColArr, logo1, logo2);
+
     const title = [`${cols[1]}1`,`${cols[1]}2`,`${cols[1]}3`,`${cols[1]}4`,`${cols[addLogo-3]}1`,`${cols[addLogo-3]}2` ,`${cols[addLogo-3]}3`,`${cols[addLogo-3]}4`];
 
     worksheet.mergeCells(title[1],title[7]);

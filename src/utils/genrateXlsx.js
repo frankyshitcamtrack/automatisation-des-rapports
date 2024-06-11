@@ -2,8 +2,8 @@ const fs = require('fs');
 
 const XLSX = require('exceljs');
 const { addImageBannerHeaderSheet, perencoHeaderSheet } = require('./bannerSheet');
-const {asignStyleToPerencoInfraction}=require('./assignStylesProps')
-const { prepareSheet } = require('./prepareSheet');
+const {asignStyleToPerencoInfraction,assignStylePrencoSynthese}=require('./assignStylesProps')
+const { prepareSheet,prepareSheetForSynthese } = require('./prepareSheet');
 const { addRowExistSheet } = require('./addRowExistSheet')
 
 
@@ -392,6 +392,7 @@ async function generateSyntheseSheetAddax(data, path, sheet) {
 
 
 async function perencoXlsx(data, sheet, path, excelColum, colorSheet) {
+
     const dataHeader = []
 
     const isExistPath = fs.existsSync(path);
@@ -429,12 +430,15 @@ async function perencoXlsx(data, sheet, path, excelColum, colorSheet) {
                          } 
                     } else {
                         const worksheet = workbook.addWorksheet(sheet, { properties: { tabColor: { argb: colorSheet } } });
+
                         prepareSheet(worksheet, data, dataHeader, excelColum);
 
                         //Center image header banner depending on number of columns
-                        perencoHeaderSheet(worksheet, dataHeader, sheet, logo1, logo2)
+                        perencoHeaderSheet(worksheet, dataHeader, sheet, logo1, logo2);
 
                         asignStyleToPerencoInfraction(worksheet);
+
+                       
                     }
                     // Export excel generated file
                     workbook.xlsx.writeFile(path, { type: 'buffer', bookType: 'xlsx' })
@@ -455,10 +459,12 @@ async function perencoXlsx(data, sheet, path, excelColum, colorSheet) {
 
             prepareSheet(worksheet, data, dataHeader, excelColum);
 
-            //Center image header banner depending on number of columns
-            perencoHeaderSheet(worksheet, dataHeader, sheet, logo1, logo2);
+             //Center image header banner depending on number of columns
+             perencoHeaderSheet(worksheet, dataHeader, sheet, logo1, logo2);
 
             asignStyleToPerencoInfraction(worksheet);
+
+           
 
             // Export excel generated file
             workbook.xlsx.writeFile(path, { type: 'buffer', bookType: 'xlsx' })
@@ -473,7 +479,79 @@ async function perencoXlsx(data, sheet, path, excelColum, colorSheet) {
 }
 
 
+async function generateSyntheseSheetPerenco(path,data, sheet) {
+
+    const isExistPath = fs.existsSync(path);
+
+    let workbook = new XLSX.Workbook();
+
+    const logo1 = workbook.addImage({
+        buffer: fs.readFileSync('rapport/Perenco/assets/tractafric.png'),
+        extension: 'png',
+    });
+
+    const logo2 = workbook.addImage({
+        buffer: fs.readFileSync('rapport/Perenco/assets/perenco.png'),
+        extension: 'png',
+    });
+
+    const thirdHeader = ['Imatriculations', 'Affectations', 'Utilisateurs', 'Distance', 'Duration', 'Harsh Acceleration','Several Acceleration', 'Harsh Turn','Several Turn', 'Harsh Brake','Several Brake', '22H24H', '24H04H', 'Distances', 'Durations', 'Severe-Ville', 'Legere-Ville', 'Severe-HorsVille', 'Legere-HorsVille', 'Severe-Nat3', 'Legere-Nat3'];
+
+
+    if (isExistPath) {
+        setTimeout(async () => {
+            console.log(`Generating file ${sheet} ...`);
+            const readFile = await workbook.xlsx.readFile(path);
+            if (readFile) {
+                const existWorkSheet = workbook.getWorksheet(sheet);
+                if (existWorkSheet) {
+                    const existWorkSheetName=existWorkSheet.name;
+                     if(existWorkSheetName===sheet){
+                        
+                         //Add data to rows
+                         data.map(item => {
+                            existWorkSheet.addRow(item).commit()
+                         })
+
+                    } 
+                } else {
+                        // creation of new sheet
+                    const worksheet = workbook.addWorksheet(sheet);
+                    
+                    worksheet.views = [{ showGridLines: false }];
+
+
+                    const syntheseCol = thirdHeader.map(item => {
+                        return { key: item }
+                    })
+
+                    prepareSheetForSynthese(worksheet, thirdHeader, syntheseCol, data);
+
+                    assignStylePrencoSynthese(worksheet);
+
+                    //Center image header banner depending on number of columns
+                    perencoHeaderSheet(worksheet, thirdHeader, sheet, logo1, logo2);
+                }
+                // Export excel generated file
+                workbook.xlsx.writeFile(path, { type: 'buffer', bookType: 'xlsx' })
+                    .then(response => {
+                        console.log("file generated");
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    });
+            }
+        }, 15000)
+
+    }
+
+}
 
 
 
-module.exports = { convertJsonToExcel, generateSyntheseSheetAddax, perencoXlsx }
+
+
+
+
+
+module.exports = { convertJsonToExcel, generateSyntheseSheetAddax, perencoXlsx,generateSyntheseSheetPerenco }

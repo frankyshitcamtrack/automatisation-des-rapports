@@ -5,6 +5,7 @@ const path = require('path');
 const express = require("express");
 const bodyParser = require("body-parser");
 const {generalControllers} =require('./src/controllers/generalControllers');
+const routes = require('./src/routes/mainRoute');
 
 
 
@@ -25,6 +26,8 @@ app.use(bodyParser.json());
 async function run(){
  await generalControllers();
 } 
+
+app.use("/", routes);
 
 run();
  

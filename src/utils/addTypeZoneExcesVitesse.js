@@ -1,7 +1,6 @@
 function zoneExcesDeVitesse(arr,title){  
    const items= arr.map(item=>{
-
-       if(title.includes('ville')){
+       if(title.includes('Légère ville') || title.includes('Sévère ville') ){
           return {
                 Grouping:item.Grouping,
                 Affectations:item.Affectations,
@@ -14,7 +13,7 @@ function zoneExcesDeVitesse(arr,title){
           }
        }
 
-       if(title.includes('ville') && title.includes('hors')){
+       if(title.includes('Légère Hors ville') || title.includes('Sévère Hors ville')){
         return {
             Grouping:item.Grouping,
             Affectations:item.Affectations,

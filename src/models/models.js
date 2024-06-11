@@ -96,9 +96,9 @@ async function getRepportData(ressourceClient,template,client,from,to,subGroup){
     
      if (items.length > 0) {
        //change every arr to object
-
+     
        const obj = convertArrayObject(items);
-       
+ 
        const filterHeader= header.filter(item=>item!=='№');
        
       // Create excel colum base to header data
@@ -106,8 +106,7 @@ async function getRepportData(ressourceClient,template,client,from,to,subGroup){
        
        //change all object key by the header group values
       changeObjectKeys(header,obj);
- 
-
+    
       //Convert GMT Date values to Local
       changePropertiesDateTOLocal(obj)
     
@@ -116,7 +115,6 @@ async function getRepportData(ressourceClient,template,client,from,to,subGroup){
 
       //replace Groupe props by Vehicules
       //replaceProps(obj,"Grouping","Véhicules");
-      
       return {obj,excelColum}
      }
 

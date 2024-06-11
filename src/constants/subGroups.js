@@ -23,13 +23,14 @@ const EXCES_DE_VITESSE_BASE_PERENCO="Excès de Vitesse BASE PERENCO"
 const EXCES_DE_VITESSE_HORS_VILLE="Excès de Vitesse HORS VILLE"
 const SPEEDING_DETAIL = "Speeding Détail"
 const EXCES_DE_VITESSE_LEGERE_VILLE  ="Excès de vitesse Légère ville"
+const EXCES_DE_VITESSE_LEGERE_HORS_VILLE  ="Excès de vitesse Légère Hors ville"
 const EXCES_DE_VITESSE_SEVERE_VILLE  ="Excès de vitesse Sévère ville"
-const EXCES_DE_VITESSE_LEGERE_HORS_VILLE  ="Excès de vitesse Légère hors ville"
-const EXCES_DE_VITESSE_SEVERE_HORS_VILLE  ="Excès de vitesse Sévère hors ville"
-const EXCES_DE_VITESSE_LEGERE_NAT3_VILLE  ="Excès de vitesse Légère Nat3"
-const EXCES_DE_VITESSE_SEVERE_NAT3_VILLE  ="Excès de vitesse Sévère Nat3"
+const EXCES_DE_VITESSE_SEVERE_HORS_VILLE  ="Excès de vitesse Sévère Hors ville"
+const EXCES_DE_VITESSE_LEGERE_NAT3_VILLE  ="Excès de vitesse  Légère Nat3"
+const EXCES_DE_VITESSE_SEVERE_NAT3_VILLE  ="Excès de vitesse  Sévère Nat3"
 const EXCES_DE_VITESSE_BASE_WOURI ="Excès de vitesse Base WOURI"
 const EXCES_DE_VITESSE_PISTE_BIPAGA ="Excès de vitesse Piste BIPAGA"
+
 
 
 module.exports = {

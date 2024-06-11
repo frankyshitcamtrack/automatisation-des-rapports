@@ -247,15 +247,14 @@ async function AddaxMonthlyRepportSynthese() {
 
   if (sender && receivers) {
     setTimeout(() => {
-      sendMail(sender,test, pass,`${ACTIVITY_REPORT_OF_ADDAX_PETROLEUM}`,`${ACTIVITY_REPORT_SUBJECT_MAIL}`,`${ACTIVITY_REPORT_SUBJECT_MAIL}.xlsx`, path.join(__dirname, `../../${pathFile}-${reportTitleDate}.xlsx`));
+      sendMail(sender,receivers, pass,`${ACTIVITY_REPORT_OF_ADDAX_PETROLEUM}`,`${ACTIVITY_REPORT_SUBJECT_MAIL}`,`${ACTIVITY_REPORT_SUBJECT_MAIL}.xlsx`, path.join(__dirname, `../../${pathFile}-${reportTitleDate}.xlsx`));
     }, 30000)
   } 
 }
 
 
-
-
 async function generateAddaxRepports() { 
+  await generateAddaxMonthlyRepport();
   cron.schedule('30 6 * * *', async () => {
     await generateAddaxDaylyRepport();
     await generateAddaxDaylyRepport22h06h();

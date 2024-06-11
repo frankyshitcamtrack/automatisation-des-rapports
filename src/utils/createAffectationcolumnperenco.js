@@ -1,6 +1,6 @@
 function addAffectationsColumn(arr){  
     const addAffectation = arr.map(item=>{
-        if(item.Grouping !=='Total'){
+        if(item.Grouping.text !=='Total'){
             const affectations = item.Grouping.split('-')[3];
             return{
                 Affectations:affectations,
