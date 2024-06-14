@@ -1,4 +1,4 @@
-function assignStyleToHeaders(ws){
+async function assignStyleToHeaders(ws){
     const rows = ws.getColumn(1);
     const rowsCount = rows['_worksheet']['_rows'].length;
     const lastCell =`A${rowsCount}`;
@@ -51,8 +51,25 @@ function assignStyleToHeaders(ws){
 
 }
 
+async function asignStyleToSheet(ws){
+    ws.eachRow((row, rowNumber) => {
+            row.eachCell((cell, colNumber) => {
+                cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+                cell.border = {
+                    top: { style: 'thin', color: { argb: '000000' } },
+                    left: { style: 'thin', color: { argb: '000000' } },
+                    bottom: { style: 'thin', color: { argb: '000000' } },
+                    right: { style: 'thin', color: { argb: '000000' } }
+                };
+            })
+            //Commit the changed row to the stream
+            row.commit();
+    });
 
-function asignStyleToPerencoInfraction(ws){
+}
+
+
+async function asignStyleToPerencoInfraction(ws){
     const wsName= ws.name
     if(wsName==='Eco driving'){
         ws.eachRow((row, rowNumber) => {
@@ -156,7 +173,7 @@ function asignStyleToPerencoInfraction(ws){
 
 
 
-function assignStylePrencoSynthese(ws){
+async function assignStylePrencoSynthese(ws){
     ws.eachRow((row, rowNumber) => {
         row.eachCell((cell, colNumber) => {
             if (rowNumber == 12 || rowNumber == 14 || rowNumber == 16 || rowNumber == 18 || rowNumber == 20 || rowNumber == 22 || rowNumber == 24  || rowNumber == 26 || rowNumber == 28 || rowNumber == 30) {
@@ -207,7 +224,7 @@ function assignStylePrencoSynthese(ws){
 
 
 
-function assignStyleToHeadersSynthese(ws){
+async function assignStyleToHeadersSynthese(ws){
     const rows = ws.getColumn(1);
     const rowsCount = rows['_worksheet']['_rows'].length;
     const lastCell =`A${rowsCount}`; 
@@ -257,4 +274,4 @@ function assignStyleToHeadersSynthese(ws){
 
 
 
-module.exports={assignStyleToHeaders,asignStyleToPerencoInfraction,assignStyleToHeadersSynthese,assignStylePrencoSynthese}
+module.exports={assignStyleToHeaders,asignStyleToPerencoInfraction,assignStyleToHeadersSynthese,assignStylePrencoSynthese,asignStyleToSheet}

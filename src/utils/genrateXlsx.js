@@ -2,8 +2,8 @@ const fs = require('fs');
 
 const XLSX = require('exceljs');
 const { addImageBannerHeaderSheet, perencoHeaderSheet } = require('./bannerSheet');
-const {asignStyleToPerencoInfraction,assignStylePrencoSynthese}=require('./assignStylesProps')
-const { prepareSheet,prepareSheetForSynthese } = require('./prepareSheet');
+const {asignStyleToPerencoInfraction,assignStylePrencoSynthese, asignStyleToSheet}=require('./assignStylesProps')
+const { prepareSheet,prepareSheetForSynthese,addDataTosheet } = require('./prepareSheet');
 const { addRowExistSheet } = require('./addRowExistSheet')
 
 
@@ -425,21 +425,21 @@ async function perencoXlsx(data, sheet, path, excelColum, colorSheet) {
                     if (existWorkSheet) {
                         const existWorkSheetName=existWorkSheet.name;
                          if(existWorkSheetName===sheet){
-                            prepareSheet(existWorkSheet, data, dataHeader, excelColum);
-                            asignStyleToPerencoInfraction(existWorkSheet);
+                            await addDataTosheet(existWorkSheet,data, excelColum);
+                            asignStyleToSheet(existWorkSheet);
+                            await asignStyleToPerencoInfraction(existWorkSheet);  
                          } 
                     } else {
                         const worksheet = workbook.addWorksheet(sheet, { properties: { tabColor: { argb: colorSheet } } });
 
-                        prepareSheet(worksheet, data, dataHeader, excelColum);
+                        await prepareSheet(worksheet, data, dataHeader, excelColum);
 
                         //Center image header banner depending on number of columns
-                        perencoHeaderSheet(worksheet, dataHeader, sheet, logo1, logo2);
+                        await perencoHeaderSheet(worksheet, dataHeader, sheet, logo1, logo2);
 
-                        asignStyleToPerencoInfraction(worksheet);
-
-                       
+                        await asignStyleToPerencoInfraction(worksheet);
                     }
+ 
                     // Export excel generated file
                     workbook.xlsx.writeFile(path, { type: 'buffer', bookType: 'xlsx' })
                         .then(response => {
@@ -447,7 +447,9 @@ async function perencoXlsx(data, sheet, path, excelColum, colorSheet) {
                         })
                         .catch(err => {
                             console.log(err);
-                        });
+                        })
+                    
+                 
                 }
             }, 15000)
 
@@ -457,14 +459,12 @@ async function perencoXlsx(data, sheet, path, excelColum, colorSheet) {
             // creation of new sheet
             const worksheet = workbook.addWorksheet(sheet, { properties: { tabColor: { argb: colorSheet } } });
 
-            prepareSheet(worksheet, data, dataHeader, excelColum);
+            await prepareSheet(worksheet, data, dataHeader, excelColum);
 
              //Center image header banner depending on number of columns
-             perencoHeaderSheet(worksheet, dataHeader, sheet, logo1, logo2);
+            await perencoHeaderSheet(worksheet, dataHeader, sheet, logo1, logo2);
 
-            asignStyleToPerencoInfraction(worksheet);
-
-           
+            await asignStyleToPerencoInfraction(worksheet);
 
             // Export excel generated file
             workbook.xlsx.writeFile(path, { type: 'buffer', bookType: 'xlsx' })

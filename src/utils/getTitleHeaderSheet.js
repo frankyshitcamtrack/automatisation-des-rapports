@@ -31,20 +31,26 @@ function getTitleHeaderSheet(sheet){
 function getTitleHeaderSheetPerenco(sheet){
    switch(sheet){
        case 'Eco driving':
-          return 'RAPPORT DETAIL EXCEPTION JOURNALIER';
+          return 'RAPPORT DETAIL EXCEPTION';
        break;
        case 'Conduite de NUIT':
           return 'RAPPORT DETAIL CONDUITE DE NUIT';
        break;
        case 'Detail Trajet':
-          return 'RAPPORT DETAIL TRAJET JOURNALIER';
+          return 'RAPPORT DETAIL TRAJET';
        break;
        case 'Speedings':
-           return 'RAPPORT DETAIL EXES DE VITESSE JOURNALIER';
+           return 'RAPPORT DETAIL EXES DE VITESSE';
+       break;
+       case 'Zones':
+           return 'RAPPORT DETAIL TRAVERSE ZONE BONABERI';
        break;
        case 'SYNTHESE':
-          return 'RAPPORT D\'ACTIVITE JOURNALIER: SYNTHESE';
+          return 'RAPPORT D\'ACTIVITE : SYNTHESE';
        break;
+       case 'TRACKING_TRACAFIC':
+         return 'RAPPORT HEBDOMADAIRE PERENCO (TAM)';
+      break;
        default:
          return sheet
    }

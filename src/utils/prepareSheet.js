@@ -1,23 +1,19 @@
-const { assignStyleToHeadersSynthese, assignStyleToHeaders } = require('./assignStylesProps');
+const { assignStyleToHeadersSynthese, assignStyleToHeaders,asignStyleToSheet } = require('./assignStylesProps');
 const { autoSizeColumnSheet } = require('../utils/autoSizeColumnSheet');
 const { addAutoFilter } = require('./addAutofilter');
 
 
-function prepareSheet(worksheet, data, dataHeader, excelColum) {
+async function prepareSheet(worksheet, data, dataHeader, excelColum) {
     const autoFilter = addAutoFilter(dataHeader, 8);
 
     worksheet.views = [{ showGridLines: false }];
 
     worksheet.getRow(8).values = dataHeader;
 
-    worksheet.columns = excelColum;
-
     worksheet.autoFilter = autoFilter;
 
     //Add data to rows
-    data.map(item => {
-        worksheet.addRow(item).commit()
-    })
+    addDataTosheet(worksheet,data,excelColum);
 
     // Process each row for beautification 
     assignStyleToHeaders(worksheet);
@@ -25,6 +21,15 @@ function prepareSheet(worksheet, data, dataHeader, excelColum) {
     //autosize column width base on the content
     autoSizeColumnSheet(worksheet)
 
+}
+
+async function addDataTosheet(worksheet,data,excelColum){
+    worksheet.columns = excelColum;
+    data.map(item => {
+        worksheet.addRow(item).commit()
+    })
+    //autosize column width base on the content
+    autoSizeColumnSheet(worksheet)
 }
 
 function prepareSheetForSynthese(worksheet, dataHeader, syntheseCol, data) {
@@ -137,4 +142,4 @@ function prepareSheetForSynthese(worksheet, dataHeader, syntheseCol, data) {
 }
 
 
-module.exports = { prepareSheet, prepareSheetForSynthese }
+module.exports = { prepareSheet, prepareSheetForSynthese,addDataTosheet }

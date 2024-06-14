@@ -1,22 +1,23 @@
 const path = require('path');
 const cron = require('node-cron');
 const _ = require('lodash');
-const { getRepportData } = require('../models/models');
+const { getRepportData,getRepportDataUnit } = require('../models/models');
 const { getFistAndLastHourDay,getFirstAndLastSevendays } = require('../utils/getFirstAndLastHourDay');
 const { addAffectationsColumn } = require('../utils/createAffectationcolumnperenco');
 const { zoneExcesDeVitesse } = require('../utils/addTypeZoneExcesVitesse');
-const { addCriticiteProps } = require('../utils/createCriticitecol');
+const { addCriticiteProps,addCriticiteAndVitesseLimiteProps } = require('../utils/createCriticitecol');
 const { addIntervalles } = require('../utils/createIntervallesColl');
 const { addWeekendStatus } = require('../utils/addWeekendStatus');
 const { utilisateurNullEcodriving, utilisateurNullDetailTrajet, utilisateurNullConduiteDeNuit, utilisateurNullExcesVitess } = require('../utils/replaceUtilisateurNull')
 const { perencoXlsx, generateSyntheseSheetPerenco } = require('../utils/genrateXlsx');
+const {removeProperties} = require('../utils/removeProperties');
 const { calculateTime } = require('../utils/sommeArrTimes')
 const { Receivers } = require('../storage/mailReceivers.storage');
 const { Senders } = require('../storage/mailSender.storage')
 const { sendMail } = require('../utils/sendMail');
 const { PERENCO } = require('../constants/clients');
 const { ADMIN_PERENCO } = require('../constants/ressourcesClient');
-const { RAPPORT_ACTIVITE_FLOTTE_PERENCO, RAPPORT_EXCES_DE_VITESSE_FLOTTE, } = require('../constants/template');
+const { RAPPORT_ACTIVITE_FLOTTE_PERENCO, RAPPORT_EXCES_DE_VITESSE_FLOTTE,RAPPORT_TRAVERSE_ZONE_BONABERI } = require('../constants/template');
 const {
   ECO_DRIVING,
   DETAIL_TRAJET,
@@ -28,7 +29,9 @@ const {
   EXCES_DE_VITESSE_SEVERE_HORS_VILLE,
   EXCES_DE_VITESSE_SEVERE_NAT3_VILLE,
   EXCES_DE_VITESSE_SEVERE_VILLE,
-  SYNTHESE
+  ZONES,
+  SYNTHESE,
+  TRACKING_TRACAFIC
 } = require('../constants/subGroups');
 
 const { json } = require('body-parser');
@@ -706,6 +709,9 @@ async function generateHebdoRepportPerenco() {
     const lastHourDay = fistAndLastHourDay.lastHourDayTimestamp;
     const titleDate = fistAndLastHourDay.dateTitle;
     const pathFile = "rapport/Perenco/RAPPORT-ACTIVITE-HEBDO-FLOTTE-PERENCO";
+    const pathTracking ="rapport/Perenco/TRACKING-TRACAFIC";
+    const pathFileExcesVitesse="rapport/Perenco/RAPPORT-EXCES-VITSSE-HEBDO-FLOTTE-PERENCO";
+    const pathFileHorsZoneBonaberi="rapport/Perenco/fonction-ayant-traversé-le-pont-de-bonaberi";
 
     await getRepportData(ADMIN_PERENCO, RAPPORT_ACTIVITE_FLOTTE_PERENCO, PERENCO, firstHourDay, lastHourDay, ECO_DRIVING)
       .then(async (res) => {
@@ -754,7 +760,7 @@ async function generateHebdoRepportPerenco() {
           console.log(`no data found in ${RAPPORT_ACTIVITE_FLOTTE_PERENCO} ${ECO_DRIVING}`);
         }
       })
-      .then(async () => {
+/*       .then(async () => {
         await getRepportData(ADMIN_PERENCO, RAPPORT_ACTIVITE_FLOTTE_PERENCO, PERENCO, firstHourDay, lastHourDay, DETAIL_TRAJET)
           .then(async (res) => {
             const objLenth = res?.obj.length;
@@ -854,7 +860,7 @@ async function generateHebdoRepportPerenco() {
             }
           }).catch(err => console.log(err))
       })
-         .then(async () => {
+      .then(async () => {
         await getRepportData(ADMIN_PERENCO, RAPPORT_EXCES_DE_VITESSE_FLOTTE, PERENCO, firstHourDay, lastHourDay, EXCES_DE_VITESSE_LEGERE_VILLE)
           .then(async (res) => {
             const objLenth = res?.obj.length;
@@ -903,6 +909,7 @@ async function generateHebdoRepportPerenco() {
               column.splice(4, 0, { key: "Criticité" });
 
               await perencoXlsx(newArrData, SPEEDING_DETAIL, `${pathFile}-${titleDate}.xlsx`, column);
+              await perencoXlsx(newArrData, SPEEDING_DETAIL, `${pathFileExcesVitesse}-${titleDate}.xlsx`, column);
             } else {
               console.log(`no data found in ${RAPPORT_EXCES_DE_VITESSE_FLOTTE} ${EXCES_DE_VITESSE_LEGERE_VILLE}`);
             }
@@ -955,6 +962,7 @@ async function generateHebdoRepportPerenco() {
               column.splice(4, 0, { key: "Criticité" });
 
               await perencoXlsx(newArrData, SPEEDING_DETAIL, `${pathFile}-${titleDate}.xlsx`, column);
+              await perencoXlsx(newArrData, SPEEDING_DETAIL, `${pathFileExcesVitesse}-${titleDate}.xlsx`, column);
             } else {
               console.log(`no data found in ${RAPPORT_EXCES_DE_VITESSE_FLOTTE} ${EXCES_DE_VITESSE_SEVERE_VILLE}`);
             }
@@ -1010,6 +1018,7 @@ async function generateHebdoRepportPerenco() {
               column.splice(4, 0, { key: "Criticité" });
 
               await perencoXlsx(newArrData, SPEEDING_DETAIL, `${pathFile}-${titleDate}.xlsx`, column);
+              await perencoXlsx(newArrData, SPEEDING_DETAIL, `${pathFileExcesVitesse}-${titleDate}.xlsx`, column);
             } else {
               console.log(`no data found in ${RAPPORT_EXCES_DE_VITESSE_FLOTTE} ${EXCES_DE_VITESSE_LEGERE_HORS_VILLE}`);
             }
@@ -1060,6 +1069,7 @@ async function generateHebdoRepportPerenco() {
               column.splice(4, 0, { key: "Criticité" });
 
               await perencoXlsx(newArrData, SPEEDING_DETAIL, `${pathFile}-${titleDate}.xlsx`, column);
+              await perencoXlsx(newArrData, SPEEDING_DETAIL, `${pathFileExcesVitesse}-${titleDate}.xlsx`, column);
             } else {
               console.log(`no data found in ${RAPPORT_EXCES_DE_VITESSE_FLOTTE} ${EXCES_DE_VITESSE_SEVERE_HORS_VILLE}`);
             }
@@ -1112,6 +1122,7 @@ async function generateHebdoRepportPerenco() {
               column.splice(4, 0, { key: "Criticité" });
 
               await perencoXlsx(newArrData, SPEEDING_DETAIL, `${pathFile}-${titleDate}.xlsx`, column);
+              await perencoXlsx(newArrData, SPEEDING_DETAIL, `${pathFileExcesVitesse}-${titleDate}.xlsx`, column);
             } else {
               console.log(`no data found in ${RAPPORT_EXCES_DE_VITESSE_FLOTTE} ${EXCES_DE_VITESSE_LEGERE_NAT3_VILLE}`);
             }
@@ -1162,13 +1173,107 @@ async function generateHebdoRepportPerenco() {
               column.splice(4, 0, { key: "Criticité" });
 
               await perencoXlsx(newArrData, SPEEDING_DETAIL, `${pathFile}-${titleDate}.xlsx`, column);
+              await perencoXlsx(newArrData, SPEEDING_DETAIL, `${pathFileExcesVitesse}-${titleDate}.xlsx`, column);
 
             } else {
               console.log(`no data found in ${RAPPORT_EXCES_DE_VITESSE_FLOTTE} ${EXCES_DE_VITESSE_SEVERE_NAT3_VILLE}`);
             }
           }).catch(err => console.log(err))
-      }) 
-     .then(
+      })  
+
+      .then(async () => {
+        await getRepportData(ADMIN_PERENCO, RAPPORT_TRAVERSE_ZONE_BONABERI, PERENCO, firstHourDay, lastHourDay, ZONES)
+          .then(async (res) => {
+            const objLenth = res?.obj.length;
+            if (objLenth > 0) {
+              const data = res.obj;
+              const column = res.excelColum;
+              const dataWithAffectationColumn = addAffectationsColumn(data);
+              const rangeData = dataWithAffectationColumn.map(item => {
+                if (item) {
+                  return {
+                    Regroupement: item.Grouping,
+                    Affectations: item.Affectations,
+                    Utilisateurs: item.Conducteur,
+                    Zone:item.Zone,
+                    'Heure Entrée': item['Heure Entrée'],
+                    'Heure Sortie': item['Heure Sortie'],
+                    'Temps Passé dans la Zone': item['Temps Passé dans la Zone'],
+                    'Nombre de visite': item['Nombre de visite'],
+                    'Vitesse maxi': item['Vitesse maxi'],
+                  }
+                }
+              }); 
+
+              const filterCol = column.filter(item=>(item.key!=='Grouping' && item.key!=='Conducteur'))
+
+              const updateDataWithoutUser = utilisateurNullExcesVitess(rangeData);
+            
+            
+              //add affectation header at the 1 index
+              filterCol.splice(0, 0, { key: 'Regroupement' });
+
+              //add affectation header at the 1 index
+              filterCol.splice(1, 0, { key: 'Affectations' });
+
+              //add affectation header at the 1 index
+              filterCol.splice(2, 0, { key: 'Utilisateurs'});
+
+              await perencoXlsx(updateDataWithoutUser, ZONES, `${pathFileHorsZoneBonaberi}-${titleDate}.xlsx`, filterCol);  
+
+            } else {
+              console.log(`no data found in ${RAPPORT_TRAVERSE_ZONE_BONABERI} ${ZONES}`);
+            }
+          }).catch(err => console.log(err))
+      })  */
+      .then(async () => {
+        await getRepportDataUnit(ADMIN_PERENCO, RAPPORT_ACTIVITE_FLOTTE_PERENCO, PERENCO, firstHourDay, lastHourDay, DETAIL_TRAJET)
+          .then(async (res) => {
+            const objLenth = res?.obj.length;
+            if (objLenth > 0) {
+              const data = res.obj;
+              const column = res.excelColum;
+              const dataWithAffectationColumn = addAffectationsColumn(data);
+              const rangeData = dataWithAffectationColumn.map(item => {
+                if (item) {
+                  return {
+                    Grouping: item.Grouping,
+                    Affectations: item.Affectations,
+                    Conducteur: item.Conducteur,
+                    Début: item['Début'],
+                    'Lieu de Départ': item['Lieu de Départ'],
+                    Fin: item.Fin,
+                    "Lieu d'arrivée": item["Lieu d'arrivée"],
+                    Durée: item['Durée'],
+                    'En mouvement': item['En mouvement'],
+                    'Ralenti moteur': item['Ralenti moteur'],
+                    Distance: item.Distance,
+                    'Vitesse maxi': item['Vitesse maxi'],
+                  }
+                }
+              })
+
+              const updateDataWithoutUser = utilisateurNullDetailTrajet(rangeData)
+
+              const newArrData = addCriticiteAndVitesseLimiteProps(updateDataWithoutUser);
+
+              //add affectation header at the 1 index
+              column.splice(1, 0, { key: 'Affectations' });
+
+              column.push({key:"Vitesse limite"});
+              column.push({key:"Criticité"});
+
+              const filterCol = column.filter(item=>(item.key!=="Temps total" && item.key!=="Arrêts"));
+              
+              await perencoXlsx(newArrData, TRACKING_TRACAFIC, `${pathTracking}-${titleDate}.xlsx`, filterCol);
+            } else {
+              console.log(`no data found in ${RAPPORT_ACTIVITE_FLOTTE_PERENCO} ${DETAIL_TRAJET}`);
+            }
+          })
+          .catch(err => console.log(err))
+      })
+
+    /*  .then(
         async() => {
 
           //Group notifications By VehicleID
@@ -1334,9 +1439,7 @@ async function generateHebdoRepportPerenco() {
           })
           await generateSyntheseSheetPerenco(`${pathFile}-${titleDate}.xlsx`,finalService, SYNTHESE);
         }
-      )
-      
-   
+      )  */
      
       /*   
         .then(()=>{
@@ -1356,5 +1459,11 @@ async function generateHebdoRepportPerenco() {
 }
 
 
+/* 
+async function generateAllRepportPerenco(){
+  await  generateDaylyRepportPerenco();
+  await  generateHebdoRepportPerenco();
+} */
 
-module.exports = { generateDaylyRepportPerenco,generateHebdoRepportPerenco}
+
+module.exports ={generateHebdoRepportPerenco, generateDaylyRepportPerenco}

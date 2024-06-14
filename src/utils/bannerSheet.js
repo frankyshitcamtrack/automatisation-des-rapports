@@ -37,7 +37,7 @@ function addImageBannerHeaderSheet(worksheet, headerColArr, sheet, banner, logo1
 
 
 
-function perencoHeaderSheet(worksheet, headerColArr, sheet, logo1, logo2) {
+async function perencoHeaderSheet(worksheet, headerColArr, sheet, logo1, logo2) {
     
     
     const addLogo = addLogos(worksheet, headerColArr, logo1, logo2);

@@ -3,7 +3,9 @@ function addIntervalles(arr) {
     const props = arr.map(item => {
 
         if(item){
-            const debut = item['Début'];
+          
+            const debut =typeof item['Début']==="object"? item['Début'].text : item['Début'];
+            
             const hour = parseInt(debut.split(' ')[1].split(':')[0]);
             const minutes =parseInt(debut.split(' ')[1].split(':')[2])
 
@@ -13,7 +15,7 @@ function addIntervalles(arr) {
                     Affectations: item.Affectations,
                     Conducteur: item.Conducteur,
                     Intervalles: "22H-24H",
-                    'Début': item['Début'],
+                    'Début': debut,
                     'Lieu de Départ': item['Lieu de Départ'],
                     Fin: item.Fin,
                     "Lieu d'arrivée": item["Lieu d'arrivée"],
@@ -31,7 +33,7 @@ function addIntervalles(arr) {
                     Affectations: item.Affectations,
                     Conducteur: item.Conducteur,
                     Intervalles: "24H-04H",
-                    'Début': item['Début'],
+                    'Début': debut,
                     'Lieu de Départ': item['Lieu de Départ'],
                     Fin: item.Fin,
                     "Lieu d'arrivée": item["Lieu d'arrivée"],
