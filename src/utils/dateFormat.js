@@ -43,7 +43,7 @@ function dateFormatMinusOneDay(date) {
       [
         date.getFullYear(),
         padTwoDigits(date.getMonth() + 1),
-        padTwoDigits(date.getDate()-1),
+        padTwoDigits(date.getDate()-3),
       ].join("-") +
       " " +
       [
@@ -77,7 +77,7 @@ function dateFormatMinusSevenDay(date) {
     [
       date.getFullYear(),
       padTwoDigits(date.getMonth() + 1),
-      padTwoDigits(date.getDate()-7),
+      padTwoDigits(date.getDate()-9),
     ].join("-") +
     " " +
     [

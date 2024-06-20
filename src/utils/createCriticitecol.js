@@ -8,7 +8,7 @@ function  addCriticiteAndVitesseLimiteProps(arr){
     const date =item['Durée'].split(':');
     const sec =parseInt(date[2]);
     const min= parseInt(date[1]);
-    return (sec>=21 || min>0) ;
+    return (sec>=21 || min>=0) ;
 })
 
 const stringArr = jsonstring(filter);
@@ -23,14 +23,18 @@ const props= jsonArr.map(item=>{
            'Vitesse limite':'entre 61 km/h et 80 km/h',
            Criticité:'Légère',    
     }
-  }
-
-  if(parseInt(item['Vitesse maxi'].text)>80){
+  } else if(parseInt(item['Vitesse maxi'].text)>80){
       return  {
           ...item,
           'Vitesse limite':"plus de 81 km/h",
            Criticité:'Sévère',
     }
+  }else{
+    return  {
+      ...item,
+      'Vitesse limite':' ',
+      Criticité:' ',    
+}
   }
 })
 

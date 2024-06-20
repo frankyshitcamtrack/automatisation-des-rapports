@@ -760,7 +760,7 @@ async function generateHebdoRepportPerenco() {
           console.log(`no data found in ${RAPPORT_ACTIVITE_FLOTTE_PERENCO} ${ECO_DRIVING}`);
         }
       })
-/*       .then(async () => {
+   /*    .then(async () => {
         await getRepportData(ADMIN_PERENCO, RAPPORT_ACTIVITE_FLOTTE_PERENCO, PERENCO, firstHourDay, lastHourDay, DETAIL_TRAJET)
           .then(async (res) => {
             const objLenth = res?.obj.length;
@@ -808,8 +808,8 @@ async function generateHebdoRepportPerenco() {
             }
           })
           .catch(err => console.log(err))
-      })
-      .then(async () => {
+      }) */
+/*       .then(async () => {
         await getRepportData(ADMIN_PERENCO, RAPPORT_ACTIVITE_FLOTTE_PERENCO, PERENCO, firstHourDay, lastHourDay, CONDUITE_DE_NUIT)
           .then(async (res) => {
             const objLenth = res?.obj.length;
@@ -1225,7 +1225,7 @@ async function generateHebdoRepportPerenco() {
               console.log(`no data found in ${RAPPORT_TRAVERSE_ZONE_BONABERI} ${ZONES}`);
             }
           }).catch(err => console.log(err))
-      })  */
+      })  */ 
       .then(async () => {
         await getRepportDataUnit(ADMIN_PERENCO, RAPPORT_ACTIVITE_FLOTTE_PERENCO, PERENCO, firstHourDay, lastHourDay, DETAIL_TRAJET)
           .then(async (res) => {
@@ -1253,9 +1253,14 @@ async function generateHebdoRepportPerenco() {
                 }
               })
 
+              
+
               const updateDataWithoutUser = utilisateurNullDetailTrajet(rangeData)
+              
 
               const newArrData = addCriticiteAndVitesseLimiteProps(updateDataWithoutUser);
+
+              
 
               //add affectation header at the 1 index
               column.splice(1, 0, { key: 'Affectations' });
@@ -1267,180 +1272,180 @@ async function generateHebdoRepportPerenco() {
               
               await perencoXlsx(newArrData, TRACKING_TRACAFIC, `${pathTracking}-${titleDate}.xlsx`, filterCol);
             } else {
-              console.log(`no data found in ${RAPPORT_ACTIVITE_FLOTTE_PERENCO} ${DETAIL_TRAJET}`);
+              console.log(`no data found in ${TRACKING_TRACAFIC} ${TRACKING_TRACAFIC}`);
             }
           })
           .catch(err => console.log(err))
       })
 
-    /*  .then(
-        async() => {
+    /*   .then(
+            async() => {
 
-          //Group notifications By VehicleID
-          const groupItemByVehicleGroup = _.groupBy(synthese, synth => synth['Grouping']);
-  
-          //change objects to arr and remove key 
-          const arrData = Object.keys(groupItemByVehicleGroup).map((key) => {
-            return Object.values(groupItemByVehicleGroup[[key]]);
-          });
-  
-  
-          const groupArrByTemplate = arrData.map(item => {
-            const group = _.groupBy(item, it => it['template']);
-            return group
-          })
-  
-          //change objects to arr and remove key 
-          const arrGroup = Object.keys(groupArrByTemplate).map((key) => {
-            return Object.values(groupArrByTemplate[[key]]);
-          });
-  
-  
-          const syntheseServices = arrGroup.map(item => {
-            return item.map(it => {
-              if (it[0]['template'] === 'exception') {
-                const severalHarshAcceleration = it.filter(item => item["Infraction"] === "Several Harsh Acceleration").length;
-                const harshAcceleration = it.filter(item => item["Infraction"] === "Harsh Acceleration").length;
-                const harshTurn = it.filter(item => item["Infraction"] === "Harsh Turn").length;
-                const severalHarshTurn = it.filter(item => item["Infraction"] === "Several Harsh Turn").length;
-                const severalHarshBrake = it.filter(item => item["Infraction"] === "Several Harsh Brake").length;
-                const harshBrake = it.filter(item => item["Infraction"] === "Harsh brake").length
+              //Group notifications By VehicleID
+              const groupItemByVehicleGroup = _.groupBy(synthese, synth => synth['Grouping']);
+      
+              //change objects to arr and remove key 
+              const arrData = Object.keys(groupItemByVehicleGroup).map((key) => {
+                return Object.values(groupItemByVehicleGroup[[key]]);
+              });
+      
+      
+              const groupArrByTemplate = arrData.map(item => {
+                const group = _.groupBy(item, it => it['template']);
+                return group
+              })
+      
+              //change objects to arr and remove key 
+              const arrGroup = Object.keys(groupArrByTemplate).map((key) => {
+                return Object.values(groupArrByTemplate[[key]]);
+              });
+      
+      
+              const syntheseServices = arrGroup.map(item => {
+                return item.map(it => {
+                  if (it[0]['template'] === 'exception') {
+                    const severalHarshAcceleration = it.filter(item => item["Infraction"] === "Several Harsh Acceleration").length;
+                    const harshAcceleration = it.filter(item => item["Infraction"] === "Harsh Acceleration").length;
+                    const harshTurn = it.filter(item => item["Infraction"] === "Harsh Turn").length;
+                    const severalHarshTurn = it.filter(item => item["Infraction"] === "Several Harsh Turn").length;
+                    const severalHarshBrake = it.filter(item => item["Infraction"] === "Several Harsh Brake").length;
+                    const harshBrake = it.filter(item => item["Infraction"] === "Harsh brake").length
+                    return {
+                      "Grouping": it[0]["Grouping"],
+                      "Affectations": it[0]["Affectations"],
+                      "Conducteur": it[0]["Conducteur"],
+                      "Several Harsh Acceleration": severalHarshAcceleration || 0,
+                      "Harsh Acceleration": harshAcceleration || 0,
+                      "Harsh Turn": harshTurn || 0,
+                      "Several Harsh Turn": severalHarshTurn || 0,
+                      "Several Harsh Brake": severalHarshBrake || 0,
+                      "Harsh Brake": harshBrake || 0
+                    }
+                  }
+                  if (it[0]['template'] === 'trajet') {
+                    const totalTime = calculateTime(it);
+                    const totalDistance = it.reduce((acc, item) => acc + parseFloat(item['Distance']), 0).toFixed(2);
+                    const itemWithWeekendStatus = it.filter(item => item.weekend === true);
+                    const totalTimeWeekends = calculateTime(itemWithWeekendStatus);
+                    const totalDistanceWeekends = itemWithWeekendStatus.reduce((acc, item) => acc + parseFloat(item['Distance']), 0).toFixed(2)
+                    return {
+                      "Grouping": it[0]["Grouping"],
+                      "Affectations": it[0]["Affectations"],
+                      "Conducteur": it[0]["Conducteur"],
+                      Distance: totalDistance || 0,
+                      Duration: totalTime || 0,
+                      Distances: totalDistanceWeekends || 0,
+                      Durations: totalTimeWeekends || 0
+                    }
+                  }
+      
+                  if (it[0]['template'] === 'conduiteNuit') {
+                    const el = it[0];
+                    const conduiteNuit1 = it.filter(item => item.Intervalles === "22H-24H").length;
+                    const conduiteNuit2 = it.filter(item => item.Intervalles === "24H-04H").length;
+                    return {
+                      "Grouping": el.Grouping,
+                      "Affectations": el.Affectations,
+                      "Conducteur": el.Conducteur,
+                      "22H24H": conduiteNuit1,
+                      "24H04H": conduiteNuit2
+                    }
+                  }
+      
+                  if (it[0]['template'] === 'villeLegere') {
+                    return {
+                      "Grouping": it[0]["Grouping"],
+                      "Affectations": it[0]["Affectations"],
+                      "Conducteur": it[0]["Conducteur"],
+                      "Legere-Ville": it.length || 0 
+                    }
+                  }
+      
+                  if (it[0]['template'] === 'villeSevere') {
+                    return {
+                      "Grouping": it[0]["Grouping"],
+                      "Affectations": it[0]["Affectations"],
+                      "Conducteur": it[0]["Conducteur"],
+                      "Severe-Ville": it.length || 0
+                    }
+                  }
+      
+                  if (it[0]['template'] === 'horsVilleSevere') {
+                    return {
+                      "Grouping": it[0]["Grouping"],
+                      "Affectations": it[0]["Affectations"],
+                      "Conducteur": it[0]["Conducteur"],
+                      "Severe-HorsVille": it.length || 0
+                    }
+                  }
+      
+                  if (it[0]['template'] === 'horsVilleLegere') {
+                    return {
+                      "Grouping": it[0]["Grouping"],
+                      "Affectations": it[0]["Affectations"],
+                      "Conducteur": it[0]["Conducteur"],
+                      "Legere-HorsVille": it.length || 0
+                    }
+                  }
+      
+      
+                  if (it[0]['template'] === 'severeNat3') {
+                    return {
+                      "Grouping": it[0]["Grouping"],
+                      "Affectations": it[0]["Affectations"],
+                      "Conducteur": it[0]["Conducteur"],
+                      "Severe-Nat3": it.length || 0
+                    }
+                  }
+      
+                  if (it[0]['template'] === 'legereNat3') {
+                    return {
+                      "Grouping": it[0]["Grouping"],
+                      "Affectations": it[0]["Affectations"],
+                      "Conducteur": it[0]["Conducteur"],
+                      "Legere-Nat3": it.length || 0
+                    }
+                  }
+      
+                })
+              })
+      
+              //Merge objects Arr
+              const mergObjects = syntheseServices.map(item => {
+                return item.reduce(((r, c) => Object.assign(r, c)), {})
+              })
+      
+      
+              //Range service 
+              const finalService = mergObjects.map(item => {
                 return {
-                  "Grouping": it[0]["Grouping"],
-                  "Affectations": it[0]["Affectations"],
-                  "Conducteur": it[0]["Conducteur"],
-                  "Several Harsh Acceleration": severalHarshAcceleration || 0,
-                  "Harsh Acceleration": harshAcceleration || 0,
-                  "Harsh Turn": harshTurn || 0,
-                  "Several Harsh Turn": severalHarshTurn || 0,
-                  "Several Harsh Brake": severalHarshBrake || 0,
-                  "Harsh Brake": harshBrake || 0
+                  "Imatriculations": item["Grouping"],
+                  "Affectations": item["Affectations"],
+                  "Utilisateurs": item["Conducteur"],
+                  "Distance": item["Distance"] || 0,
+                  "Duration": item["Duration"] || 0,
+                  "Harsh Acceleration": item["Harsh Acceleration"] || 0,
+                  "Several Acceleration": item["Several Harsh Acceleration"] || 0,
+                  "Harsh Turn": item["Harsh Turn"] || 0,
+                  "Several Turn": item["Several Harsh Turn"] || 0,
+                  "Harsh Brake": item["Harsh Brake"] || 0,
+                  "Several Brake": item["Several Harsh Brake"] || 0,
+                  "22H24H": item["22H24H"] || 0,
+                  "24H04H": item["24H04H"] || 0,
+                  "Distances": item["Distances"] || 0,
+                  "Durations": item["Durations"] ||`00:00:00`,
+                  "Severe-Ville": item["Severe-Ville"] || 0,
+                  "Legere-Ville": item["Legere-Ville"] || 0,
+                  "Severe-HorsVille": item["Severe-HorsVille"] || 0,
+                  "Legere-HorsVille": item["Legere-HorsVille"] || 0,
+                  "Severe-Nat3": item["Severe-Nat3"] || 0,
+                  "Legere-Nat3": item["Legere-Nat3"] || 0,
                 }
-              }
-              if (it[0]['template'] === 'trajet') {
-                const totalTime = calculateTime(it);
-                const totalDistance = it.reduce((acc, item) => acc + parseFloat(item['Distance']), 0).toFixed(2);
-                const itemWithWeekendStatus = it.filter(item => item.weekend === true);
-                const totalTimeWeekends = calculateTime(itemWithWeekendStatus);
-                const totalDistanceWeekends = itemWithWeekendStatus.reduce((acc, item) => acc + parseFloat(item['Distance']), 0).toFixed(2)
-                return {
-                  "Grouping": it[0]["Grouping"],
-                  "Affectations": it[0]["Affectations"],
-                  "Conducteur": it[0]["Conducteur"],
-                  Distance: totalDistance || 0,
-                  Duration: totalTime || 0,
-                  Distances: totalDistanceWeekends || 0,
-                  Durations: totalTimeWeekends || 0
-                }
-              }
-  
-              if (it[0]['template'] === 'conduiteNuit') {
-                const el = it[0];
-                const conduiteNuit1 = it.filter(item => item.Intervalles === "22H-24H").length;
-                const conduiteNuit2 = it.filter(item => item.Intervalles === "24H-04H").length;
-                return {
-                  "Grouping": el.Grouping,
-                  "Affectations": el.Affectations,
-                  "Conducteur": el.Conducteur,
-                  "22H24H": conduiteNuit1,
-                  "24H04H": conduiteNuit2
-                }
-              }
-  
-              if (it[0]['template'] === 'villeLegere') {
-                return {
-                  "Grouping": it[0]["Grouping"],
-                  "Affectations": it[0]["Affectations"],
-                  "Conducteur": it[0]["Conducteur"],
-                   "Legere-Ville": it.length || 0 
-                }
-              }
-  
-              if (it[0]['template'] === 'villeSevere') {
-                return {
-                  "Grouping": it[0]["Grouping"],
-                  "Affectations": it[0]["Affectations"],
-                  "Conducteur": it[0]["Conducteur"],
-                  "Severe-Ville": it.length || 0
-                }
-              }
-  
-              if (it[0]['template'] === 'horsVilleSevere') {
-                return {
-                  "Grouping": it[0]["Grouping"],
-                  "Affectations": it[0]["Affectations"],
-                  "Conducteur": it[0]["Conducteur"],
-                  "Severe-HorsVille": it.length || 0
-                }
-              }
-  
-              if (it[0]['template'] === 'horsVilleLegere') {
-                return {
-                  "Grouping": it[0]["Grouping"],
-                  "Affectations": it[0]["Affectations"],
-                  "Conducteur": it[0]["Conducteur"],
-                  "Legere-HorsVille": it.length || 0
-                }
-              }
-  
-  
-              if (it[0]['template'] === 'severeNat3') {
-                return {
-                  "Grouping": it[0]["Grouping"],
-                  "Affectations": it[0]["Affectations"],
-                  "Conducteur": it[0]["Conducteur"],
-                  "Severe-Nat3": it.length || 0
-                }
-              }
-  
-              if (it[0]['template'] === 'legereNat3') {
-                return {
-                  "Grouping": it[0]["Grouping"],
-                  "Affectations": it[0]["Affectations"],
-                  "Conducteur": it[0]["Conducteur"],
-                  "Legere-Nat3": it.length || 0
-                }
-              }
-  
-            })
-          })
-  
-          //Merge objects Arr
-          const mergObjects = syntheseServices.map(item => {
-            return item.reduce(((r, c) => Object.assign(r, c)), {})
-          })
-  
-  
-          //Range service 
-          const finalService = mergObjects.map(item => {
-            return {
-              "Imatriculations": item["Grouping"],
-              "Affectations": item["Affectations"],
-              "Utilisateurs": item["Conducteur"],
-              "Distance": item["Distance"] || 0,
-              "Duration": item["Duration"] || 0,
-              "Harsh Acceleration": item["Harsh Acceleration"] || 0,
-              "Several Acceleration": item["Several Harsh Acceleration"] || 0,
-              "Harsh Turn": item["Harsh Turn"] || 0,
-              "Several Turn": item["Several Harsh Turn"] || 0,
-              "Harsh Brake": item["Harsh Brake"] || 0,
-              "Several Brake": item["Several Harsh Brake"] || 0,
-              "22H24H": item["22H24H"] || 0,
-              "24H04H": item["24H04H"] || 0,
-              "Distances": item["Distances"] || 0,
-              "Durations": item["Durations"] ||`00:00:00`,
-              "Severe-Ville": item["Severe-Ville"] || 0,
-              "Legere-Ville": item["Legere-Ville"] || 0,
-              "Severe-HorsVille": item["Severe-HorsVille"] || 0,
-              "Legere-HorsVille": item["Legere-HorsVille"] || 0,
-              "Severe-Nat3": item["Severe-Nat3"] || 0,
-              "Legere-Nat3": item["Legere-Nat3"] || 0,
+              })
+              await generateSyntheseSheetPerenco(`${pathFile}-${titleDate}.xlsx`,finalService, SYNTHESE);
             }
-          })
-          await generateSyntheseSheetPerenco(`${pathFile}-${titleDate}.xlsx`,finalService, SYNTHESE);
-        }
-      )  */
-     
+          )  
+      */
       /*   
         .then(()=>{
             if (sender && receivers) {
@@ -1459,11 +1464,10 @@ async function generateHebdoRepportPerenco() {
 }
 
 
-/* 
 async function generateAllRepportPerenco(){
-  await  generateDaylyRepportPerenco();
+ // await  generateDaylyRepportPerenco();
   await  generateHebdoRepportPerenco();
-} */
+} 
 
 
-module.exports ={generateHebdoRepportPerenco, generateDaylyRepportPerenco}
+module.exports ={generateHebdoRepportPerenco, generateDaylyRepportPerenco,generateAllRepportPerenco}
