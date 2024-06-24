@@ -44,4 +44,5 @@ async function getData(group,col) {
 }
 
 
+
 module.exports = {getData}

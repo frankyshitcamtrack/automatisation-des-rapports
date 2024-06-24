@@ -22,7 +22,6 @@ function calculateTime(Arr){
       const minFormat = min>9?min:`0${min}`;
       const secFormat = s>9?s:`0${s}`;
       const totalTime=`${hr}:${minFormat}:${secFormat}`
-      
       return totalTime;
     }
   }

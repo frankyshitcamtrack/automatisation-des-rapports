@@ -17,7 +17,9 @@ const { Senders } = require('../storage/mailSender.storage')
 const { sendMail } = require('../utils/sendMail');
 const { PERENCO } = require('../constants/clients');
 const { ADMIN_PERENCO } = require('../constants/ressourcesClient');
+const {ACTIVITY_REPORT_SUBJECT_MAIL_PERENCO_DAY,ACTIVITY_REPORT_SUBJECT_MAIL_PERENCO_WEEK,ACTIVITY_REPORT_SUBJECT_MAIL_PERENCO_TRACKING,ACTIVITY_REPORT_SUBJECT_MAIL_PERENCO_TRAVERSER, ACTIVITY_REPORT_SUBJECT_MAIL_PERENCO_EXCES_VITESSE}=require('../constants/mailSubjects');
 const { RAPPORT_ACTIVITE_FLOTTE_PERENCO, RAPPORT_EXCES_DE_VITESSE_FLOTTE,RAPPORT_TRAVERSE_ZONE_BONABERI } = require('../constants/template');
+
 const {
   ECO_DRIVING,
   DETAIL_TRAJET,
@@ -40,8 +42,8 @@ const { json } = require('body-parser');
 async function generateDaylyRepportPerenco() {
   try {
     const synthese = []
-    /*const sender = await Senders(PERENCO, 'E');
-      const receivers = await Receivers(PERENCO, 'D'); */
+    const sender = await Senders(PERENCO, 'E');
+    const receivers = await Receivers(PERENCO, 'D'); 
     const fistAndLastHourDay = getFistAndLastHourDay();
     const firstHourDay = fistAndLastHourDay.firstHourDayTimestamp;
     const lastHourDay = fistAndLastHourDay.lastHourDayTimestamp;
@@ -124,7 +126,7 @@ async function generateDaylyRepportPerenco() {
                 }
               });
 
-              const addWeekend = addWeekendStatus(rangeData);
+              const addWeekend = await addWeekendStatus(rangeData);
 
               const updateDataWithoutUser = utilisateurNullDetailTrajet(addWeekend)
               //add affectation header at the 1 index
@@ -509,7 +511,7 @@ async function generateDaylyRepportPerenco() {
               console.log(`no data found in ${RAPPORT_EXCES_DE_VITESSE_FLOTTE} ${EXCES_DE_VITESSE_SEVERE_NAT3_VILLE}`);
             }
           }).catch(err => console.log(err))
-      }) 
+      })  
    
       .then(
         async() => {
@@ -678,17 +680,14 @@ async function generateDaylyRepportPerenco() {
           await generateSyntheseSheetPerenco(`${pathFile}-${titleDate}.xlsx`,finalService, SYNTHESE);
         }
       ) 
-      
-   
-     
-      /*   
+  
         .then(()=>{
             if (sender && receivers) {
               setTimeout(() => {
-                sendMail(sender,test,pass, EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM, `${EXCEPTION_REPORT_SUBJECT_MAIL}`,`${EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM}.xlsx`, path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
+                sendMail(sender,receivers,pass, RAPPORT_ACTIVITE_FLOTTE_PERENCO, `${ACTIVITY_REPORT_SUBJECT_MAIL_PERENCO_DAY}`,`${RAPPORT_ACTIVITE_FLOTTE_PERENCO}.xlsx`, path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
               }, 30000)
             } 
-          })  */
+          })  
       .catch(err => console.log(err))
 
 
@@ -702,8 +701,8 @@ async function generateDaylyRepportPerenco() {
 async function generateHebdoRepportPerenco() {
   try {
     const synthese = []
-    /*const sender = await Senders(PERENCO, 'E');
-      const receivers = await Receivers(PERENCO, 'D'); */
+    const sender = await Senders(PERENCO, 'E');
+    const receivers = await Receivers(PERENCO, 'D');  
     const fistAndLastHourDay = getFirstAndLastSevendays();
     const firstHourDay = fistAndLastHourDay.firstHourDayTimestamp;
     const lastHourDay = fistAndLastHourDay.lastHourDayTimestamp;
@@ -760,7 +759,7 @@ async function generateHebdoRepportPerenco() {
           console.log(`no data found in ${RAPPORT_ACTIVITE_FLOTTE_PERENCO} ${ECO_DRIVING}`);
         }
       })
-   /*    .then(async () => {
+       .then(async () => {
         await getRepportData(ADMIN_PERENCO, RAPPORT_ACTIVITE_FLOTTE_PERENCO, PERENCO, firstHourDay, lastHourDay, DETAIL_TRAJET)
           .then(async (res) => {
             const objLenth = res?.obj.length;
@@ -789,7 +788,7 @@ async function generateHebdoRepportPerenco() {
                 }
               });
 
-              const addWeekend = addWeekendStatus(rangeData);
+              const addWeekend = await addWeekendStatus(rangeData);
 
               const updateDataWithoutUser = utilisateurNullDetailTrajet(addWeekend)
               //add affectation header at the 1 index
@@ -808,8 +807,8 @@ async function generateHebdoRepportPerenco() {
             }
           })
           .catch(err => console.log(err))
-      }) */
-/*       .then(async () => {
+      }) 
+     .then(async () => {
         await getRepportData(ADMIN_PERENCO, RAPPORT_ACTIVITE_FLOTTE_PERENCO, PERENCO, firstHourDay, lastHourDay, CONDUITE_DE_NUIT)
           .then(async (res) => {
             const objLenth = res?.obj.length;
@@ -1180,8 +1179,7 @@ async function generateHebdoRepportPerenco() {
             }
           }).catch(err => console.log(err))
       })  
-
-      .then(async () => {
+     .then(async () => {
         await getRepportData(ADMIN_PERENCO, RAPPORT_TRAVERSE_ZONE_BONABERI, PERENCO, firstHourDay, lastHourDay, ZONES)
           .then(async (res) => {
             const objLenth = res?.obj.length;
@@ -1225,7 +1223,7 @@ async function generateHebdoRepportPerenco() {
               console.log(`no data found in ${RAPPORT_TRAVERSE_ZONE_BONABERI} ${ZONES}`);
             }
           }).catch(err => console.log(err))
-      })  */ 
+      })  
       .then(async () => {
         await getRepportDataUnit(ADMIN_PERENCO, RAPPORT_ACTIVITE_FLOTTE_PERENCO, PERENCO, firstHourDay, lastHourDay, DETAIL_TRAJET)
           .then(async (res) => {
@@ -1276,184 +1274,201 @@ async function generateHebdoRepportPerenco() {
             }
           })
           .catch(err => console.log(err))
-      })
+      }) 
+      .then(async () => {
 
-    /*   .then(
-            async() => {
+          //Group notifications By VehicleID
+          const groupItemByVehicleGroup = _.groupBy(synthese, synth => synth['Grouping']);
 
-              //Group notifications By VehicleID
-              const groupItemByVehicleGroup = _.groupBy(synthese, synth => synth['Grouping']);
-      
-              //change objects to arr and remove key 
-              const arrData = Object.keys(groupItemByVehicleGroup).map((key) => {
-                return Object.values(groupItemByVehicleGroup[[key]]);
-              });
-      
-      
-              const groupArrByTemplate = arrData.map(item => {
-                const group = _.groupBy(item, it => it['template']);
-                return group
-              })
-      
-              //change objects to arr and remove key 
-              const arrGroup = Object.keys(groupArrByTemplate).map((key) => {
-                return Object.values(groupArrByTemplate[[key]]);
-              });
-      
-      
-              const syntheseServices = arrGroup.map(item => {
-                return item.map(it => {
-                  if (it[0]['template'] === 'exception') {
-                    const severalHarshAcceleration = it.filter(item => item["Infraction"] === "Several Harsh Acceleration").length;
-                    const harshAcceleration = it.filter(item => item["Infraction"] === "Harsh Acceleration").length;
-                    const harshTurn = it.filter(item => item["Infraction"] === "Harsh Turn").length;
-                    const severalHarshTurn = it.filter(item => item["Infraction"] === "Several Harsh Turn").length;
-                    const severalHarshBrake = it.filter(item => item["Infraction"] === "Several Harsh Brake").length;
-                    const harshBrake = it.filter(item => item["Infraction"] === "Harsh brake").length
-                    return {
-                      "Grouping": it[0]["Grouping"],
-                      "Affectations": it[0]["Affectations"],
-                      "Conducteur": it[0]["Conducteur"],
-                      "Several Harsh Acceleration": severalHarshAcceleration || 0,
-                      "Harsh Acceleration": harshAcceleration || 0,
-                      "Harsh Turn": harshTurn || 0,
-                      "Several Harsh Turn": severalHarshTurn || 0,
-                      "Several Harsh Brake": severalHarshBrake || 0,
-                      "Harsh Brake": harshBrake || 0
-                    }
-                  }
-                  if (it[0]['template'] === 'trajet') {
-                    const totalTime = calculateTime(it);
-                    const totalDistance = it.reduce((acc, item) => acc + parseFloat(item['Distance']), 0).toFixed(2);
-                    const itemWithWeekendStatus = it.filter(item => item.weekend === true);
-                    const totalTimeWeekends = calculateTime(itemWithWeekendStatus);
-                    const totalDistanceWeekends = itemWithWeekendStatus.reduce((acc, item) => acc + parseFloat(item['Distance']), 0).toFixed(2)
-                    return {
-                      "Grouping": it[0]["Grouping"],
-                      "Affectations": it[0]["Affectations"],
-                      "Conducteur": it[0]["Conducteur"],
-                      Distance: totalDistance || 0,
-                      Duration: totalTime || 0,
-                      Distances: totalDistanceWeekends || 0,
-                      Durations: totalTimeWeekends || 0
-                    }
-                  }
-      
-                  if (it[0]['template'] === 'conduiteNuit') {
-                    const el = it[0];
-                    const conduiteNuit1 = it.filter(item => item.Intervalles === "22H-24H").length;
-                    const conduiteNuit2 = it.filter(item => item.Intervalles === "24H-04H").length;
-                    return {
-                      "Grouping": el.Grouping,
-                      "Affectations": el.Affectations,
-                      "Conducteur": el.Conducteur,
-                      "22H24H": conduiteNuit1,
-                      "24H04H": conduiteNuit2
-                    }
-                  }
-      
-                  if (it[0]['template'] === 'villeLegere') {
-                    return {
-                      "Grouping": it[0]["Grouping"],
-                      "Affectations": it[0]["Affectations"],
-                      "Conducteur": it[0]["Conducteur"],
-                      "Legere-Ville": it.length || 0 
-                    }
-                  }
-      
-                  if (it[0]['template'] === 'villeSevere') {
-                    return {
-                      "Grouping": it[0]["Grouping"],
-                      "Affectations": it[0]["Affectations"],
-                      "Conducteur": it[0]["Conducteur"],
-                      "Severe-Ville": it.length || 0
-                    }
-                  }
-      
-                  if (it[0]['template'] === 'horsVilleSevere') {
-                    return {
-                      "Grouping": it[0]["Grouping"],
-                      "Affectations": it[0]["Affectations"],
-                      "Conducteur": it[0]["Conducteur"],
-                      "Severe-HorsVille": it.length || 0
-                    }
-                  }
-      
-                  if (it[0]['template'] === 'horsVilleLegere') {
-                    return {
-                      "Grouping": it[0]["Grouping"],
-                      "Affectations": it[0]["Affectations"],
-                      "Conducteur": it[0]["Conducteur"],
-                      "Legere-HorsVille": it.length || 0
-                    }
-                  }
-      
-      
-                  if (it[0]['template'] === 'severeNat3') {
-                    return {
-                      "Grouping": it[0]["Grouping"],
-                      "Affectations": it[0]["Affectations"],
-                      "Conducteur": it[0]["Conducteur"],
-                      "Severe-Nat3": it.length || 0
-                    }
-                  }
-      
-                  if (it[0]['template'] === 'legereNat3') {
-                    return {
-                      "Grouping": it[0]["Grouping"],
-                      "Affectations": it[0]["Affectations"],
-                      "Conducteur": it[0]["Conducteur"],
-                      "Legere-Nat3": it.length || 0
-                    }
-                  }
-      
-                })
-              })
-      
-              //Merge objects Arr
-              const mergObjects = syntheseServices.map(item => {
-                return item.reduce(((r, c) => Object.assign(r, c)), {})
-              })
-      
-      
-              //Range service 
-              const finalService = mergObjects.map(item => {
+          //change objects to arr and remove key 
+          const arrData = Object.keys(groupItemByVehicleGroup).map((key) => {
+            return Object.values(groupItemByVehicleGroup[[key]]);
+          });
+
+
+          const groupArrByTemplate = arrData.map(item => {
+            const group = _.groupBy(item, it => it['template']);
+            return group
+          })
+
+          //change objects to arr and remove key 
+          const arrGroup = Object.keys(groupArrByTemplate).map((key) => {
+            return Object.values(groupArrByTemplate[[key]]);
+          });
+
+
+          const syntheseServices = arrGroup.map(item => {
+            return item.map(it => {
+              if (it[0]['template'] === 'exception') {
+                const severalHarshAcceleration = it.filter(item => item["Infraction"] === "Several Harsh Acceleration").length;
+                const harshAcceleration = it.filter(item => item["Infraction"] === "Harsh Acceleration").length;
+                const harshTurn = it.filter(item => item["Infraction"] === "Harsh Turn").length;
+                const severalHarshTurn = it.filter(item => item["Infraction"] === "Several Harsh Turn").length;
+                const severalHarshBrake = it.filter(item => item["Infraction"] === "Several Harsh Brake").length;
+                const harshBrake = it.filter(item => item["Infraction"] === "Harsh brake").length
                 return {
-                  "Imatriculations": item["Grouping"],
-                  "Affectations": item["Affectations"],
-                  "Utilisateurs": item["Conducteur"],
-                  "Distance": item["Distance"] || 0,
-                  "Duration": item["Duration"] || 0,
-                  "Harsh Acceleration": item["Harsh Acceleration"] || 0,
-                  "Several Acceleration": item["Several Harsh Acceleration"] || 0,
-                  "Harsh Turn": item["Harsh Turn"] || 0,
-                  "Several Turn": item["Several Harsh Turn"] || 0,
-                  "Harsh Brake": item["Harsh Brake"] || 0,
-                  "Several Brake": item["Several Harsh Brake"] || 0,
-                  "22H24H": item["22H24H"] || 0,
-                  "24H04H": item["24H04H"] || 0,
-                  "Distances": item["Distances"] || 0,
-                  "Durations": item["Durations"] ||`00:00:00`,
-                  "Severe-Ville": item["Severe-Ville"] || 0,
-                  "Legere-Ville": item["Legere-Ville"] || 0,
-                  "Severe-HorsVille": item["Severe-HorsVille"] || 0,
-                  "Legere-HorsVille": item["Legere-HorsVille"] || 0,
-                  "Severe-Nat3": item["Severe-Nat3"] || 0,
-                  "Legere-Nat3": item["Legere-Nat3"] || 0,
+                  "Grouping": it[0]["Grouping"],
+                  "Affectations": it[0]["Affectations"],
+                  "Conducteur": it[0]["Conducteur"],
+                  "Several Harsh Acceleration": severalHarshAcceleration || 0,
+                  "Harsh Acceleration": harshAcceleration || 0,
+                  "Harsh Turn": harshTurn || 0,
+                  "Several Harsh Turn": severalHarshTurn || 0,
+                  "Several Harsh Brake": severalHarshBrake || 0,
+                  "Harsh Brake": harshBrake || 0
                 }
-              })
-              await generateSyntheseSheetPerenco(`${pathFile}-${titleDate}.xlsx`,finalService, SYNTHESE);
+              }
+              if (it[0]['template'] === 'trajet') {
+                const totalTime = calculateTime(it);
+                const totalDistance = it.reduce((acc, item) => acc + parseFloat(item['Distance']), 0).toFixed(2);
+                const itemWithWeekendStatus = it.filter(item => item.weekend === true);
+                const totalTimeWeekends = calculateTime(itemWithWeekendStatus);
+                const totalDistanceWeekends = itemWithWeekendStatus.reduce((acc, item) => acc + parseFloat(item['Distance']), 0).toFixed(2)
+                return {
+                  "Grouping": it[0]["Grouping"],
+                  "Affectations": it[0]["Affectations"],
+                  "Conducteur": it[0]["Conducteur"],
+                  Distance: totalDistance || 0,
+                  Duration: totalTime || 0,
+                  Distances: totalDistanceWeekends || 0,
+                  Durations: totalTimeWeekends || 0
+                }
+              }
+
+              if (it[0]['template'] === 'conduiteNuit') {
+                const el = it[0];
+                const conduiteNuit1 = it.filter(item => item.Intervalles === "22H-24H").length;
+                const conduiteNuit2 = it.filter(item => item.Intervalles === "24H-04H").length;
+                return {
+                  "Grouping": el.Grouping,
+                  "Affectations": el.Affectations,
+                  "Conducteur": el.Conducteur,
+                  "22H24H": conduiteNuit1,
+                  "24H04H": conduiteNuit2
+                }
+              }
+
+              if (it[0]['template'] === 'villeLegere') {
+                return {
+                  "Grouping": it[0]["Grouping"],
+                  "Affectations": it[0]["Affectations"],
+                  "Conducteur": it[0]["Conducteur"],
+                  "Legere-Ville": it.length || 0
+                }
+              }
+
+              if (it[0]['template'] === 'villeSevere') {
+                return {
+                  "Grouping": it[0]["Grouping"],
+                  "Affectations": it[0]["Affectations"],
+                  "Conducteur": it[0]["Conducteur"],
+                  "Severe-Ville": it.length || 0
+                }
+              }
+
+              if (it[0]['template'] === 'horsVilleSevere') {
+                return {
+                  "Grouping": it[0]["Grouping"],
+                  "Affectations": it[0]["Affectations"],
+                  "Conducteur": it[0]["Conducteur"],
+                  "Severe-HorsVille": it.length || 0
+                }
+              }
+
+              if (it[0]['template'] === 'horsVilleLegere') {
+                return {
+                  "Grouping": it[0]["Grouping"],
+                  "Affectations": it[0]["Affectations"],
+                  "Conducteur": it[0]["Conducteur"],
+                  "Legere-HorsVille": it.length || 0
+                }
+              }
+
+
+              if (it[0]['template'] === 'severeNat3') {
+                return {
+                  "Grouping": it[0]["Grouping"],
+                  "Affectations": it[0]["Affectations"],
+                  "Conducteur": it[0]["Conducteur"],
+                  "Severe-Nat3": it.length || 0
+                }
+              }
+
+              if (it[0]['template'] === 'legereNat3') {
+                return {
+                  "Grouping": it[0]["Grouping"],
+                  "Affectations": it[0]["Affectations"],
+                  "Conducteur": it[0]["Conducteur"],
+                  "Legere-Nat3": it.length || 0
+                }
+              }
+
+            })
+          })
+
+          //Merge objects Arr
+          const mergObjects = syntheseServices.map(item => {
+            return item.reduce(((r, c) => Object.assign(r, c)), {})
+          })
+
+
+          //Range service 
+          const finalService = mergObjects.map(item => {
+            return {
+              "Imatriculations": item["Grouping"],
+              "Affectations": item["Affectations"],
+              "Utilisateurs": item["Conducteur"],
+              "Distance": item["Distance"] || 0,
+              "Duration": item["Duration"] || 0,
+              "Harsh Acceleration": item["Harsh Acceleration"] || 0,
+              "Several Acceleration": item["Several Harsh Acceleration"] || 0,
+              "Harsh Turn": item["Harsh Turn"] || 0,
+              "Several Turn": item["Several Harsh Turn"] || 0,
+              "Harsh Brake": item["Harsh Brake"] || 0,
+              "Several Brake": item["Several Harsh Brake"] || 0,
+              "22H24H": item["22H24H"] || 0,
+              "24H04H": item["24H04H"] || 0,
+              "Distances": item["Distances"] || 0,
+              "Durations": item["Durations"] || `00:00:00`,
+              "Severe-Ville": item["Severe-Ville"] || 0,
+              "Legere-Ville": item["Legere-Ville"] || 0,
+              "Severe-HorsVille": item["Severe-HorsVille"] || 0,
+              "Legere-HorsVille": item["Legere-HorsVille"] || 0,
+              "Severe-Nat3": item["Severe-Nat3"] || 0,
+              "Legere-Nat3": item["Legere-Nat3"] || 0,
             }
-          )  
-      */
-      /*   
-        .then(()=>{
-            if (sender && receivers) {
-              setTimeout(() => {
-                sendMail(sender,test,pass, EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM, `${EXCEPTION_REPORT_SUBJECT_MAIL}`,`${EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM}.xlsx`, path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
-              }, 30000)
-            } 
-          })  */
+          })
+          await generateSyntheseSheetPerenco(`${pathFile}-${titleDate}.xlsx`, finalService, SYNTHESE);
+        }
+      )
+      .then(() => {
+        if (sender && receivers) {
+          setTimeout(() => {
+            sendMail(sender, receivers, pass, RAPPORT_ACTIVITE_FLOTTE_PERENCO, `${ACTIVITY_REPORT_SUBJECT_MAIL_PERENCO_WEEK}`, `${RAPPORT_ACTIVITE_FLOTTE_PERENCO}.xlsx`, path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
+          }, 30000)
+        }
+      })
+      .then(() => {
+        if (sender && receivers) {
+          setTimeout(() => {
+            sendMail(sender, receivers, pass, RAPPORT_TRAVERSE_ZONE_BONABERI, `${ACTIVITY_REPORT_SURAPPORT_TRAVERSE_ZONE_BONABERI}`, `${RAPPORT_TRAVERSE_ZONE_BONABERI}.xlsx`, path.join(__dirname, `../../${pathFileHorsZoneBonaberi}-${titleDate}.xlsx`));
+          }, 30000)
+        }
+      })
+      .then(() => {
+        if (sender && receivers) {
+          setTimeout(() => {
+            sendMail(sender, receivers, pass, RAPPORT_EXCES_DE_VITESSE_FLOTTE, `${ACTIVITY_REPORT_SUBJECT_MAIL_PERENCO_EXCES_VITESSE}`, `${RAPPORT_EXCES_DE_VITESSE_FLOTTE}.xlsx`, path.join(__dirname, `../../${pathFileExcesVitesse}-${titleDate}.xlsx`));
+          }, 30000)
+        }
+      })
+      .then(() => {
+        if (sender && receivers) {
+          setTimeout(() => {
+            sendMail(sender, receivers, pass,TRACKING_TRACAFIC, `${ACTIVITY_REPORT_SUBJECT_MAIL_PERENCO_TRACKING}`, `${TRACKING_TRACAFIC}.xlsx`, path.join(__dirname, `../../${pathTracking}-${titleDate}.xlsx`));
+          }, 30000)
+        }
+      })
       .catch(err => console.log(err))
 
 
@@ -1465,8 +1480,19 @@ async function generateHebdoRepportPerenco() {
 
 
 async function generateAllRepportPerenco(){
- // await  generateDaylyRepportPerenco();
-  await  generateHebdoRepportPerenco();
+  cron.schedule('30 6 * * *', async () => {
+    await  generateDaylyRepportPerenco();
+  }, {
+    scheduled: true,
+    timezone: "Africa/Lagos"
+  });
+
+  cron.schedule('30 6 0 * *', async () => {
+    await  generateHebdoRepportPerenco();
+  }, {
+    scheduled: true,
+    timezone: "Africa/Lagos"
+  });
 } 
 
 
