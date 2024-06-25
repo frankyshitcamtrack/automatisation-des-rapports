@@ -19,6 +19,7 @@ const { PERENCO } = require('../constants/clients');
 const { ADMIN_PERENCO } = require('../constants/ressourcesClient');
 const {ACTIVITY_REPORT_SUBJECT_MAIL_PERENCO_DAY,ACTIVITY_REPORT_SUBJECT_MAIL_PERENCO_WEEK,ACTIVITY_REPORT_SUBJECT_MAIL_PERENCO_TRACKING,ACTIVITY_REPORT_SUBJECT_MAIL_PERENCO_TRAVERSER, ACTIVITY_REPORT_SUBJECT_MAIL_PERENCO_EXCES_VITESSE}=require('../constants/mailSubjects');
 const { RAPPORT_ACTIVITE_FLOTTE_PERENCO, RAPPORT_EXCES_DE_VITESSE_FLOTTE,RAPPORT_TRAVERSE_ZONE_BONABERI } = require('../constants/template');
+const pass = process.env.PASS_MAIL_YAMDEU;
 
 const {
   ECO_DRIVING,
@@ -681,13 +682,13 @@ async function generateDaylyRepportPerenco() {
         }
       ) 
   
-        .then(()=>{
+     .then(()=>{
             if (sender && receivers) {
               setTimeout(() => {
                 sendMail(sender,receivers,pass, RAPPORT_ACTIVITE_FLOTTE_PERENCO, `${ACTIVITY_REPORT_SUBJECT_MAIL_PERENCO_DAY}`,`${RAPPORT_ACTIVITE_FLOTTE_PERENCO}.xlsx`, path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
               }, 30000)
             } 
-          })  
+          })   
       .catch(err => console.log(err))
 
 
@@ -1441,7 +1442,7 @@ async function generateHebdoRepportPerenco() {
           await generateSyntheseSheetPerenco(`${pathFile}-${titleDate}.xlsx`, finalService, SYNTHESE);
         }
       )
-      .then(() => {
+     .then(() => {
         if (sender && receivers) {
           setTimeout(() => {
             sendMail(sender, receivers, pass, RAPPORT_ACTIVITE_FLOTTE_PERENCO, `${ACTIVITY_REPORT_SUBJECT_MAIL_PERENCO_WEEK}`, `${RAPPORT_ACTIVITE_FLOTTE_PERENCO}.xlsx`, path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
@@ -1468,8 +1469,8 @@ async function generateHebdoRepportPerenco() {
             sendMail(sender, receivers, pass,TRACKING_TRACAFIC, `${ACTIVITY_REPORT_SUBJECT_MAIL_PERENCO_TRACKING}`, `${TRACKING_TRACAFIC}.xlsx`, path.join(__dirname, `../../${pathTracking}-${titleDate}.xlsx`));
           }, 30000)
         }
-      })
-      .catch(err => console.log(err))
+      }) 
+      .catch(err => console.log(err)) 
 
 
   } catch (err) {
@@ -1487,7 +1488,7 @@ async function generateAllRepportPerenco(){
     timezone: "Africa/Lagos"
   });
 
-  cron.schedule('30 6 0 * *', async () => {
+  cron.schedule('30 6 * * 0', async () => {
     await  generateHebdoRepportPerenco();
   }, {
     scheduled: true,

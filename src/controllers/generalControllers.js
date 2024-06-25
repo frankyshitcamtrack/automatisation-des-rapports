@@ -4,7 +4,7 @@ const {generateAllRepportPerenco}=require('../controllers/perenco.controllers')
 
 async function generalControllers(){
 await generateAddaxRepports();
-//await generateAllRepportPerenco();
+await generateAllRepportPerenco();
 }
 
 
