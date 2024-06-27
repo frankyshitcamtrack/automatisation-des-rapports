@@ -9,6 +9,7 @@ const { filterData48h } = require('../utils/filterDataBetween22H6H');
 const { Receivers } = require('../storage/mailReceivers.storage');
 const { Senders } = require('../storage/mailSender.storage')
 const { sendMail } = require('../utils/sendMail');
+const {deleteFile}=require('../utils/deleteFile')
 const {ADDAX_PETROLEUM}=require('../constants/clients');
 const {ADMIN_ADDAX}=require('../constants/ressourcesClient');
 const {ACTIVITY_REPORT_OF_ADDAX_PETROLEUM,LIST_OF_VEHICLES_NOT_AT_ADDAX_PARKING,EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM} =require('../constants/template');
@@ -17,7 +18,6 @@ const {ADDAX_NOT_AT_PARKING_SUBJECT_MAIL,EXCEPTION_REPORT_SUBJECT_MAIL,ACTIVITY_
 
 const test =[
   { name: 'frank', address: 'franky.shity@camtrack.net' },
-  { name: 'magnouvel', address: 'magnouvel.mekontso@camtrack.net' },
 ] 
 
 const pass = process.env.PASS_MAIL;
@@ -77,6 +77,7 @@ async function generateAddaxDaylyRepport() {
     if (sender && receivers) {
       setTimeout(() => {
         sendMail(sender,receivers,pass, EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM, `${EXCEPTION_REPORT_SUBJECT_MAIL}`,`${EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM}.xlsx`, path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
+        deleteFile(path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
       }, 30000)
     } 
   }) 
@@ -247,7 +248,8 @@ async function AddaxMonthlyRepportSynthese() {
 
   if (sender && receivers) {
     setTimeout(() => {
-      sendMail(sender,receivers, pass,`${ACTIVITY_REPORT_OF_ADDAX_PETROLEUM}`,`${ACTIVITY_REPORT_SUBJECT_MAIL}`,`${ACTIVITY_REPORT_SUBJECT_MAIL}.xlsx`, path.join(__dirname, `../../${pathFile}-${reportTitleDate}.xlsx`));
+      sendMail(sender,receivers,pass,`${ACTIVITY_REPORT_OF_ADDAX_PETROLEUM}`,`${ACTIVITY_REPORT_SUBJECT_MAIL}`,`${ACTIVITY_REPORT_SUBJECT_MAIL}.xlsx`, path.join(__dirname, `../../${pathFile}-${reportTitleDate}.xlsx`));
+      deleteFile(path.join(__dirname, `../../${pathFile}-${reportTitleDate}.xlsx`));
     }, 30000)
   } 
 }

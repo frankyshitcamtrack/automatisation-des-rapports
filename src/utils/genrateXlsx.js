@@ -1,7 +1,7 @@
 const fs = require('fs');
 
 const XLSX = require('exceljs');
-const { addImageBannerHeaderSheet, perencoHeaderSheet } = require('./bannerSheet');
+const { addImageBannerHeaderSheet, perencoHeaderSheet,guinnessHeaderSheet } = require('./bannerSheet');
 const {asignStyleToPerencoInfraction,assignStylePrencoSynthese, asignStyleToSheet}=require('./assignStylesProps')
 const { prepareSheet,prepareSheetForSynthese,addDataTosheet } = require('./prepareSheet');
 const { addRowExistSheet } = require('./addRowExistSheet')
@@ -549,9 +549,96 @@ async function generateSyntheseSheetPerenco(path,data, sheet) {
 
 
 
+async function guinnessXlsx(data, sheet, path, excelColum) {
+
+    const dataHeader = []
+
+    const isExistPath = fs.existsSync(path);
+
+    let workbook = new XLSX.Workbook();
+
+    const logo1 = workbook.addImage({
+        buffer: fs.readFileSync('rapport/Guinness/assets/guinness.jpg'),
+        extension: 'png',
+    });
+
+    const logo2 = workbook.addImage({
+        buffer: fs.readFileSync('rapport/Guinness/assets/camtrack.png'),
+        extension: 'png',
+    });
+
+    if (excelColum) {
+        excelColum.map(item => {
+            dataHeader.push(item.key);
+        })
+    }
+
+    if (dataHeader.length > 0) {
+        if (isExistPath) {
+            setTimeout(async () => {
+                console.log(`Generating file ${sheet} ...`);
+                const readFile = await workbook.xlsx.readFile(path);
+                if (readFile) {
+                    const existWorkSheet = workbook.getWorksheet(sheet);
+                    if (existWorkSheet) {
+                        const existWorkSheetName=existWorkSheet.name;
+                         if(existWorkSheetName===sheet){
+                            await addDataTosheet(existWorkSheet,data, excelColum);
+                            asignStyleToSheet(existWorkSheet);
+                         } 
+                    } else {
+                        const worksheet = workbook.addWorksheet(sheet);
+
+                        await prepareSheet(worksheet, data, dataHeader, excelColum);
+
+                        //Center image header banner depending on number of columns
+                        await guinnessHeaderSheet(worksheet, dataHeader, sheet, logo1, logo2);
+
+                    }
+ 
+                    // Export excel generated file
+                    workbook.xlsx.writeFile(path, { type: 'buffer', bookType: 'xlsx' })
+                        .then(response => {
+                            console.log("file generated");
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        })
+                    
+                 
+                }
+            }, 15000)
+
+        } else {
+            console.log(`Generating file ${sheet} ...`);
+
+            // creation of new sheet
+            const worksheet = workbook.addWorksheet(sheet);
+
+            await prepareSheet(worksheet, data, dataHeader, excelColum);
+
+             //Center image header banner depending on number of columns
+            await guinnessHeaderSheet(worksheet, dataHeader, sheet, logo1, logo2);
+
+            // Export excel generated file
+            workbook.xlsx.writeFile(path, { type: 'buffer', bookType: 'xlsx' })
+                .then(response => {
+                    console.log("file generated");
+                })
+                .catch(err => {
+                    console.log(err);
+                });
+        }
+    }
+}
 
 
 
 
 
-module.exports = { convertJsonToExcel, generateSyntheseSheetAddax, perencoXlsx,generateSyntheseSheetPerenco }
+
+
+
+
+
+module.exports = { convertJsonToExcel, generateSyntheseSheetAddax, perencoXlsx,generateSyntheseSheetPerenco,guinnessXlsx}

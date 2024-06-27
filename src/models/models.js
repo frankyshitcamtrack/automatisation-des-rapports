@@ -63,13 +63,13 @@ async function getRepportDataUnit(ressourceClient,template,client,from,to,subGro
 
 
 async function getRepportData(ressourceClient,template,client,from,to,subGroup){
+   console.log(ressourceClient,template,client,from,to,subGroup)
    let items=[];
    let repportDetail;
    let group;
    const generateRepport = await generateReportGlobal(ressourceClient,template,client,from,to,subGroup);
    
   if(generateRepport){
-  
      repportDetail = generateRepport.repportDetail;
      group = generateRepport.group;
      if(repportDetail && group){

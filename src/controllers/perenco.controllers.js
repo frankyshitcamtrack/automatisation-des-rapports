@@ -11,6 +11,7 @@ const { addWeekendStatus } = require('../utils/addWeekendStatus');
 const { utilisateurNullEcodriving, utilisateurNullDetailTrajet, utilisateurNullConduiteDeNuit, utilisateurNullExcesVitess } = require('../utils/replaceUtilisateurNull')
 const { perencoXlsx, generateSyntheseSheetPerenco } = require('../utils/genrateXlsx');
 const {removeProperties} = require('../utils/removeProperties');
+const {deleteFile}=require('../utils/deleteFile')
 const { calculateTime } = require('../utils/sommeArrTimes')
 const { Receivers } = require('../storage/mailReceivers.storage');
 const { Senders } = require('../storage/mailSender.storage')
@@ -686,6 +687,7 @@ async function generateDaylyRepportPerenco() {
             if (sender && receivers) {
               setTimeout(() => {
                 sendMail(sender,receivers,pass, RAPPORT_ACTIVITE_FLOTTE_PERENCO, `${ACTIVITY_REPORT_SUBJECT_MAIL_PERENCO_DAY}`,`${RAPPORT_ACTIVITE_FLOTTE_PERENCO}.xlsx`, path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
+                deleteFile(path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
               }, 30000)
             } 
           })   
@@ -1446,6 +1448,7 @@ async function generateHebdoRepportPerenco() {
         if (sender && receivers) {
           setTimeout(() => {
             sendMail(sender, receivers, pass, RAPPORT_ACTIVITE_FLOTTE_PERENCO, `${ACTIVITY_REPORT_SUBJECT_MAIL_PERENCO_WEEK}`, `${RAPPORT_ACTIVITE_FLOTTE_PERENCO}.xlsx`, path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
+            deleteFile(path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`))
           }, 30000)
         }
       })
@@ -1453,6 +1456,7 @@ async function generateHebdoRepportPerenco() {
         if (sender && receivers) {
           setTimeout(() => {
             sendMail(sender, receivers, pass, RAPPORT_TRAVERSE_ZONE_BONABERI, `${ACTIVITY_REPORT_SURAPPORT_TRAVERSE_ZONE_BONABERI}`, `${RAPPORT_TRAVERSE_ZONE_BONABERI}.xlsx`, path.join(__dirname, `../../${pathFileHorsZoneBonaberi}-${titleDate}.xlsx`));
+            deleteFile(path.join(__dirname, `../../${pathFileHorsZoneBonaberi}-${titleDate}.xlsx`))
           }, 30000)
         }
       })
@@ -1460,6 +1464,7 @@ async function generateHebdoRepportPerenco() {
         if (sender && receivers) {
           setTimeout(() => {
             sendMail(sender, receivers, pass, RAPPORT_EXCES_DE_VITESSE_FLOTTE, `${ACTIVITY_REPORT_SUBJECT_MAIL_PERENCO_EXCES_VITESSE}`, `${RAPPORT_EXCES_DE_VITESSE_FLOTTE}.xlsx`, path.join(__dirname, `../../${pathFileExcesVitesse}-${titleDate}.xlsx`));
+            deleteFile(path.join(__dirname, `../../${pathFileExcesVitesse}-${titleDate}.xlsx`))
           }, 30000)
         }
       })
@@ -1467,6 +1472,7 @@ async function generateHebdoRepportPerenco() {
         if (sender && receivers) {
           setTimeout(() => {
             sendMail(sender, receivers, pass,TRACKING_TRACAFIC, `${ACTIVITY_REPORT_SUBJECT_MAIL_PERENCO_TRACKING}`, `${TRACKING_TRACAFIC}.xlsx`, path.join(__dirname, `../../${pathTracking}-${titleDate}.xlsx`));
+            deleteFile(path.join(__dirname, `../../${pathTracking}-${titleDate}.xlsx`))
           }, 30000)
         }
       }) 
@@ -1481,14 +1487,14 @@ async function generateHebdoRepportPerenco() {
 
 
 async function generateAllRepportPerenco(){
-  cron.schedule('30 6 * * *', async () => {
+  cron.schedule('30 4 * * *', async () => {
     await  generateDaylyRepportPerenco();
   }, {
     scheduled: true,
     timezone: "Africa/Lagos"
   });
 
-  cron.schedule('30 6 * * 0', async () => {
+  cron.schedule('30 4 * * 0', async () => {
     await  generateHebdoRepportPerenco();
   }, {
     scheduled: true,
@@ -1497,4 +1503,4 @@ async function generateAllRepportPerenco(){
 } 
 
 
-module.exports ={generateHebdoRepportPerenco, generateDaylyRepportPerenco,generateAllRepportPerenco}
+module.exports ={generateAllRepportPerenco}

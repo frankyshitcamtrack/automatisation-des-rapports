@@ -1,4 +1,4 @@
-const { getTitleHeaderSheet,getTitleHeaderSheetPerenco } = require('./getTitleHeaderSheet');
+const { getTitleHeaderSheet,getTitleHeaderSheetPerenco,getTitleHeaderSheetGuinness } = require('./getTitleHeaderSheet');
 
 const cols = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T'];
 
@@ -63,5 +63,30 @@ async function perencoHeaderSheet(worksheet, headerColArr, sheet, logo1, logo2) 
     titleCell.value = getTitleHeaderSheetPerenco(sheet);
 }
 
+async function guinnessHeaderSheet(worksheet, headerColArr, sheet, logo1, logo2) {
+    
+    const addLogo = addLogos(worksheet, headerColArr, logo1, logo2);
 
-module.exports = { addImageBannerHeaderSheet,perencoHeaderSheet }
+    const title = [`${cols[1]}1`,`${cols[1]}2`,`${cols[1]}3`,`${cols[1]}4`,`${cols[addLogo-3]}1`,`${cols[addLogo-3]}2` ,`${cols[addLogo-3]}3`,`${cols[addLogo]}4`];
+
+    worksheet.mergeCells(title[0],title[7]);
+   
+
+    const titleCell = worksheet.getCell(title[0]);
+
+
+    titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+
+    titleCell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: "00000" }
+    }
+
+    titleCell.font = { color: { argb: "FFFFFF" }, bold: true, name: 'calibri', size: 15};
+
+    titleCell.value = getTitleHeaderSheetGuinness(sheet);
+}
+
+
+module.exports = { addImageBannerHeaderSheet,perencoHeaderSheet,guinnessHeaderSheet }

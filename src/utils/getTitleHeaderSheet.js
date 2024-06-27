@@ -1,3 +1,15 @@
+
+const {dateFormatMinusOneDay} = require('./dateFormat');
+
+function getDate(){
+   let endofDay = new Date();
+   endofDay.setHours(23, 59, 59, 999);   
+   let lasthourDayFormat =dateFormatMinusOneDay(endofDay);
+
+   return {lasthourDayFormat}
+}
+
+
 function getTitleHeaderSheet(sheet){
     switch(sheet){
         case 'Not at Parked':
@@ -29,6 +41,7 @@ function getTitleHeaderSheet(sheet){
 
 
 function getTitleHeaderSheetPerenco(sheet){
+
    switch(sheet){
        case 'Eco driving':
           return 'RAPPORT DETAIL EXCEPTION';
@@ -57,5 +70,19 @@ function getTitleHeaderSheetPerenco(sheet){
 }
 
 
+function getTitleHeaderSheetGuinness(sheet){
+   const date = getDate()
+   const previousDay = date.lasthourDayFormat
 
-module.exports={getTitleHeaderSheet,getTitleHeaderSheetPerenco}
+   switch(sheet){
+       case 'RAPPORT GUINNESS':
+          return `RAPPORT JOURNALIER du ${previousDay}`;
+       break;
+       default:
+         return sheet
+   }
+}
+
+
+
+module.exports={getTitleHeaderSheet,getTitleHeaderSheetPerenco,getTitleHeaderSheetGuinness}
