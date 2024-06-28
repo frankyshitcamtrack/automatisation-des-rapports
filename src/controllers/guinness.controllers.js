@@ -13,7 +13,7 @@ const {RAPPORT_GUINNESS}=require('../constants/subGroups')
 const { GUINNESS } = require('../constants/clients');
 const { ADMIN_SABC,ADMIN_ADDAX } = require('../constants/ressourcesClient');
 //const { } = require('../constants/mailSubjects');
-const { RAPPORT_JOURNALIER_GUINESS,RAPPORT_MENSUEL_GUINESS } = require('../constants/template');
+const { RAPPORT_JOURNALIER_GUINESS,EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM } = require('../constants/template');
 const pass = process.env.PASS_MAIL_YAMDEU;
 
 async function generateDaylyRepportGuinness() {
@@ -58,7 +58,7 @@ async function generateMonthlyRepportGuinness() {
     const titleDate = firstDayLastDayMonth.dateTitle
     const pathFile = "rapport/Guinness/RAPPORT-GUINNESS";
     try {
-        await getRepportData(ADMIN_ADDAX, RAPPORT_JOURNALIER_GUINESS, GUINNESS, firstHourDay, lastHourDay, RAPPORT_GUINNESS)
+        await getRepportData(ADMIN_ADDAX,EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM, GUINNESS, firstDayMonth, lastDayMonth, RAPPORT_GUINNESS)
             .then(async (res) => {
                 const objLenth = res?.obj.length;
                 if (objLenth > 0) {
