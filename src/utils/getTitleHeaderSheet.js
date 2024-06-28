@@ -72,8 +72,9 @@ function getTitleHeaderSheetPerenco(sheet){
 
 function getTitleHeaderSheetGuinness(sheet){
    const date = getDate()
-   const previousDay = date.lasthourDayFormat
-
+   console.log(date);
+   const previousDay = date.lasthourDayFormat.split(' ')[0]
+   console.log(previousDay)
    switch(sheet){
        case 'RAPPORT GUINNESS':
           return `RAPPORT JOURNALIER du ${previousDay}`;

@@ -558,7 +558,7 @@ async function guinnessXlsx(data, sheet, path, excelColum) {
     let workbook = new XLSX.Workbook();
 
     const logo1 = workbook.addImage({
-        buffer: fs.readFileSync('rapport/Guinness/assets/guinness.jpg'),
+        buffer: fs.readFileSync('rapport/Guinness/assets/guinness.png'),
         extension: 'png',
     });
 

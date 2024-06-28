@@ -1487,14 +1487,14 @@ async function generateHebdoRepportPerenco() {
 
 
 async function generateAllRepportPerenco(){
-  cron.schedule('30 4 * * *', async () => {
+  cron.schedule('30 04 * * *', async () => {
     await  generateDaylyRepportPerenco();
   }, {
     scheduled: true,
     timezone: "Africa/Lagos"
   });
 
-  cron.schedule('30 4 * * 0', async () => {
+  cron.schedule('30 04 * * 0', async () => {
     await  generateHebdoRepportPerenco();
   }, {
     scheduled: true,
