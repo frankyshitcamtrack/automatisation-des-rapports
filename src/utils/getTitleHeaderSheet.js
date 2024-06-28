@@ -1,12 +1,15 @@
 
-const {dateFormatMinusOneDay} = require('./dateFormat');
+const {dateFormatMinusOneDay,} = require('./dateFormat');
+const { getFirstAndLastDayMonth } = require('../utils/getFistDayAndLastDayMonth');
 
 function getDate(){
    let endofDay = new Date();
    endofDay.setHours(23, 59, 59, 999);   
    let lasthourDayFormat =dateFormatMinusOneDay(endofDay);
 
-   return {lasthourDayFormat}
+   const firstAndLastDayMonth = getFirstAndLastDayMonth();
+   const monthTitle = firstAndLastDayMonth.dateTitle;
+   return {lasthourDayFormat,monthTitle}
 }
 
 
@@ -72,13 +75,15 @@ function getTitleHeaderSheetPerenco(sheet){
 
 function getTitleHeaderSheetGuinness(sheet){
    const date = getDate()
-   console.log(date);
    const previousDay = date.lasthourDayFormat.split(' ')[0]
-   console.log(previousDay)
+   const previousMonth =date.monthTitle
    switch(sheet){
        case 'RAPPORT GUINNESS':
           return `RAPPORT JOURNALIER du ${previousDay}`;
        break;
+       case 'Excessive Idle':
+         return `REPORT GUINNESS OF ${previousMonth}`;
+      break;
        default:
          return sheet
    }

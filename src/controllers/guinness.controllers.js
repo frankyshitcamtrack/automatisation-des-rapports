@@ -9,11 +9,11 @@ const { deleteFile } = require('../utils/deleteFile')
 const { Receivers } = require('../storage/mailReceivers.storage');
 const { Senders } = require('../storage/mailSender.storage')
 const { sendMail } = require('../utils/sendMail');
-const {RAPPORT_GUINNESS}=require('../constants/subGroups')
+const {EXCESSIVE_IDLE}=require('../constants/subGroups')
 const { GUINNESS } = require('../constants/clients');
 const { ADMIN_SABC,ADMIN_ADDAX } = require('../constants/ressourcesClient');
 //const { } = require('../constants/mailSubjects');
-const { RAPPORT_JOURNALIER_GUINESS,EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM } = require('../constants/template');
+const { RAPPORT_JOURNALIER_GUINESS,EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM,RAPPORT_MENSUEL_GUINESS } = require('../constants/template');
 const pass = process.env.PASS_MAIL_YAMDEU;
 
 async function generateDaylyRepportGuinness() {
@@ -56,22 +56,22 @@ async function generateMonthlyRepportGuinness() {
     const firstDayMonth = firstDayLastDayMonth.firstDayTimestamp;
     const lastDayMonth = firstDayLastDayMonth.lastDayTimestamp;
     const titleDate = firstDayLastDayMonth.dateTitle
-    const pathFile = "rapport/Guinness/RAPPORT-GUINNESS";
+    const pathFile = "rapport/Guinness/RAPPORT-MENSUEL-GUINNESS";
     try {
-        await getRepportData(ADMIN_ADDAX,EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM, GUINNESS, firstDayMonth, lastDayMonth, RAPPORT_GUINNESS)
+        await getRepportData(ADMIN_ADDAX,EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM, GUINNESS, firstDayMonth, lastDayMonth,EXCESSIVE_IDLE )
             .then(async (res) => {
                 const objLenth = res?.obj.length;
                 if (objLenth > 0) {
                     const data = res.obj;
                     const column = res.excelColum;
-                    await guinnessXlsx(data, RAPPORT_GUINNESS, `${pathFile}-${titleDate}.xlsx`, column);
+                    await guinnessXlsx(data, EXCESSIVE_IDLE, `${pathFile}-${titleDate}.xlsx`, column);
                 } else {
-                    console.log(`no data found in ${RAPPORT_JOURNALIER_GUINESS} ${RAPPORT_GUINNESS}`);
+                    console.log(`no data found in ${RAPPORT_MENSUEL_GUINESS} ${EXCESSIVE_IDLE}`);
                 }
             })/* .then(()=>{
             if (sender && receivers) {
               setTimeout(() => {
-                sendMail(sender,receivers,pass, RAPPORT_JOURNALIER_GUINESS, `${EXCEPTION_REPORT_SUBJECT_MAIL}`,`${RAPPORT_JOURNALIER_GUINESS}.xlsx`, path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
+                sendMail(sender,receivers,pass, RAPPORT_MENSUEL_GUINESS, `${EXCEPTION_REPORT_SUBJECT_MAIL}`,`${RAPPORT_MENSUEL_GUINESS}.xlsx`, path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
                 deleteFile(path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
               }, 30000)
             } 
@@ -82,6 +82,7 @@ async function generateMonthlyRepportGuinness() {
 }
 
 async function generateAllRepportGuinness() {
+    await generateMonthlyRepportGuinness()
     await generateDaylyRepportGuinness()
 }
 
