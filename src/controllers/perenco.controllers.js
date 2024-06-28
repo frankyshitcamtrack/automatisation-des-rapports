@@ -1487,7 +1487,7 @@ async function generateHebdoRepportPerenco() {
 
 
 async function generateAllRepportPerenco(){
-  cron.schedule('30 04 * * *', async () => {
+  cron.schedule('45 09 * * *', async () => {
     await  generateDaylyRepportPerenco();
   }, {
     scheduled: true,
