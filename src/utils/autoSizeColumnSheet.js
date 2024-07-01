@@ -2,7 +2,7 @@ function autoSizeColumnSheet(ws){
    return ws.columns.forEach( (column, i)=> {
         let maxLength = 0;
         column["eachCell"]({ includeEmpty: true },  (cell) =>{
-            let columnLength = cell.value ? cell.value.toString().length : 15;
+            let columnLength = cell.value ? cell.value.toString().length : 20;
             if (columnLength > maxLength && columnLength<40 ) {
                 maxLength = columnLength;
             }
@@ -10,7 +10,7 @@ function autoSizeColumnSheet(ws){
                 maxLength = 40;
             }
         });
-        column.width = maxLength < 15 ? 15 : maxLength;
+        column.width = maxLength < 20 ? 20 : maxLength;
     });
 
 }

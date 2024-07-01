@@ -1,6 +1,7 @@
 
 const {dateFormatMinusOneDay,} = require('./dateFormat');
 const { getFirstAndLastDayMonth } = require('../utils/getFistDayAndLastDayMonth');
+const {SPEEDING,EXCES_DE_VITESSE,RAPPORT_GUINNESS}=require('../constants/subGroups')
 
 function getDate(){
    let endofDay = new Date();
@@ -78,12 +79,12 @@ function getTitleHeaderSheetGuinness(sheet){
    const previousDay = date.lasthourDayFormat.split(' ')[0]
    const previousMonth =date.monthTitle
    switch(sheet){
-       case 'RAPPORT GUINNESS':
+       case RAPPORT_GUINNESS:
           return `RAPPORT JOURNALIER du ${previousDay}`;
        break;
-       case 'Excessive Idle':
-         return `REPORT GUINNESS OF ${previousMonth}`;
-      break;
+       case EXCES_DE_VITESSE:
+         return `GUINNESS REPORT SPEEDING DU MOIS ${previousMonth}`;
+       break;
        default:
          return sheet
    }

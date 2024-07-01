@@ -1455,7 +1455,7 @@ async function generateHebdoRepportPerenco() {
       .then(() => {
         if (sender && receivers) {
           setTimeout(() => {
-            sendMail(sender, receivers, pass, RAPPORT_TRAVERSE_ZONE_BONABERI, `${ACTIVITY_REPORT_SURAPPORT_TRAVERSE_ZONE_BONABERI}`, `${RAPPORT_TRAVERSE_ZONE_BONABERI}.xlsx`, path.join(__dirname, `../../${pathFileHorsZoneBonaberi}-${titleDate}.xlsx`));
+            sendMail(sender, receivers, pass, RAPPORT_TRAVERSE_ZONE_BONABERI, `${ACTIVITY_REPORT_SUBJECT_MAIL_PERENCO_TRAVERSER}`, `${RAPPORT_TRAVERSE_ZONE_BONABERI}.xlsx`, path.join(__dirname, `../../${pathFileHorsZoneBonaberi}-${titleDate}.xlsx`));
             deleteFile(path.join(__dirname, `../../${pathFileHorsZoneBonaberi}-${titleDate}.xlsx`))
           }, 30000)
         }
@@ -1478,7 +1478,6 @@ async function generateHebdoRepportPerenco() {
       }) 
       .catch(err => console.log(err)) 
 
-
   } catch (err) {
     console.error(err)
   }
@@ -1488,14 +1487,14 @@ async function generateHebdoRepportPerenco() {
 
 async function generateAllRepportPerenco(){
   cron.schedule('30 04 * * *', async () => {
-    await  generateDaylyRepportPerenco();
+    await generateDaylyRepportPerenco();
   }, {
     scheduled: true,
     timezone: "Africa/Lagos"
   });
 
-  cron.schedule('30 04 * * 0', async () => {
-    await  generateHebdoRepportPerenco();
+  cron.schedule('30 04 * * Monday', async () => {
+    await generateHebdoRepportPerenco();
   }, {
     scheduled: true,
     timezone: "Africa/Lagos"

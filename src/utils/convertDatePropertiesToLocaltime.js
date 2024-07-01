@@ -4,13 +4,14 @@ const {isValidDate}=require('./checkValidDate')
 
 function changePropertiesDateTOLocal(objects) {
     return objects.map((object) => {
-      Object.keys(object).forEach((property) => {
-        let item=object[property]
+      const obj =object;
+      Object.keys(obj).forEach((property) => {
+        let item=obj[property];
         if (typeof item ==='object'){
-          const validate=isValidDate(item.text)
+          const validate=isValidDate(item.text);
           if(validate===true){
-            const newlocalDate=dateFormatPlusOneHour(item.text)
-            item=newlocalDate
+            const newlocalDate=dateFormatPlusOneHour(item.text);
+            item.text=newlocalDate;
           }
         } else{
           const validate=isValidDate(item)
@@ -20,8 +21,7 @@ function changePropertiesDateTOLocal(objects) {
           }
         }
       });
-  
-      return object;
+       return obj
     });
 }
 

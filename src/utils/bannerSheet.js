@@ -6,8 +6,9 @@ const cols = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', '
 function addLogos(worksheet, headerColArr, logo1, logo2) {
     const arrLength = headerColArr.length;
     const lastImgPosition = arrLength-1;
-    worksheet.addImage(logo1, { tl: { col: 0, row: 0 }, ext: { width: 100, height: 100 }, editAs: 'oneCell' });
-    worksheet.addImage(logo2, { tl: { col: lastImgPosition, row: 0 }, ext: { width: 100, height: 100 }, editAs: 'oneCell' });
+
+    worksheet.addImage(logo1, { tl: { col: 0.999999999999, row: 0 }, ext: { width: 100, height: 100 }, editAs: 'oneCell' });
+    worksheet.addImage(logo2, { tl: { col: lastImgPosition+0.999999999999, row: 0}, ext: { width: 100, height: 100 }, editAs:'oneCell' });
 
     return arrLength
 }
@@ -83,7 +84,7 @@ async function guinnessHeaderSheet(worksheet, headerColArr, sheet, logo1, logo2)
         fgColor: { argb: "00000" }
     }
 
-    titleCell.font = { color: { argb: "FFFFFF" }, bold: true, name: 'calibri', size: 15};
+    titleCell.font = { color: { argb: "FFFFFF" }, bold: true, name: 'calibri', size: 25};
 
     titleCell.value = getTitleHeaderSheetGuinness(sheet);
 }

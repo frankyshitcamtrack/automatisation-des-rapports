@@ -57,35 +57,73 @@ function dateFormatMinusOneDay(date) {
 }
 
 function dateFormatMinusTwoDay(date) {
-  return (
-    [
-      date.getFullYear(),
-      padTwoDigits(date.getMonth() + 1),
-      padTwoDigits(date.getDate()-2),
-    ].join("-") +
-    " " +
-    [
-      padTwoDigits(date.getHours()),
-      padTwoDigits(date.getMinutes()),
-      padTwoDigits(date.getSeconds()),
-    ].join(":")
-  );
+  const today = date.getDate();
+
+  if(today===1){
+    date.setDate(0);
+    return (
+      [
+        date.getFullYear(),
+        padTwoDigits(date.getMonth() + 1),
+        padTwoDigits(date.getDate()-2),
+      ].join("-") +
+      " " +
+      [
+        padTwoDigits(date.getHours()),
+        padTwoDigits(date.getMinutes()),
+        padTwoDigits(date.getSeconds()),
+      ].join(":")
+    );
+  }else{
+    return (
+      [
+        date.getFullYear(),
+        padTwoDigits(date.getMonth() + 1),
+        padTwoDigits(date.getDate()-2),
+      ].join("-") +
+      " " +
+      [
+        padTwoDigits(date.getHours()),
+        padTwoDigits(date.getMinutes()),
+        padTwoDigits(date.getSeconds()),
+      ].join(":")
+    );
+  }
 }
 
 function dateFormatMinusSevenDay(date) {
-  return (
-    [
-      date.getFullYear(),
-      padTwoDigits(date.getMonth() + 1),
-      padTwoDigits(date.getDate()-7),
-    ].join("-") +
-    " " +
-    [
-      padTwoDigits(date.getHours()),
-      padTwoDigits(date.getMinutes()),
-      padTwoDigits(date.getSeconds()),
-    ].join(":")
-  );
+  const today = date.getDate();
+  if(today===1){
+    date.setDate(0);
+    return (
+      [
+        date.getFullYear(),
+        padTwoDigits(date.getMonth() + 1),
+        padTwoDigits(date.getDate()-7),
+      ].join("-") +
+      " " +
+      [
+        padTwoDigits(date.getHours()),
+        padTwoDigits(date.getMinutes()),
+        padTwoDigits(date.getSeconds()),
+      ].join(":")
+    );
+  }else{
+    return (
+      [
+        date.getFullYear(),
+        padTwoDigits(date.getMonth() + 1),
+        padTwoDigits(date.getDate()-7),
+      ].join("-") +
+      " " +
+      [
+        padTwoDigits(date.getHours()),
+        padTwoDigits(date.getMinutes()),
+        padTwoDigits(date.getSeconds()),
+      ].join(":")
+    );
+  }
+
 }
 
 

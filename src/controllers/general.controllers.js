@@ -4,7 +4,7 @@ const {generateAllRepportGuinness}=require('./guinness.controllers')
 
 
 async function generalControllers(){
-//await generateAllRepportGuinness()
+await generateAllRepportGuinness()
 await generateAddaxRepports();
 await generateAllRepportPerenco();
 }

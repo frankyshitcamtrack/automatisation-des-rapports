@@ -8,7 +8,7 @@ function  addCriticiteAndVitesseLimiteProps(arr){
     const date =item['Durée'].split(':');
     const sec =parseInt(date[2]);
     const min= parseInt(date[1]);
-    return (sec>=21 || min>=0) ;
+    return sec>=21 || min>=0 ;
 })
 
 const stringArr = jsonstring(filter);

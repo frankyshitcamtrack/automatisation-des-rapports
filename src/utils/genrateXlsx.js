@@ -604,8 +604,6 @@ async function guinnessXlsx(data, sheet, path, excelColum) {
                         .catch(err => {
                             console.log(err);
                         })
-                    
-                 
                 }
             }, 15000)
 
