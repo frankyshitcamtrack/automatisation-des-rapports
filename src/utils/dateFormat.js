@@ -126,8 +126,6 @@ function dateFormatMinusSevenDay(date) {
 
 }
 
-
-
 function dateFormatPlusOneHour(val) {
   const date = new Date(val);
   return (
@@ -145,7 +143,6 @@ function dateFormatPlusOneHour(val) {
   );
 }
 
-
 function convertDateToTimeStamp(date){
   const convert = new Date(date).getTime()/1000;
 
@@ -154,4 +151,69 @@ function convertDateToTimeStamp(date){
 
 
 
-module.exports = {dateInYyyyMmDdHhMmSs, dateFormatMinusTwoDay ,dateFormatMinusOneDay,convertDateToTimeStamp,dateFormatPlusOneHour,dateFormatMinusSevenDay};
+function dateFormatIso(date) {
+  return (
+    [
+      date.getFullYear(),
+      padTwoDigits(date.getMonth() + 1),
+      padTwoDigits(date.getDate()),
+    ].join("") +
+    [
+      "T",
+      padTwoDigits(date.getHours()),
+      padTwoDigits(date.getMinutes()),
+      padTwoDigits(date.getSeconds()),
+    ].join("")
+  );
+}
+
+
+
+function dateFormatIsoMinusOneDay(date) {
+  const today =date.getDate();
+  if(today===1){
+    date.setDate(0);
+    return (
+      [
+        date.getFullYear(),
+        padTwoDigits(date.getMonth() + 1),
+        padTwoDigits(date.getDate()),
+      ].join(" ") +
+      [
+        "T",
+        padTwoDigits(date.getHours()),
+        padTwoDigits(date.getMinutes()),
+        padTwoDigits(date.getSeconds()),
+      ].join("")
+    );
+  }else{
+    return (
+      [
+        date.getFullYear(),
+        padTwoDigits(date.getMonth() + 1),
+        padTwoDigits(date.getDate()-1),
+      ].join("")+
+      [
+        "T",
+        padTwoDigits(date.getHours()),
+        padTwoDigits(date.getMinutes()),
+        padTwoDigits(date.getSeconds()),
+      ].join("")
+    );
+  }
+    
+}
+
+
+
+
+module.exports = {
+  dateInYyyyMmDdHhMmSs,
+  dateFormatMinusTwoDay,
+  dateFormatMinusOneDay,
+  convertDateToTimeStamp,
+  dateFormatPlusOneHour,
+  dateFormatMinusSevenDay,
+  dateFormatIso,
+  dateFormatIsoMinusOneDay
+};

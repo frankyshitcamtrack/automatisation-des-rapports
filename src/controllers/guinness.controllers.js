@@ -24,6 +24,7 @@ async function generateDaylyRepportGuinness() {
     const fistAndLastHourDay = getFistAndLastHourDay();
     const firstHourDay = fistAndLastHourDay.firstHourDayTimestamp;
     const lastHourDay = fistAndLastHourDay.lastHourDayTimestamp;
+
     const titleDate = fistAndLastHourDay.dateTitle;
     const pathFile = "rapport/Guinness/RAPPORT-GUINNESS";
     try {
@@ -33,7 +34,6 @@ async function generateDaylyRepportGuinness() {
                 if (objLenth > 0) {
                     const data = res.obj;
                     const column = res.excelColum;
-                    //const convertDateLocal = changePropertiesDateTOLocal(data);
                     await guinnessXlsx(data,RAPPORT_GUINNESS, `${pathFile}-${titleDate}.xlsx`, column);
                 } else {
                     console.log(`no data found in ${RAPPORT_JOURNALIER_GUINESS} ${RAPPORT_GUINNESS}`);
@@ -45,7 +45,7 @@ async function generateDaylyRepportGuinness() {
                 deleteFile(path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
               }, 30000)
             } 
-          }).catch(err => console.log(err))
+          }) .catch(err => console.log(err))
     } catch (err) {
         console.error(err)
     }
@@ -95,7 +95,7 @@ async function generateMonthlyRepportGuinness() {
 
 async function generateAllRepportGuinness() {
     //await generateMonthlyRepportGuinness()
-    //await generateDaylyRepportGuinness()
+    //await generateDaylyRepportGuinness();
     cron.schedule('30 6 * * *', async () => {
         await generateDaylyRepportGuinness()
       }, {

@@ -34,6 +34,8 @@ const ZONES="Zones"
 const TRACKING_TRACAFIC="TRACKING_TRACAFIC"
 const RAPPORT_GUINNESS="RAPPORT GUINNESS"
 
+//cotco
+const RAPPORT_COTCO="rapport cotco"
 
 
 module.exports = {
@@ -64,5 +66,6 @@ module.exports = {
     EXCES_DE_VITESSE_BASE_WOURI,
     EXCES_DE_VITESSE_PISTE_BIPAGA,
     TRACKING_TRACAFIC,
-    RAPPORT_GUINNESS
+    RAPPORT_GUINNESS,
+    RAPPORT_COTCO
 }

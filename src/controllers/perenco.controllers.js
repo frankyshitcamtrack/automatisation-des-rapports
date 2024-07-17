@@ -49,6 +49,7 @@ async function generateDaylyRepportPerenco() {
     const fistAndLastHourDay = getFistAndLastHourDay();
     const firstHourDay = fistAndLastHourDay.firstHourDayTimestamp;
     const lastHourDay = fistAndLastHourDay.lastHourDayTimestamp;
+
     const titleDate = fistAndLastHourDay.dateTitle;
     const pathFile = "rapport/Perenco/RAPPORT-ACTIVITE-FLOTTE-PERENCO";
 
@@ -514,7 +515,6 @@ async function generateDaylyRepportPerenco() {
             }
           }).catch(err => console.log(err))
       })  
-   
       .then(
         async() => {
 
@@ -683,14 +683,14 @@ async function generateDaylyRepportPerenco() {
         }
       ) 
   
-     .then(()=>{
+    .then(()=>{
             if (sender && receivers) {
               setTimeout(() => {
                 sendMail(sender,receivers,pass, RAPPORT_ACTIVITE_FLOTTE_PERENCO, `${ACTIVITY_REPORT_SUBJECT_MAIL_PERENCO_DAY}`,`${RAPPORT_ACTIVITE_FLOTTE_PERENCO}.xlsx`, path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
                 deleteFile(path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
               }, 30000)
             } 
-          })   
+          })    
       .catch(err => console.log(err))
 
 
@@ -1444,7 +1444,7 @@ async function generateHebdoRepportPerenco() {
           await generateSyntheseSheetPerenco(`${pathFile}-${titleDate}.xlsx`, finalService, SYNTHESE);
         }
       )
-     .then(() => {
+      .then(() => {
         if (sender && receivers) {
           setTimeout(() => {
             sendMail(sender, receivers, pass, RAPPORT_ACTIVITE_FLOTTE_PERENCO, `${ACTIVITY_REPORT_SUBJECT_MAIL_PERENCO_WEEK}`, `${RAPPORT_ACTIVITE_FLOTTE_PERENCO}.xlsx`, path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
@@ -1486,6 +1486,8 @@ async function generateHebdoRepportPerenco() {
 
 
 async function generateAllRepportPerenco(){
+  //await generateHebdoRepportPerenco();
+  //await generateDaylyRepportPerenco();
   cron.schedule('30 04 * * *', async () => {
     await generateDaylyRepportPerenco();
   }, {
