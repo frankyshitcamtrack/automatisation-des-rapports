@@ -17,11 +17,9 @@ const _ = require('lodash');
 const pass = process.env.PASS_MAIL;
 
 async function generateDaylyRepportCotco() {
-    //const sender = await Senders(COTCO, 'E');
-    //const receivers = await Receivers(COTCO, 'D');
+    const sender = await Senders(COTCO, 'E');
+    const receivers = await Receivers(COTCO, 'D');
 
-    const sender = await Senders(ADDAX_PETROLEUM, 'E');
-    const receivers = await Receivers(ADDAX_PETROLEUM, 'D');
     const pathFile = "rapport/Cotco/RAPPORT-COTCO";
     let titleDate ;
     try {
@@ -106,7 +104,7 @@ async function generateDaylyRepportCotco() {
                         return object;
                     }   
                     )
-                   // console.log(rangeData);
+                   
 
                     const column = res.header;
 
@@ -128,7 +126,7 @@ async function generateDaylyRepportCotco() {
 }
 
 async function generateAllRepportCotco() {
-   // await generateDaylyRepportCotco()
+    //await generateDaylyRepportCotco()
     cron.schedule('30 6 * * *', async () => {
         await generateDaylyRepportCotco()
     }, {
