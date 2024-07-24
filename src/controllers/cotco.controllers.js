@@ -5,7 +5,7 @@ const { CotcoXlsx } = require('../utils/genrateXlsx');
 const {RAPPORT_COTCO}=require('../constants/subGroups')
 const { deleteFile } = require('../utils/deleteFile')
 const { Receivers } = require('../storage/mailReceivers.storage');
-const {ADDAX_PETROLEUM}=require('../constants/clients');
+const {COTCO}=require('../constants/clients');
 const { Senders } = require('../storage/mailSender.storage')
 const { sendMail } = require('../utils/sendMail');
 const {ACTIVITY_REPORT_SUBJECT_MAIL_COTCO} = require('../constants/mailSubjects');
@@ -27,6 +27,8 @@ async function generateDaylyRepportCotco() {
             .then(async (res) => {
                 const dataLenght = res?.utilDataTrips.length;
                 titleDate = res?.titleDate;
+                console.log(sender)
+                console.log(receivers)
                 if (dataLenght > 0) {
                     const data = res.utilDataTrips.sort((a,b)=>(a.VEHICULE.localeCompare(b.VEHICULE)));
                     const replaceEmptyCol = data.map(item=>{
