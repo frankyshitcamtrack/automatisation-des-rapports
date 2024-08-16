@@ -44,13 +44,14 @@ function getFirstAndLastSevendays(){
     let startOfDay = new Date();
     startOfDay.setHours(0, 0, 0, 0);
     let firstHourDayFormat=dateFormatMinusSevenDay(startOfDay);
+    //let firstHourDayFormat="2024-07-29 23:59:59";
     let firstHourDayTimestamp =convertDateToTimeStamp(firstHourDayFormat);
 
     let endofDay = new Date();
     endofDay.setHours(23, 59, 59, 999);   
     let lasthourDayFormat =dateFormatMinusOneDay(endofDay);
+    //let lasthourDayFormat ="2024-08-04 00:00:00";
     let lastHourDayTimestamp =convertDateToTimeStamp(lasthourDayFormat);
-    
 
     let date= new Date();
     const date1= dateFormatMinusOneDay(date).split(' ')[0];

@@ -27,9 +27,9 @@ async function generateDaylyRepportCotco() {
             .then(async (res) => {
                 const dataLenght = res?.utilDataTrips.length;
                 titleDate = res?.titleDate;
-                console.log(sender)
-                console.log(receivers)
                 if (dataLenght > 0) {
+                    console.log(sender);
+                    console.log(receivers);
                     const data = res.utilDataTrips.sort((a,b)=>(a.VEHICULE.localeCompare(b.VEHICULE)));
                     const replaceEmptyCol = data.map(item=>{
                         const hD = new Date(item['HOROTAGE DEBUT']);
@@ -121,14 +121,14 @@ async function generateDaylyRepportCotco() {
                 deleteFile(path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
               }, 30000)
             } 
-          }) .catch(err => console.log(err))
+          })  .catch(err => console.log(err))
     } catch (err) {
         console.error(err)
     }
 }
 
 async function generateAllRepportCotco() {
-    //await generateDaylyRepportCotco()
+    await generateDaylyRepportCotco()
     cron.schedule('30 6 * * *', async () => {
         await generateDaylyRepportCotco()
     }, {

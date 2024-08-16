@@ -10,7 +10,8 @@ function getTripByVehicleGroupWithPositions(groupId,startDate,endDate){
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: `${base_url}/v2/vehiclegroups/${groupId}/trips/${startDate}/${endDate}.json?ps=1000&pg=0`,
+        timeout: 60000,
+        url: `${base_url}/v3/vehiclegroups/${groupId}/trips/${startDate}/${endDate}.json?ps=1000&pg=0`,
         headers: {
             'Authorization': `Basic ${token}`
         }
@@ -33,7 +34,8 @@ function getVehiclesGroups() {
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: `${base_url}/v2/vehiclegroups.json`,
+        timeout: 60000,
+        url: `${base_url}/v3/vehiclegroups.json`,
         headers: {
             'Authorization': `Basic ${token}`
         }
@@ -55,7 +57,8 @@ function getVehicleById(Id){
     let config = {
         method: 'get',
         maxBodyLength: Infinity,
-        url: `${base_url}/v2/vehicle/${Id}/vehicle.json`,
+        timeout: 60000,
+        url: `${base_url}/v3/vehicle/${Id}/vehicle.json`,
         headers: {
             'Authorization': `Basic ${token}`
         }

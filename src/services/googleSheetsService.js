@@ -26,6 +26,7 @@ async function getData(group,col) {
     const sheet = doc.sheetsByIndex[0]; // or use `doc.sheetsById[id]` or `doc.sheetsByTitle[title]`
   
     const rows= await sheet.getRows();
+
     
     if(rows){
     const r= rows.filter(item=>item._rawData.includes(group));
