@@ -26,6 +26,8 @@ async function generateDaylyRepportCimencam() {
     const receivers =[
       { name: 'frank', address: 'franky.shity@camtrack.net' },
       { name: 'ghisl', address: 'ghislain.kamgang@camtrack.net'},
+      { name: 'magnou', address: 'magnouvel.mekontso@camtrack.net'},
+       
     ] 
     
     const pathFile = "rapport/Cimencam/RAPPORT-CIMENCAM";
