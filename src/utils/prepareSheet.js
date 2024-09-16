@@ -1,4 +1,4 @@
-const { assignStyleToHeadersSynthese, assignStyleToHeaders,asignStyleToSheet } = require('./assignStylesProps');
+const { assignStyleToHeadersSynthese, assignStyleToHeaders,asignStyleToSheet,assignStyleToHeadersCimencam } = require('./assignStylesProps');
 const { autoSizeColumnSheet } = require('../utils/autoSizeColumnSheet');
 const { addAutoFilter } = require('./addAutofilter');
 
@@ -17,6 +17,28 @@ async function prepareSheet(worksheet, data, dataHeader, excelColum) {
 
     // Process each row for beautification 
     assignStyleToHeaders(worksheet);
+
+    //autosize column width base on the content
+    autoSizeColumnSheet(worksheet)
+
+}
+
+
+
+async function prepareSheetCimencam(worksheet, data, dataHeader, excelColum,date) {
+    const autoFilter = addAutoFilter(dataHeader, 9);
+
+    worksheet.views = [{ showGridLines: false }];
+
+    worksheet.getRow(9).values = dataHeader;
+
+    worksheet.autoFilter = autoFilter;
+
+    //Add data to rows
+    addDataTosheet(worksheet,data,excelColum);
+
+    // Process each row for beautification 
+    assignStyleToHeadersCimencam(worksheet,date);
 
     //autosize column width base on the content
     autoSizeColumnSheet(worksheet)
@@ -142,4 +164,4 @@ function prepareSheetForSynthese(worksheet, dataHeader, syntheseCol, data) {
 }
 
 
-module.exports = { prepareSheet, prepareSheetForSynthese,addDataTosheet }
+module.exports = { prepareSheet, prepareSheetForSynthese,addDataTosheet,prepareSheetCimencam }

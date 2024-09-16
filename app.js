@@ -5,7 +5,8 @@ const path = require('path');
 const express = require("express");
 const bodyParser = require("body-parser");
 const {generalControllers} =require('./src/controllers/general.controllers');
-const {getCotcoData,getVehiculeDescription}=require('./src/models/mzone.models')
+const {getCotcoData,getVehiculeDescription}=require('./src/models/mzone.models');
+const {getCimencamData} = require ('./src/models/cimencam.models');
 const routes = require('./src/routes/mainRoute');
 
 
@@ -25,9 +26,10 @@ app.use(bodyParser.json());
 //generatStyleDoc();
 
 async function run(){
+ //await getCimencamData();
  await generalControllers();
- await getCotcoData()
- await getVehiculeDescription( '17ba8528-8215-473e-9728-39867b5da893');
+ //await getCotcoData()
+ //await getVehiculeDescription( '17ba8528-8215-473e-9728-39867b5da893');
 } 
 
 app.use("/", routes);

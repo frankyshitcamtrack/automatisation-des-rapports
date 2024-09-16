@@ -707,21 +707,21 @@ async function generateHebdoRepportPerenco() {
     const sender = await Senders(PERENCO, 'E');
     const receivers = await Receivers(PERENCO, 'D');  
     const fistAndLastHourDay = getFirstAndLastSevendays();
-    const firstHourDay = fistAndLastHourDay.firstHourDayTimestamp;
-    const lastHourDay = fistAndLastHourDay.lastHourDayTimestamp;
+    const firstHourDay = "1724626800";
+    const lastHourDay = "1725231599";
     const titleDate = fistAndLastHourDay.dateTitle;
     const pathFile = "rapport/Perenco/RAPPORT-ACTIVITE-HEBDO-FLOTTE-PERENCO";
     const pathTracking ="rapport/Perenco/TRACKING-TRACAFIC";
     const pathFileExcesVitesse="rapport/Perenco/RAPPORT-EXCES-VITSSE-HEBDO-FLOTTE-PERENCO";
     const pathFileHorsZoneBonaberi="rapport/Perenco/fonction-ayant-traversé-le-pont-de-bonaberi";
 
+    
     await getRepportData(ADMIN_PERENCO, RAPPORT_ACTIVITE_FLOTTE_PERENCO, PERENCO, firstHourDay, lastHourDay, ECO_DRIVING)
       .then(async (res) => {
         const objLenth = res?.obj.length;
         if (objLenth > 0) {
           const data = res.obj;
           const column = res.excelColum;
-
           //add affectations properties to data
           const dataWithAffectationColumn = addAffectationsColumn(data);
 
@@ -1486,7 +1486,7 @@ async function generateHebdoRepportPerenco() {
 
 
 async function generateAllRepportPerenco(){
-  //generateHebdoRepportPerenco();
+  generateHebdoRepportPerenco();
   //await generateDaylyRepportPerenco();
   cron.schedule('30 04 * * *', async () => {
     await generateDaylyRepportPerenco();

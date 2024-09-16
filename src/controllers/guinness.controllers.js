@@ -40,10 +40,11 @@ async function generateDaylyRepportGuinness() {
                 }
             }).then(()=>{
             if (sender && receivers) {
-              setTimeout(() => {
+              console.log(sender);
+           /*    setTimeout(() => {
                 sendMail(sender,receivers,pass, RAPPORT_JOURNALIER_GUINESS, `${ACTIVITY_REPORT_SUBJECT_MAIL_GUINNESS}`,`${RAPPORT_JOURNALIER_GUINESS}.xlsx`, path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
                 deleteFile(path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
-              }, 30000)
+              }, 30000) */
             } 
           }) .catch(err => console.log(err))
     } catch (err) {
@@ -97,7 +98,7 @@ async function generateAllRepportGuinness() {
     //await generateMonthlyRepportGuinness()
     //await generateDaylyRepportGuinness();
     cron.schedule('30 6 * * *', async () => {
-        await generateDaylyRepportGuinness()
+       await generateDaylyRepportGuinness()
       }, {
         scheduled: true,
         timezone: "Africa/Lagos"

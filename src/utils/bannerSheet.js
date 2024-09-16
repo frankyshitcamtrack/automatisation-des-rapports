@@ -90,4 +90,55 @@ async function guinnessHeaderSheet(worksheet, headerColArr, sheet, logo1, logo2)
 }
 
 
-module.exports = { addImageBannerHeaderSheet,perencoHeaderSheet,guinnessHeaderSheet }
+
+async function cimencamHeaderSheet(worksheet, headerColArr, date, banner,) {
+   const arrLength = headerColArr.length;
+   const imageCell = `${cols[0]}1:${cols[arrLength - 1]}6`;
+   const titleHeader = [`${cols[0]}7`, `${cols[arrLength - 1]}7`];
+   const dateHeader = [`${cols[0]}8`, `${cols[arrLength - 1]}8`];
+
+    worksheet.addImage(banner, imageCell);
+
+    worksheet.mergeCells(titleHeader[0], titleHeader[1]);
+
+    worksheet.mergeCells(dateHeader[0], dateHeader[1]);
+
+    const dateCell = worksheet.getCell(dateHeader[0]);
+
+    const titleCell =worksheet.getCell(titleHeader[0]);
+
+    titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+    titleCell.font = { name: 'calibri', size: 15, bold: true,color: { argb: 'FFFFFF' }, };
+    titleCell.border = {
+        top: { style: 'thin', color: { argb: '000000' } },
+        bottom: { style: 'thin', color: { argb: '000000' } },
+        right: { style: 'thin', color: { argb: '000000' } },
+        left: { style: 'thin', color: { argb: '000000' } }
+    };
+
+    titleCell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: "FF0000" }
+    }
+
+    titleCell.height=
+    titleCell.value = "Rapport Geofence ENTREE / SORTIE : CIMENCAM";
+
+
+    dateCell.alignment = { vertical: 'left', horizontal: 'center' };
+    dateCell.font = { name: 'calibri', size: 12, bold: true,color: { argb: '008000' }, };
+    dateCell.border = {
+        top: { style: 'thin', color: { argb: '000000' } },
+        bottom: { style: 'thin', color: { argb: '808080' } },
+        right: { style: 'thin', color: { argb: '000000' } },
+        left: { style: 'thin', color: { argb: '000000' } }
+    };
+
+   
+    dateCell.value =`Jour d'Activité:${date}`;
+    
+}
+
+
+module.exports = { addImageBannerHeaderSheet,perencoHeaderSheet,guinnessHeaderSheet,cimencamHeaderSheet }

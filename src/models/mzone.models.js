@@ -1,5 +1,5 @@
-const {getVehiclesGroups,getTripByVehicleGroupWithPositions,getVehicleById}=require('../services/mzone')
-const {getFistAndLastHourDayIso}=require('../utils/getFirstAndLastHourDay')
+const {getVehiclesGroups,getTripByVehicleGroupWithPositions,getVehicleById}=require('../services/mzone');
+const {getFistAndLastHourDayIso}=require('../utils/getFirstAndLastHourDay');
 
 async function getVehiculeDescription(id){
    const vehicle = await getVehicleById(id);

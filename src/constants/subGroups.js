@@ -37,6 +37,9 @@ const RAPPORT_GUINNESS="RAPPORT GUINNESS"
 //cotco
 const RAPPORT_COTCO="rapport cotco"
 
+//cimencam
+const RAPPORT_CIMENCAM="rapport cimencam"
+
 
 module.exports = {
     SYNTHESE,
@@ -67,5 +70,6 @@ module.exports = {
     EXCES_DE_VITESSE_PISTE_BIPAGA,
     TRACKING_TRACAFIC,
     RAPPORT_GUINNESS,
-    RAPPORT_COTCO
+    RAPPORT_COTCO,
+    RAPPORT_CIMENCAM
 }

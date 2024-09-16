@@ -1,9 +1,9 @@
 const fs = require('fs');
 
 const XLSX = require('exceljs');
-const { addImageBannerHeaderSheet, perencoHeaderSheet,guinnessHeaderSheet } = require('./bannerSheet');
+const { addImageBannerHeaderSheet, perencoHeaderSheet,guinnessHeaderSheet,cimencamHeaderSheet } = require('./bannerSheet');
 const {asignStyleToPerencoInfraction,assignStylePrencoSynthese, asignStyleToSheet}=require('./assignStylesProps')
-const { prepareSheet,prepareSheetForSynthese,addDataTosheet } = require('./prepareSheet');
+const { prepareSheet,prepareSheetForSynthese,addDataTosheet,prepareSheetCimencam } = require('./prepareSheet');
 const { addRowExistSheet } = require('./addRowExistSheet')
 
 
@@ -717,4 +717,82 @@ async function CotcoXlsx(data, sheet, path, excelColum) {
 
 
 
-module.exports = { convertJsonToExcel, generateSyntheseSheetAddax, perencoXlsx,generateSyntheseSheetPerenco,guinnessXlsx,CotcoXlsx}
+async function cimencamXlsx(data, sheet, path, excelColum,date) {
+
+    const dataHeader = []
+
+    const isExistPath = fs.existsSync(path);
+
+    let workbook = new XLSX.Workbook();
+
+    const baner = workbook.addImage({
+        buffer: fs.readFileSync('rapport/cimencam/assets/baner.png'),
+        extension: 'png',
+    });
+ 
+
+    if (excelColum) {
+        excelColum.map(item => {
+            dataHeader.push(item.key);
+        })
+    }
+
+    
+    if (dataHeader.length > 0) {
+        if (isExistPath) {
+            setTimeout(async () => {
+                console.log(`Generating file ${sheet} ...`);
+                const readFile = await workbook.xlsx.readFile(path);
+                if (readFile) {
+                    const existWorkSheet = workbook.getWorksheet(sheet);
+                    if (existWorkSheet) {
+                        const existWorkSheetName=existWorkSheet.name;
+                         if(existWorkSheetName===sheet){
+                            await addDataTosheet(existWorkSheet,data, excelColum);
+                            asignStyleToSheet(existWorkSheet);
+                         } 
+                    } else {
+                        const worksheet = workbook.addWorksheet(sheet);
+
+                        await prepareSheetCimencam(worksheet, data, dataHeader, excelColum,date);
+
+                        //Center image header banner depending on number of columns
+                        await cimencamHeaderSheet(worksheet, dataHeader,sheet,baner);
+                    }
+ 
+                    // Export excel generated file
+                    workbook.xlsx.writeFile(path, { type: 'buffer', bookType: 'xlsx' })
+                        .then(response => {
+                            console.log("file generated");
+                        })
+                        .catch(err => {
+                            console.log(err);
+                        })
+                }
+            }, 15000)
+
+        } else {
+            console.log(`Generating file ${sheet} ...`);
+
+            // creation of new sheet
+            const worksheet = workbook.addWorksheet(sheet);
+
+            await prepareSheetCimencam(worksheet, data, dataHeader, excelColum,date);
+
+             //Center image header banner depending on number of columns
+            await cimencamHeaderSheet(worksheet, dataHeader,date,baner);
+
+            // Export excel generated file
+            workbook.xlsx.writeFile(path, { type: 'buffer', bookType: 'xlsx' })
+                .then(response => {
+                    console.log("file generated");
+                })
+                .catch(err => {
+                    console.log(err);
+                });
+        }
+    }
+}
+
+
+module.exports = { convertJsonToExcel, generateSyntheseSheetAddax, perencoXlsx,generateSyntheseSheetPerenco,guinnessXlsx,CotcoXlsx,cimencamXlsx}

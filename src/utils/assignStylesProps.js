@@ -273,5 +273,53 @@ async function assignStyleToHeadersSynthese(ws){
 }
 
 
+async function assignStyleToHeadersCimencam(ws){
+    const rows = ws.getColumn(1);
+    const rowsCount = rows['_worksheet']['_rows'].length;
+    const lastCell =`A${rowsCount}`;
+    const lastValCell=ws.getCell(lastCell).value;
 
-module.exports={assignStyleToHeaders,asignStyleToPerencoInfraction,assignStyleToHeadersSynthese,assignStylePrencoSynthese,asignStyleToSheet}
+    ws.eachRow((row, rowNumber) => {
+        row.height = 20;
+        row.eachCell((cell, colNumber) => {
+            cellVal=cell.value;
+            cell.alignment = { vertical: 'middle', horizontal: 'center', wrapText: true };
+            cell.border = {
+                top: { style: 'thin', color: { argb: '000000' } },
+                left: { style: 'thin', color: { argb: '000000' } },
+                bottom: { style: 'thin', color: { argb: '000000' } },
+                right: { style: 'thin', color: { argb: '000000' } }
+            };
+            cell.font = { name: 'calibri', size: 8 };
+
+
+            if (rowNumber == 7) {
+                row.height =50;
+                // First set the background of header row
+                cell.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: "008000" }
+                }
+                cell.font = { color: { argb: 'FFFFFF' }, bold: true };
+            }
+
+            
+            if (rowNumber == 9 ) {
+                // First set the background of header row
+                cell.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: "008000" }
+                }
+                cell.font = { color: { argb: 'FFFFFF' }, bold: true }
+            }
+        })
+        //Commit the changed row to the stream
+        row.commit();
+    });
+
+}
+
+
+module.exports={assignStyleToHeaders,asignStyleToPerencoInfraction,assignStyleToHeadersSynthese,assignStylePrencoSynthese,asignStyleToSheet,assignStyleToHeadersCimencam}
