@@ -29,6 +29,9 @@ async function generateAddaxDaylyRepport() {
   const fistAndLastHourDay = getFistAndLastHourDay();
   const firstHourDay = fistAndLastHourDay.firstHourDayTimestamp;
   const lastHourDay = fistAndLastHourDay.lastHourDayTimestamp;
+
+ // const firstHourDay = "1726354800";
+  //const lastHourDay = "1726441199";
   const titleDate = fistAndLastHourDay.dateTitle;
   const pathFile = "rapport/Adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM";
 
@@ -257,7 +260,7 @@ async function AddaxMonthlyRepportSynthese() {
 
 async function generateAddaxRepports() { 
   //await generateAddaxDaylyRepport();
-  //await generateAddaxDaylyRepport22h06h();
+ // await generateAddaxDaylyRepport22h06h();
   cron.schedule('30 6 * * *', async () => {
     await generateAddaxDaylyRepport();
     await generateAddaxDaylyRepport22h06h();

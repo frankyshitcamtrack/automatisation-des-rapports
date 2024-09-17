@@ -57,9 +57,9 @@ async function generateDaylyRepportCimencam() {
 }
 
 async function generateAllRepportCimencam() {
-  await  generateDaylyRepportCimencam()
+  //await  generateDaylyRepportCimencam();
   cron.schedule('30 6 * * *', async () => {
-    await  generateDaylyRepportCimencam()
+    await  generateDaylyRepportCimencam();
   }, {
       scheduled: true,
       timezone: "Africa/Lagos"
