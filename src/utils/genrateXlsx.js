@@ -726,7 +726,7 @@ async function cimencamXlsx(data, sheet, path, excelColum,date) {
     let workbook = new XLSX.Workbook();
 
     const baner = workbook.addImage({
-        buffer: fs.readFileSync('rapport/cimencam/assets/baner.png'),
+        buffer: fs.readFileSync('rapport/Cimencam/assets/baner.png'),
         extension: 'png',
     });
  
