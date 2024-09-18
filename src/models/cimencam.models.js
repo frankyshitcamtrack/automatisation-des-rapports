@@ -1,6 +1,6 @@
 const { getAllPlaces, getEntryExitData, getVehiclesGroups } = require('../services/cimencam.service');
 const { getFistAndLastHourDayIso,getFistAndLastHourDay } = require('../utils/getFirstAndLastHourDay');
-const {dateInYyyyMmDdHhMmSs,dateFormatMinusOneDay}=require('../utils/dateFormat');
+const {dateInYyyyMmDdHhMmSs,dateFormatMinusOneDay,dateInYyyyMmDdHhMmSsWithSlash}=require('../utils/dateFormat');
 const {secondsToHms}=require('../utils/secondToHrMin');
 
 const { ALL_VEHICLES, CARRIERE_ARGIL, CARRIERE_BIDZA, CARRIERE_FOUMBOT, CARRIERE_SABLE, GAR_BESSENGUE, PORT_KRIBI, USINE_BONABERIE, USINE_FIGUIL, USINE_MORTIER, USINE_NOMAYOS } = require('../constants/vehicleGroups');
@@ -73,8 +73,8 @@ async function getCimencamData() {
                         // Format date 
                         const newEntryTime =item.PlaceEntryLocalTimestamp? new Date(item.PlaceEntryLocalTimestamp):null;
                         const newExitTime  =item.PlaceExitLocalTimestamp? new Date (item.PlaceExitLocalTimestamp):null;
-                        const entryTime =newEntryTime?dateInYyyyMmDdHhMmSs(newEntryTime):'//';
-                        const exitTime =newExitTime?dateInYyyyMmDdHhMmSs(newExitTime):'//';
+                        const entryTime =newEntryTime?dateInYyyyMmDdHhMmSsWithSlash(newEntryTime):'//';
+                        const exitTime =newExitTime?dateInYyyyMmDdHhMmSsWithSlash(newExitTime):'//';
                         
                         const chauffeur= item.DriverDescription?item.DriverDescription:'//';
 

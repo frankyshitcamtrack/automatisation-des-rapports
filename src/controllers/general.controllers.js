@@ -5,11 +5,11 @@ const {generateAllRepportCotco}=require('./cotco.controllers')
 const {generateAllRepportCimencam} = require('./cimencam.controllers')
 
 async function generalControllers(){
-await generateAllRepportGuinness()
-//await generateAddaxRepports();
-//await generateAllRepportPerenco();
-//await generateAllRepportCimencam();
-//await generateAllRepportCotco()
+await generateAllRepportGuinness();
+await generateAddaxRepports();
+await generateAllRepportPerenco();
+await generateAllRepportCimencam();
+await generateAllRepportCotco();
 }
 
 

@@ -50,7 +50,7 @@ async function generateDaylyRepportCimencam() {
                 deleteFile(path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
               }, 30000)
             } 
-          })   
+          })  
     } catch (err) {
         console.error(err)
     }

@@ -2,7 +2,7 @@ function padTwoDigits(num) {
     return num.toString().padStart(2, "0");
 }
 
-
+//format date with -
 function dateInYyyyMmDdHhMmSs(date) {
     return (
       [
@@ -17,6 +17,23 @@ function dateInYyyyMmDdHhMmSs(date) {
         padTwoDigits(date.getSeconds()),
       ].join(":")
     );
+}
+
+//format date with /
+function dateInYyyyMmDdHhMmSsWithSlash(date) {
+  return (
+    [
+      date.getFullYear(),
+      padTwoDigits(date.getMonth() + 1),
+      padTwoDigits(date.getDate()),
+    ].join("/") +
+    " " +
+    [
+      padTwoDigits(date.getHours()),
+      padTwoDigits(date.getMinutes()),
+      padTwoDigits(date.getSeconds()),
+    ].join(":")
+  );
 }
 
 
@@ -215,5 +232,6 @@ module.exports = {
   dateFormatPlusOneHour,
   dateFormatMinusSevenDay,
   dateFormatIso,
-  dateFormatIsoMinusOneDay
+  dateFormatIsoMinusOneDay,
+  dateInYyyyMmDdHhMmSsWithSlash
 };
