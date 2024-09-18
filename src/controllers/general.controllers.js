@@ -6,10 +6,10 @@ const {generateAllRepportCimencam} = require('./cimencam.controllers')
 
 async function generalControllers(){
 await generateAllRepportGuinness()
-await generateAddaxRepports();
-await generateAllRepportPerenco();
-await generateAllRepportCimencam();
-await generateAllRepportCotco()
+//await generateAddaxRepports();
+//await generateAllRepportPerenco();
+//await generateAllRepportCimencam();
+//await generateAllRepportCotco()
 }
 
 
