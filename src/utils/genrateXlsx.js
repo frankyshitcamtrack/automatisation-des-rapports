@@ -1,10 +1,11 @@
 const fs = require('fs');
-
+const _ = require('lodash');
 const XLSX = require('exceljs');
 const { addImageBannerHeaderSheet, perencoHeaderSheet,guinnessHeaderSheet,cimencamHeaderSheet } = require('./bannerSheet');
 const {asignStyleToPerencoInfraction,assignStylePrencoSynthese, asignStyleToSheet}=require('./assignStylesProps')
 const { prepareSheet,prepareSheetForSynthese,addDataTosheet,prepareSheetCimencam } = require('./prepareSheet');
 const { addRowExistSheet } = require('./addRowExistSheet')
+const {createChart}=require('../utils/generateChart')
 
 
 async function convertJsonToExcel(data, sheet, path, excelColum, colorSheet) {
@@ -479,6 +480,228 @@ async function perencoXlsx(data, sheet, path, excelColum, colorSheet) {
 }
 
 
+
+async function generateDashbordSpeedingPerenco(data,sheet,path) {
+
+    const isExistPath = fs.existsSync(path);
+
+    let workbook = new XLSX.Workbook();
+
+    const logo1 = workbook.addImage({
+        buffer: fs.readFileSync('rapport/Perenco/assets/tractafric.png'),
+        extension: 'png',
+    });
+
+    const logo2 = workbook.addImage({
+        buffer: fs.readFileSync('rapport/Perenco/assets/perenco.png'),
+        extension: 'png',
+    });
+
+
+    const severeNat3= data.filter(item=>item.template==="severeNat3");
+    const legereNat3= data.filter(item=>item.template==="legereNat3");
+    const legereVille= data.filter(item=>item.template==="villeLegere");
+    const severeVille= data.filter(item=>item.template==="villeSevere");
+    const severeHorsVille= data.filter(item=>item.template==="horsVilleSevere");
+    const legereHorsVille= data.filter(item=>item.template==="horsVilleLegere");
+
+  
+    //Group notifications By VehicleID
+    const groupItemByVehicleGroupSevereNat3 = _.groupBy(severeNat3, item => item['Grouping']);
+
+    const groupItemByVehicleGroupLegereNat3= _.groupBy(legereNat3, item => item['Grouping']);
+
+    const groupItemByVehicleGroupLegereVille = _.groupBy(legereVille, item => item['Grouping']);
+
+    const groupItemByVehicleGroupSevereVille = _.groupBy(severeVille, item => item['Grouping']);
+
+    const groupItemByVehicleGroupSevereHorsVille = _.groupBy(severeHorsVille, item => item['Grouping']);
+
+    const groupItemByVehicleGroupLegereHorsVille = _.groupBy(legereHorsVille, item => item['Grouping']);
+ 
+    //console.log(groupItemByVehicleGroupSevereNat3);
+    //console.log(groupItemByVehicleGroupLegereNat3);
+    //console.log(groupItemByVehicleGroupLegereVille);
+    //console.log(groupItemByVehicleGroupSevereVille);
+    //console.log(groupItemByVehicleGroupSevereHorsVille);
+    //console.log(groupItemByVehicleGroupLegereHorsVille); 
+    
+    //get labels and values ville legere
+    const keyValuesVilleLegere= Object.keys(groupItemByVehicleGroupLegereVille)
+    const valuesLenthVilleLegere=  keyValuesVilleLegere.map(item=>{
+        return groupItemByVehicleGroupLegereVille[item].length;
+    });
+
+
+    //get labels and values ville severe
+    const keyValuesVilleSevere= Object.keys(groupItemByVehicleGroupSevereVille)
+    const valuesLenthVilleSevere=  keyValuesVilleSevere.map(item=>{
+        return groupItemByVehicleGroupSevereVille[item].length;
+    });
+
+    //get labels and values severe Nat3
+    const keyValuesSevereNat3= Object.keys(groupItemByVehicleGroupSevereNat3)
+    const valuesLenthSevereNat3=  keyValuesSevereNat3.map(item=>{
+        return groupItemByVehicleGroupSevereNat3[item].length;
+    });
+
+    //get labels and values legere Nat3
+    const keyValuesLegereNat3= Object.keys(groupItemByVehicleGroupLegereNat3)
+    const valuesLenthLegereNat3=  keyValuesLegereNat3.map(item=>{
+        return groupItemByVehicleGroupLegereNat3[item].length;
+    });
+
+    //get labels and values legere horsville
+    const keyValuesLegereHorsVille= Object.keys(groupItemByVehicleGroupLegereHorsVille)
+    const valuesLenthLegereHorsVille=  keyValuesLegereHorsVille.map(item=>{
+        return groupItemByVehicleGroupLegereHorsVille[item].length;
+    });
+
+    //get labels and values severe horsville
+    const keyValuesSevereHorsVille= Object.keys(groupItemByVehicleGroupSevereHorsVille)
+    const valuesLenthSevereHorsVille=  keyValuesSevereHorsVille.map(item=>{
+        return groupItemByVehicleGroupSevereHorsVille[item].length;
+    });
+
+
+
+    if (isExistPath) {
+        setTimeout(async () => {
+            console.log(`Generating file ${sheet} ...`);
+            const readFile = await workbook.xlsx.readFile(path);
+            if (readFile) {
+                // creation of new sheet
+                const worksheet = workbook.addWorksheet(sheet);
+                
+                //remove grid lines
+                worksheet.views = [{ showGridLines: false }];
+
+                //add logo headers
+                worksheet.addImage(logo1, { tl: { col: 3, row: 0 }, ext: { width: 100, height: 100 }, editAs: 'oneCell' });
+                worksheet.addImage(logo2, { tl: { col: 23+0.999999999999, row: 0}, ext: { width: 100, height: 100 }, editAs:'oneCell' });
+
+                
+                worksheet.mergeCells(`F2`, `W5`);
+
+                const titleCell =worksheet.getCell(`F2`);
+
+              
+                titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+
+                titleCell.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: "5c9bd5" }
+                }
+
+                titleCell.font = { color: { argb: "FFFFFF" }, bold: true, name: 'calibri', size: 15};
+
+                titleCell.value = "Dashbord Exces De Vitesse";
+                // Générer le graphique Exces de vitesse légère ville
+                const chartImageVilleLegere = await createChart('Exces de vitesse ville légère ',keyValuesVilleLegere,valuesLenthVilleLegere);
+                 
+                // Ajouter le graphique dans une cellule
+                  const imageVilleLegere = workbook.addImage({
+                    buffer: chartImageVilleLegere,
+                    extension: 'png',
+                });
+            
+                worksheet.addImage(imageVilleLegere, {
+                    tl: { col: 1, row: 8 },
+                    ext: { width: 500, height: 500 }
+                });
+
+                // Générer le graphique Exces de vitesse severe ville
+                const chartImageVilleSevere = await createChart('Exces de vitesse ville sévère',keyValuesVilleSevere,valuesLenthVilleSevere);
+                 
+                // Ajouter le graphique dans une cellule
+                const imageVilleSevere = workbook.addImage({
+                    buffer: chartImageVilleSevere,
+                    extension: 'png',
+                });
+            
+                worksheet.addImage(imageVilleSevere, {
+                    tl: { col: 9, row: 8 },
+                    ext: { width: 500, height: 500 }
+                });
+
+                 // Générer le graphique Exces de vitesse Legere Nat3
+                 const chartImageLegereNat3 = await createChart('Exces de vitesse Nat3 légère',keyValuesLegereNat3,valuesLenthLegereNat3);
+                 
+                 // Ajouter le graphique dans une cellule
+                 const imageLegereNat3 = workbook.addImage({
+                     buffer: chartImageLegereNat3,
+                     extension: 'png',
+                 });
+             
+                 worksheet.addImage(imageLegereNat3, {
+                     tl: { col: 1, row: 35 },
+                     ext: { width: 500, height: 500 }
+                 });
+             
+                 // Générer le graphique Exces de vitesse Legere Nat3
+                 const chartImageSevereNat3 = await createChart('Exces de vitesse Nat3 Sévère',keyValuesSevereNat3,valuesLenthSevereNat3);
+                 
+                 // Ajouter le graphique dans une cellule
+                 const imageSevereNat3 = workbook.addImage({
+                     buffer: chartImageSevereNat3,
+                     extension: 'png',
+                 });
+             
+                 worksheet.addImage(imageSevereNat3, {
+                     tl: { col: 9, row: 35 },
+                     ext: { width: 500, height: 500 }
+                 });
+            
+                  
+                  // Générer le graphique Exces de vitesse Hors ville severe 
+                  const chartImageHorsVilleSevere = await createChart('Exces de vitesse hors ville severe',keyValuesSevereHorsVille,valuesLenthSevereHorsVille);
+                 
+                  // Ajouter le graphique dans une cellule
+                  const imageHorsVilleSevere = workbook.addImage({
+                      buffer: chartImageHorsVilleSevere,
+                      extension: 'png',
+                  });
+              
+                  worksheet.addImage(imageHorsVilleSevere, {
+                      tl: { col: 17, row: 35 },
+                      ext: { width: 500, height: 500 }
+                  });
+                  
+                   // Générer le graphique Exces de vitesse Hors ville legere
+                   const chartImageHorsVilleLegere = await createChart('Exces de vitesse hors ville legere',keyValuesLegereHorsVille,valuesLenthLegereHorsVille);
+                 
+                   // Ajouter le graphique dans une cellule
+                   const imageHorsVilleLegere = workbook.addImage({
+                       buffer: chartImageHorsVilleLegere,
+                       extension: 'png',
+                   });
+               
+                   worksheet.addImage(imageHorsVilleLegere, {
+                       tl: { col: 17, row: 8 },
+                       ext: { width: 500, height: 500 }
+                   });
+              
+                 //Center image header banner depending on number of columns
+                 //perencoHeaderSheet(worksheet, thirdHeader, sheet, logo1, logo2);
+
+                // Export excel generated file
+                workbook.xlsx.writeFile(path, { type: 'buffer', bookType: 'xlsx' })
+                    .then(response => {
+                        console.log("file generated");
+                    })
+                    .catch(err => {
+                        console.log(err);
+                    });
+            }
+        }, 15000)
+
+    } 
+
+}
+
+
+
 async function generateSyntheseSheetPerenco(path,data, sheet) {
 
     const isExistPath = fs.existsSync(path);
@@ -795,4 +1018,4 @@ async function cimencamXlsx(data, sheet, path, excelColum,date) {
 }
 
 
-module.exports = { convertJsonToExcel, generateSyntheseSheetAddax, perencoXlsx,generateSyntheseSheetPerenco,guinnessXlsx,CotcoXlsx,cimencamXlsx}
+module.exports = { convertJsonToExcel, generateSyntheseSheetAddax, perencoXlsx,generateSyntheseSheetPerenco,guinnessXlsx,CotcoXlsx,cimencamXlsx,generateDashbordSpeedingPerenco,}

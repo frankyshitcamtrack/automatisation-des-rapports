@@ -66,7 +66,8 @@ const props= jsonArr.map(item=>{
             'Date et heure': {text:item['Date et heure'].text,hyperlink:item['Date et heure'].hyperlink},
             Lieu:{text:item.Lieu.text, hyperlink:item.Lieu.hyperlink} ,
             'Vitesse maxi':{text:item['Vitesse maxi'].text,hyperlink:item['Vitesse maxi'].hyperlink},
-            'Durée': item['Durée']
+            'Durée': item['Durée'],
+            'Vitesse limite':'Entre 61 km/h et 80 km/h'
       }
     }
 
@@ -80,7 +81,8 @@ const props= jsonArr.map(item=>{
             'Date et heure': {text:item['Date et heure'].text,hyperlink:item['Date et heure'].hyperlink},
             Lieu:{text:item.Lieu.text, hyperlink:item.Lieu.hyperlink} ,
             'Vitesse maxi':{text:item['Vitesse maxi'].text,hyperlink:item['Vitesse maxi'].hyperlink},
-            'Durée': item['Durée']
+            'Durée': item['Durée'],
+            'Vitesse limite':'Plus de 81 km/h'
       }
     }
 
@@ -94,7 +96,8 @@ const props= jsonArr.map(item=>{
             'Date et heure': {text:item['Date et heure'].text,hyperlink:item['Date et heure'].hyperlink},
             Lieu:{text:item.Lieu.text, hyperlink:item.Lieu.hyperlink} ,
             'Vitesse maxi':{text:item['Vitesse maxi'].text,hyperlink:item['Vitesse maxi'].hyperlink},
-            'Durée': item['Durée']
+            'Durée': item['Durée'],
+            'Vitesse limite':'Entre 111 km/h et 120 km/h'
       }
     }
 
@@ -108,7 +111,8 @@ const props= jsonArr.map(item=>{
             'Date et heure': {text:item['Date et heure'].text,hyperlink:item['Date et heure'].hyperlink},
             Lieu:{text:item.Lieu.text, hyperlink:item.Lieu.hyperlink} ,
             'Vitesse maxi':{text:item['Vitesse maxi'].text,hyperlink:item['Vitesse maxi'].hyperlink},
-            'Durée': item['Durée']
+            'Durée': item['Durée'],
+             'Vitesse limite':'Plus de 120 km/h'
       }
     }
 
@@ -123,7 +127,8 @@ const props= jsonArr.map(item=>{
             'Date et Heure': {text:item['Date et heure'].text,hyperlink:item['Date et heure'].hyperlink},
             Lieu:{text:item.Lieu.text, hyperlink:item.Lieu.hyperlink} ,
             'Vitesse maxi':{text:item['Vitesse maxi'].text,hyperlink:item['Vitesse maxi'].hyperlink},
-            'Durée': item['Durée']
+            'Durée': item['Durée'],
+            'Vitesse limite':'Entre 81 km/h et 100 km/h'
       }
     }
     
@@ -137,7 +142,8 @@ const props= jsonArr.map(item=>{
             'Date et Heure': {text:item['Date et heure'].text,hyperlink:item['Date et heure'].hyperlink},
             Lieu:{text:item.Lieu.text, hyperlink:item.Lieu.hyperlink} ,
             'Vitesse maxi':{text:item['Vitesse maxi'].text,hyperlink:item['Vitesse maxi'].hyperlink},
-            'Durée': item['Durée']
+            'Durée': item['Durée'],
+            'Vitesse limite':'Plus de 120 km/h'
       }
     }
   })

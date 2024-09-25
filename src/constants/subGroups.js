@@ -22,6 +22,7 @@ const EXCES_DE_VITESSE_VILLE="Excès de Vitesse Ville"
 const EXCES_DE_VITESSE_BASE_PERENCO="Excès de Vitesse BASE PERENCO"
 const EXCES_DE_VITESSE_HORS_VILLE="Excès de Vitesse HORS VILLE"
 const SPEEDING_DETAIL = "Speeding Détail"
+const DASHBORD_SPEEDING="DASHBORD EXCES DE VITESSE PERENCO"
 const EXCES_DE_VITESSE_LEGERE_VILLE  ="Excès de vitesse Légère ville"
 const EXCES_DE_VITESSE_LEGERE_HORS_VILLE  ="Excès de vitesse Légère Hors ville"
 const EXCES_DE_VITESSE_SEVERE_VILLE  ="Excès de vitesse Sévère ville"
@@ -71,5 +72,6 @@ module.exports = {
     TRACKING_TRACAFIC,
     RAPPORT_GUINNESS,
     RAPPORT_COTCO,
-    RAPPORT_CIMENCAM
+    RAPPORT_CIMENCAM,
+    DASHBORD_SPEEDING
 }

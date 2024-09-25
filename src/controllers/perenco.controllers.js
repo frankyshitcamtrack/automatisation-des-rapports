@@ -1,6 +1,7 @@
 const path = require('path');
 const cron = require('node-cron');
 const _ = require('lodash');
+
 const { getRepportData,getRepportDataUnit } = require('../models/models');
 const { getFistAndLastHourDay,getFirstAndLastSevendays } = require('../utils/getFirstAndLastHourDay');
 const { addAffectationsColumn } = require('../utils/createAffectationcolumnperenco');
@@ -9,7 +10,7 @@ const { addCriticiteProps,addCriticiteAndVitesseLimiteProps } = require('../util
 const { addIntervalles } = require('../utils/createIntervallesColl');
 const { addWeekendStatus } = require('../utils/addWeekendStatus');
 const { utilisateurNullEcodriving, utilisateurNullDetailTrajet, utilisateurNullConduiteDeNuit, utilisateurNullExcesVitess } = require('../utils/replaceUtilisateurNull')
-const { perencoXlsx, generateSyntheseSheetPerenco } = require('../utils/genrateXlsx');
+const { perencoXlsx, generateSyntheseSheetPerenco,generateDashbordSpeedingPerenco } = require('../utils/genrateXlsx');
 const {removeProperties} = require('../utils/removeProperties');
 const {deleteFile}=require('../utils/deleteFile')
 const { calculateTime } = require('../utils/sommeArrTimes')
@@ -35,7 +36,9 @@ const {
   EXCES_DE_VITESSE_SEVERE_VILLE,
   ZONES,
   SYNTHESE,
-  TRACKING_TRACAFIC
+  TRACKING_TRACAFIC,
+  DASHBORD_SPEEDING
+
 } = require('../constants/subGroups');
 
 const { json } = require('body-parser');
@@ -704,11 +707,13 @@ async function generateDaylyRepportPerenco() {
 async function generateHebdoRepportPerenco() {
   try {
     const synthese = []
+    const speedings =[]
     const sender = await Senders(PERENCO, 'E');
     const receivers = await Receivers(PERENCO, 'D');  
     const fistAndLastHourDay = getFirstAndLastSevendays();
-    const firstHourDay = "1724626800";
-    const lastHourDay = "1725231599";
+    const firstHourDay = fistAndLastHourDay.firstHourDayTimestamp;
+    const lastHourDay = fistAndLastHourDay.lastHourDayTimestamp;
+
     const titleDate = fistAndLastHourDay.dateTitle;
     const pathFile = "rapport/Perenco/RAPPORT-ACTIVITE-HEBDO-FLOTTE-PERENCO";
     const pathTracking ="rapport/Perenco/TRACKING-TRACAFIC";
@@ -861,7 +866,7 @@ async function generateHebdoRepportPerenco() {
               console.log(`no data found in ${RAPPORT_ACTIVITE_FLOTTE_PERENCO} ${CONDUITE_DE_NUIT}`);
             }
           }).catch(err => console.log(err))
-      })
+      }) 
       .then(async () => {
         await getRepportData(ADMIN_PERENCO, RAPPORT_EXCES_DE_VITESSE_FLOTTE, PERENCO, firstHourDay, lastHourDay, EXCES_DE_VITESSE_LEGERE_VILLE)
           .then(async (res) => {
@@ -896,6 +901,7 @@ async function generateHebdoRepportPerenco() {
                 if (item) {
                   const newItem = { ...item, template: 'villeLegere' }
                   synthese.push(newItem);
+                  speedings.push(newItem);
                 }
 
               });
@@ -909,6 +915,9 @@ async function generateHebdoRepportPerenco() {
 
               //add affectation header at the 1 index
               column.splice(4, 0, { key: "Criticité" });
+
+              //add vitesse limite
+              column.push({ key: "Vitesse limite" });
 
               await perencoXlsx(newArrData, SPEEDING_DETAIL, `${pathFile}-${titleDate}.xlsx`, column);
               await perencoXlsx(newArrData, SPEEDING_DETAIL, `${pathFileExcesVitesse}-${titleDate}.xlsx`, column);
@@ -951,6 +960,7 @@ async function generateHebdoRepportPerenco() {
                 if (item) {
                   const newItem = { ...item, template: 'villeSevere' }
                   synthese.push(newItem);
+                  speedings.push(newItem);
                 }
               });
 
@@ -962,6 +972,9 @@ async function generateHebdoRepportPerenco() {
 
               //add affectation header at the 1 index
               column.splice(4, 0, { key: "Criticité" });
+
+               //add vitesse limite
+               column.push({ key: "Vitesse limite" });
 
               await perencoXlsx(newArrData, SPEEDING_DETAIL, `${pathFile}-${titleDate}.xlsx`, column);
               await perencoXlsx(newArrData, SPEEDING_DETAIL, `${pathFileExcesVitesse}-${titleDate}.xlsx`, column);
@@ -1006,6 +1019,7 @@ async function generateHebdoRepportPerenco() {
                 if (item) {
                   const newItem = { ...item, template: 'horsVilleLegere' }
                   synthese.push(newItem);
+                  speedings.push(newItem);
                 }
 
               });
@@ -1018,6 +1032,9 @@ async function generateHebdoRepportPerenco() {
 
               //add affectation header at the 1 index
               column.splice(4, 0, { key: "Criticité" });
+
+               //add vitesse limite
+               column.push({ key: "Vitesse limite" });
 
               await perencoXlsx(newArrData, SPEEDING_DETAIL, `${pathFile}-${titleDate}.xlsx`, column);
               await perencoXlsx(newArrData, SPEEDING_DETAIL, `${pathFileExcesVitesse}-${titleDate}.xlsx`, column);
@@ -1058,6 +1075,7 @@ async function generateHebdoRepportPerenco() {
                 if (item) {
                   const newItem = { ...item, template: 'horsVilleSevere' }
                   synthese.push(newItem);
+                  speedings.push(newItem);
                 }
               });
 
@@ -1069,6 +1087,9 @@ async function generateHebdoRepportPerenco() {
 
               //add affectation header at the 1 index
               column.splice(4, 0, { key: "Criticité" });
+
+               //add vitesse limite
+               column.push({ key: "Vitesse limite" });
 
               await perencoXlsx(newArrData, SPEEDING_DETAIL, `${pathFile}-${titleDate}.xlsx`, column);
               await perencoXlsx(newArrData, SPEEDING_DETAIL, `${pathFileExcesVitesse}-${titleDate}.xlsx`, column);
@@ -1110,6 +1131,7 @@ async function generateHebdoRepportPerenco() {
                 if (item) {
                   const newItem = { ...item, template: 'legereNat3' }
                   synthese.push(newItem);
+                  speedings.push(newItem);
                 }
 
               });
@@ -1122,6 +1144,9 @@ async function generateHebdoRepportPerenco() {
 
               //add affectation header at the 1 index
               column.splice(4, 0, { key: "Criticité" });
+
+              //add vitesse limite
+              column.push({ key: "Vitesse limite" });
 
               await perencoXlsx(newArrData, SPEEDING_DETAIL, `${pathFile}-${titleDate}.xlsx`, column);
               await perencoXlsx(newArrData, SPEEDING_DETAIL, `${pathFileExcesVitesse}-${titleDate}.xlsx`, column);
@@ -1162,6 +1187,7 @@ async function generateHebdoRepportPerenco() {
                 if (item) {
                   const newItem = { ...item, template: 'severeNat3' }
                   synthese.push(newItem);
+                  speedings.push(newItem)
                 }
               });
 
@@ -1173,6 +1199,9 @@ async function generateHebdoRepportPerenco() {
 
               //add affectation header at the 1 index
               column.splice(4, 0, { key: "Criticité" });
+
+               //add vitesse limite
+               column.push({ key: "Vitesse limite" });
 
               await perencoXlsx(newArrData, SPEEDING_DETAIL, `${pathFile}-${titleDate}.xlsx`, column);
               await perencoXlsx(newArrData, SPEEDING_DETAIL, `${pathFileExcesVitesse}-${titleDate}.xlsx`, column);
@@ -1278,6 +1307,9 @@ async function generateHebdoRepportPerenco() {
           })
           .catch(err => console.log(err))
       }) 
+      .then(async ()=>{
+        await generateDashbordSpeedingPerenco(speedings, DASHBORD_SPEEDING,`${pathFileExcesVitesse}-${titleDate}.xlsx`);
+      })
       .then(async () => {
 
           //Group notifications By VehicleID
@@ -1475,7 +1507,7 @@ async function generateHebdoRepportPerenco() {
             deleteFile(path.join(__dirname, `../../${pathTracking}-${titleDate}.xlsx`))
           }, 30000)
         }
-      }) 
+      })  
       .catch(err => console.log(err)) 
 
   } catch (err) {
@@ -1486,7 +1518,7 @@ async function generateHebdoRepportPerenco() {
 
 
 async function generateAllRepportPerenco(){
-  //generateHebdoRepportPerenco();
+  generateHebdoRepportPerenco();
   //await generateDaylyRepportPerenco();
   cron.schedule('30 04 * * *', async () => {
     await generateDaylyRepportPerenco();

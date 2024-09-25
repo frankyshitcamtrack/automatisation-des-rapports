@@ -28,8 +28,6 @@ async function generateDaylyRepportCotco() {
                 const dataLenght = res?.utilDataTrips.length;
                 titleDate = res?.titleDate;
                 if (dataLenght > 0) {
-                    console.log(sender);
-                    console.log(receivers);
                     const data = res.utilDataTrips.sort((a,b)=>(a.VEHICULE.localeCompare(b.VEHICULE)));
                     const replaceEmptyCol = data.map(item=>{
                         const hD = new Date(item['HOROTAGE DEBUT']);
