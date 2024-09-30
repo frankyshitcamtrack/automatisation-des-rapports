@@ -22,6 +22,8 @@ async function getCimencamData() {
 
     const fisthourDay = getFistAndLastHourDayIso().firstHourDayFormat;
     const lastHourDay = getFistAndLastHourDayIso().lasthourDayFormat;
+ 
+
     const titleDate = getFistAndLastHourDayIso().dateTitle;
     
     //filter date or get actual date

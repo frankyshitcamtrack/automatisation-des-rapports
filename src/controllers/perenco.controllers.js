@@ -21,7 +21,8 @@ const { PERENCO } = require('../constants/clients');
 const { ADMIN_PERENCO } = require('../constants/ressourcesClient');
 const {ACTIVITY_REPORT_SUBJECT_MAIL_PERENCO_DAY,ACTIVITY_REPORT_SUBJECT_MAIL_PERENCO_WEEK,ACTIVITY_REPORT_SUBJECT_MAIL_PERENCO_TRACKING,ACTIVITY_REPORT_SUBJECT_MAIL_PERENCO_TRAVERSER, ACTIVITY_REPORT_SUBJECT_MAIL_PERENCO_EXCES_VITESSE}=require('../constants/mailSubjects');
 const { RAPPORT_ACTIVITE_FLOTTE_PERENCO, RAPPORT_EXCES_DE_VITESSE_FLOTTE,RAPPORT_TRAVERSE_ZONE_BONABERI } = require('../constants/template');
-const pass = process.env.PASS_MAIL_YAMDEU;
+//const pass = process.env.PASS_MAIL_YAMDEU;
+const pass=process.env.PASS_MAIL_SAV;
 
 const {
   ECO_DRIVING,

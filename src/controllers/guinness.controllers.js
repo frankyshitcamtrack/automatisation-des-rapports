@@ -16,7 +16,8 @@ const { ADMIN_SABC,ADMIN_ADDAX } = require('../constants/ressourcesClient');
 const {ACTIVITY_REPORT_SUBJECT_MAIL_GUINNESS} = require('../constants/mailSubjects');
 const { RAPPORT_JOURNALIER_GUINESS,EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM,RAPPORT_MENSUEL_GUINESS } = require('../constants/template');
 
-const pass=process.env.PASS_MAIL_FRANCK;
+//const pass=process.env.PASS_MAIL_FRANCK;
+const pass=process.env.PASS_MAIL_SAV;
 
 async function generateDaylyRepportGuinness() {
     const sender = await Senders(GUINNESS, 'E');

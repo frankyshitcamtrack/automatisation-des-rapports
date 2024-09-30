@@ -20,8 +20,8 @@ const test =[
   { name: 'frank', address: 'franky.shity@camtrack.net' },
 ] 
 
-const pass = process.env.PASS_MAIL;
-
+//const pass = process.env.PASS_MAIL;
+const pass=process.env.PASS_MAIL_SAV;
 
 async function generateAddaxDaylyRepport() {
   const sender = await Senders(ADDAX_PETROLEUM, 'E');
@@ -259,7 +259,7 @@ async function AddaxMonthlyRepportSynthese() {
 
 
 async function generateAddaxRepports() { 
-   //await generateAddaxDaylyRepport();
+  //await generateAddaxDaylyRepport();
   //await generateAddaxDaylyRepport22h06h();
   cron.schedule('30 6 * * *', async () => {
     await generateAddaxDaylyRepport();

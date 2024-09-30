@@ -14,7 +14,9 @@ const {RAPPORT_CIMENCAM}=require('../constants/subGroups');
 const {ACTIVITY_REPORT_SUBJECT_MAIL_CIMENCAM} = require('../constants/mailSubjects');
 const {RAPPORT_JOURNALIER_CIMENCAM} = require('../constants/template');
 
-const pass = process.env.PASS_MAIL_GHISLAIN;
+//const pass = process.env.PASS_MAIL_GHISLAIN;
+
+const pass=process.env.PASS_MAIL_SAV;
 
 async function generateDaylyRepportCimencam() {
     const sender = await Senders(CIMENCAM, 'E');

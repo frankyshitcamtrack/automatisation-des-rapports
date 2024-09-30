@@ -14,7 +14,8 @@ const {dateInYyyyMmDdHhMmSs}= require('../utils/dateFormat');
 const _ = require('lodash');
 
 
-const pass = process.env.PASS_MAIL;
+//const pass = process.env.PASS_MAIL;
+const pass=process.env.PASS_MAIL_SAV;
 
 async function generateDaylyRepportCotco() {
     const sender = await Senders(COTCO, 'E');
