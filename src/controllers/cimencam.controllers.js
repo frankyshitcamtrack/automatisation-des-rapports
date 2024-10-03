@@ -23,14 +23,14 @@ async function generateDaylyRepportCimencam() {
     const receivers = await Receivers(CIMENCAM, 'D');
     const fistAndLastHourDay = getFistAndLastHourDay();
     const titleDate = fistAndLastHourDay.dateTitle;
-   /*  const sender ='ghislain.kamgang@camtrack.net'
+   //const sender ='ghislain.kamgang@camtrack.net'
     
-    const receivers =[
+   /*  const receivers =[
       { name: 'frank', address: 'franky.shity@camtrack.net' },
-      { name: 'ghisl', address: 'ghislain.kamgang@camtrack.net'},
-      { name: 'magnou', address: 'magnouvel.mekontso@camtrack.net'},  
-    ]  */
-    
+      { name: 'ghisl', address: 'ghislain.kamgang@camtrack.net'}, 
+    ]  
+     */
+
     const pathFile = "rapport/Cimencam/RAPPORT-CIMENCAM";
     try {
       await getCimencamData()
@@ -47,7 +47,7 @@ async function generateDaylyRepportCimencam() {
         }).then(()=>{
             if (sender && receivers) {
               setTimeout(() => {
-                sendMail(sender,receivers,pass, RAPPORT_JOURNALIER_CIMENCAM, `${ACTIVITY_REPORT_SUBJECT_MAIL_CIMENCAM}`,`${RAPPORT_JOURNALIER_CIMENCAM}.xlsx`, path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
+                sendMail(sender,receivers,pass, `${RAPPORT_JOURNALIER_CIMENCAM}-${titleDate}`, `${ACTIVITY_REPORT_SUBJECT_MAIL_CIMENCAM}`,`${RAPPORT_JOURNALIER_CIMENCAM}.xlsx`, path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
                 deleteFile(path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`));
               }, 30000) 
             } 

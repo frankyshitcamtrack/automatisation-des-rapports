@@ -75,15 +75,15 @@ async function getCimencamData() {
                         // Format date 
                         const newEntryTime =item.PlaceEntryLocalTimestamp? new Date(item.PlaceEntryLocalTimestamp):null;
                         const newExitTime  =item.PlaceExitLocalTimestamp? new Date (item.PlaceExitLocalTimestamp):null;
-                        const entryTime =newEntryTime?dateInYyyyMmDdHhMmSsWithSlash(newEntryTime):'//';
-                        const exitTime =newExitTime?dateInYyyyMmDdHhMmSsWithSlash(newExitTime):'//';
+                        const entryTime =newEntryTime?dateInYyyyMmDdHhMmSsWithSlash(newEntryTime):'';
+                        const exitTime =newExitTime?dateInYyyyMmDdHhMmSsWithSlash(newExitTime):''; 
                         
-                        const chauffeur= item.DriverDescription?item.DriverDescription:'//';
+                        const chauffeur= item.DriverDescription?item.DriverDescription:'';
 
 
                         return {
                             VEHICULE: item.VehicleDescription,
-                            IMMATRICULATION:vehicleDescriptionProps[0],
+                            IMMATRICULATION:vehicleDescriptionProps[0].replace(/\s/g, ''),
                             TRANSPORTEUR:transporteur,
                             SITE:item.PlaceDescription,
                             CHAUFFEUR:chauffeur,
