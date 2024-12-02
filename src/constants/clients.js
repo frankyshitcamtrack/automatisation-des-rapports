@@ -1,10 +1,11 @@
-const ADDAX_PETROLEUM = "ADDAX PETROLEUM";
-const PERENCO = "PERENCO(TAM)";
-const GUINNESS = "GUINNESS VL";
-const COTCO = "COTCO";
-const CIMENCAM = "CIMENCAM";
-const RAZEL_VL = "RAZEL VL";
-const RAZEL_TRUCKS = "RAZEL TRUCKS";
+const ADDAX_PETROLEUM = 'ADDAX PETROLEUM';
+const PERENCO = 'PERENCO(TAM)';
+const GUINNESS = 'GUINNESS VL';
+const COTCO = 'COTCO';
+const CIMENCAM = 'CIMENCAM';
+const RAZEL_VL = 'RAZEL VL';
+const RAZEL_TRUCKS = 'RAZEL TRUCKS';
+const KPDC = 'KPDC KRIBI';
 
 module.exports = {
   ADDAX_PETROLEUM,
@@ -14,4 +15,5 @@ module.exports = {
   CIMENCAM,
   RAZEL_VL,
   RAZEL_TRUCKS,
+  KPDC,
 };
