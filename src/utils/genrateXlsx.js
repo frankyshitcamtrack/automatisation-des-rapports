@@ -6,12 +6,15 @@ const {
   perencoHeaderSheet,
   guinnessHeaderSheet,
   cimencamHeaderSheet,
+  razelHeaderSheet,
+  razelHeaderSheetSynthese,
 } = require('./bannerSheet');
 const {
   asignStyleToPerencoInfraction,
   assignStylePrencoSynthese,
   asignStyleToSheet,
   assignStyleToKPCDHeaders,
+  assignStyleToHeadersSyntheseRazel,
 } = require('./assignStylesProps');
 const {
   prepareSheet,
@@ -19,14 +22,18 @@ const {
   addDataTosheet,
   prepareSheetCimencam,
   prepareSheetKPDC,
+  prepareSheetRazel,
+  prepareSheetRazelExcessVitesse,
+  prepareSheetRazelForSynthese,
 } = require('./prepareSheet');
 const { addRowExistSheet } = require('./addRowExistSheet');
 const {
   createChart,
   createChartKPDC,
   createChartDureeKPDC,
-} = require('../utils/generateChart');
+} = require('./generateChart.js');
 const { calculateTime } = require('../utils/sommeArrTimes');
+const { Title } = require('chart.js');
 
 async function convertJsonToExcel(data, sheet, path, excelColum, colorSheet) {
   const dataHeader = [];
@@ -1199,19 +1206,6 @@ async function generateDashbordKPDC(data, sheet, path) {
 
   let workbook = new XLSX.Workbook();
 
-  const logo1 = workbook.addImage({
-    buffer: fs.readFileSync('rapport/kpdc/assets/camtrack.png'),
-    extension: 'png',
-  });
-
-  const logo2 = workbook.addImage({
-    buffer: fs.readFileSync('rapport/kpdc/assets/globeleq.jpg'),
-    extension: 'jpg',
-  });
-
-  console.log(logo1);
-  console.log(logo2);
-
   const trajet = data.filter((item) => item.template === 'trajet');
   const braking = data.filter((item) => item.template === 'braking');
   const arret = data.filter((item) => item.template === 'arret');
@@ -1302,22 +1296,15 @@ async function generateDashbordKPDC(data, sheet, path) {
   if (isExistPath) {
     setTimeout(async () => {
       console.log(`Generating file ${sheet} ...`);
+
       const readFile = await workbook.xlsx.readFile(path);
+
       if (readFile) {
         // creation of new sheet
         const worksheet = workbook.addWorksheet(sheet);
 
         //remove grid lines
         worksheet.views = [{ showGridLines: false }];
-
-        //add logo headers
-        if (logo2) {
-          worksheet.addImage(logo2, {
-            tl: { col: 23 + 0.999999999999, row: 0 },
-            ext: { width: 100, height: 100 },
-            editAs: 'oneCell',
-          });
-        }
 
         worksheet.mergeCells(`F2`, `W5`);
 
@@ -1346,6 +1333,26 @@ async function generateDashbordKPDC(data, sheet, path) {
           sumReccurenceCluster
         );
 
+        //add logo KPDC headers
+        const logoKPDC = workbook.addImage({
+          buffer: fs.readFileSync('rapport/kpdc/assets/globeleq.jpg'),
+          extension: 'jpg',
+        });
+        worksheet.addImage(logoKPDC, {
+          tl: { col: 4, row: 0 },
+          ext: { width: 100, height: 100 },
+        });
+
+        //add logo camtrack
+        const logoCamtrack = workbook.addImage({
+          buffer: fs.readFileSync('rapport/kpdc/assets/camtrack.png'),
+          extension: 'png',
+        });
+        worksheet.addImage(logoCamtrack, {
+          tl: { col: 22 + 0.999999999999, row: 0 },
+          ext: { width: 100, height: 100 },
+        });
+
         // Ajouter le graphique dans une cellule
         const imageBrake = workbook.addImage({
           buffer: chartImageBrake,
@@ -1353,7 +1360,7 @@ async function generateDashbordKPDC(data, sheet, path) {
         });
 
         worksheet.addImage(imageBrake, {
-          tl: { col: 1, row: 8 },
+          tl: { col: 5, row: 8 },
           ext: { width: 500, height: 500 },
         });
 
@@ -1371,7 +1378,7 @@ async function generateDashbordKPDC(data, sheet, path) {
         });
 
         worksheet.addImage(imageSpeeding, {
-          tl: { col: 9, row: 8 },
+          tl: { col: 14, row: 8 },
           ext: { width: 500, height: 500 },
         });
 
@@ -1389,13 +1396,13 @@ async function generateDashbordKPDC(data, sheet, path) {
         });
 
         worksheet.addImage(imageStop, {
-          tl: { col: 1, row: 59 },
+          tl: { col: 5, row: 63 },
           ext: { width: 500, height: 500 },
         });
 
         // Générer le graphique Duree D'utilisation des véhicules
         const chartImageDuree = await createChartDureeKPDC(
-          "Duree D'utilisation des véhicules",
+          "Duree D'utilisation des véhicules en (heure)",
           keyValuesTrajet,
           sumDureeCluster
         );
@@ -1407,7 +1414,7 @@ async function generateDashbordKPDC(data, sheet, path) {
         });
 
         worksheet.addImage(imageDuree, {
-          tl: { col: 5, row: 35 },
+          tl: { col: 10, row: 35 },
           ext: { width: 500, height: 500 },
         });
 
@@ -1425,7 +1432,7 @@ async function generateDashbordKPDC(data, sheet, path) {
         });
 
         worksheet.addImage(imageDistance, {
-          tl: { col: 9, row: 59 },
+          tl: { col: 14, row: 63 },
           ext: { width: 500, height: 500 },
         });
 
@@ -1443,6 +1450,263 @@ async function generateDashbordKPDC(data, sheet, path) {
   }
 }
 
+//generate razel sheets
+async function razelXlsx(data, sheet, path, excelColum, title) {
+  const dataHeader = [];
+
+  const isExistPath = fs.existsSync(path);
+
+  let workbook = new XLSX.Workbook();
+
+  const baner = workbook.addImage({
+    buffer: fs.readFileSync('rapport/razel/assets/baner.png'),
+    extension: 'png',
+  });
+
+  if (excelColum) {
+    excelColum.map((item) => {
+      dataHeader.push(item.key);
+    });
+  }
+
+  if (dataHeader.length > 0) {
+    if (isExistPath) {
+      setTimeout(async () => {
+        console.log(`Generating file ${sheet} ...`);
+        const readFile = await workbook.xlsx.readFile(path);
+        if (readFile) {
+          const existWorkSheet = workbook.getWorksheet(sheet);
+          if (existWorkSheet) {
+            const existWorkSheetName = existWorkSheet.name;
+            if (existWorkSheetName === sheet) {
+              asignStyleToSheet(existWorkSheet);
+              await addDataTosheet(existWorkSheet, data, excelColum);
+            }
+          } else {
+            const worksheet = workbook.addWorksheet(sheet);
+
+            await prepareSheetRazel(worksheet, data, dataHeader, excelColum);
+
+            //Center image header banner depending on number of columns
+            await razelHeaderSheet(worksheet, dataHeader, baner, title);
+          }
+
+          // Export excel generated file
+          workbook.xlsx
+            .writeFile(path, { type: 'buffer', bookType: 'xlsx' })
+            .then((response) => {
+              console.log('file generated');
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        }
+      }, 15000);
+    } else {
+      console.log(`Generating file ${sheet} ...`);
+
+      // creation of new sheet
+      const worksheet = workbook.addWorksheet(sheet);
+
+      await prepareSheetRazel(worksheet, data, dataHeader, excelColum);
+
+      //Center image header banner depending on number of columns
+      await razelHeaderSheet(worksheet, dataHeader, baner, title);
+
+      // Export excel generated file
+      workbook.xlsx
+        .writeFile(path, { type: 'buffer', bookType: 'xlsx' })
+        .then((response) => {
+          console.log('file generated');
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  }
+}
+
+//generate razel exces de vitesse
+async function razelExesVitesseXlsx(
+  data,
+  sheet,
+  path,
+  excelColum,
+  title,
+  titleMarker
+) {
+  const dataHeader = [];
+
+  const isExistPath = fs.existsSync(path);
+
+  let workbook = new XLSX.Workbook();
+
+  const baner = workbook.addImage({
+    buffer: fs.readFileSync('rapport/razel/assets/baner.png'),
+    extension: 'png',
+  });
+
+  if (excelColum) {
+    excelColum.map((item) => {
+      dataHeader.push(item.key);
+    });
+  }
+
+  if (dataHeader.length > 0) {
+    if (isExistPath) {
+      setTimeout(async () => {
+        console.log(`Generating file ${sheet} ...`);
+        const readFile = await workbook.xlsx.readFile(path);
+        if (readFile) {
+          const existWorkSheet = workbook.getWorksheet(sheet);
+          if (existWorkSheet) {
+            const existWorkSheetName = existWorkSheet.name;
+            if (existWorkSheetName === sheet) {
+              await prepareSheetRazelExcessVitesse(
+                existWorkSheet,
+                data,
+                dataHeader,
+                excelColum,
+                titleMarker
+              );
+            }
+          } else {
+            const worksheet = workbook.addWorksheet(sheet);
+
+            await prepareSheetRazelExcessVitesse(
+              worksheet,
+              data,
+              dataHeader,
+              excelColum,
+              titleMarker
+            );
+
+            //Center image header banner depending on number of columns
+            await razelHeaderSheet(worksheet, dataHeader, baner, title);
+          }
+
+          // Export excel generated file
+          workbook.xlsx
+            .writeFile(path, { type: 'buffer', bookType: 'xlsx' })
+            .then((response) => {
+              console.log('file generated');
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        }
+      }, 15000);
+    } else {
+      console.log(`Generating file ${sheet} ...`);
+
+      // creation of new sheet
+      const worksheet = workbook.addWorksheet(sheet);
+
+      await prepareSheetRazelExcessVitesse(
+        worksheet,
+        data,
+        dataHeader,
+        excelColum,
+        titleMarker
+      );
+
+      //Center image header banner depending on number of columns
+      await razelHeaderSheet(worksheet, dataHeader, baner, title);
+
+      // Export excel generated file
+      workbook.xlsx
+        .writeFile(path, { type: 'buffer', bookType: 'xlsx' })
+        .then((response) => {
+          console.log('file generated');
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  }
+}
+
+async function razelSynthese(path, data, sheet, Title) {
+  const isExistPath = fs.existsSync(path);
+
+  let workbook = new XLSX.Workbook();
+
+  const baner = workbook.addImage({
+    buffer: fs.readFileSync('rapport/razel/assets/baner.png'),
+    extension: 'png',
+  });
+
+  const thirdHeader = [
+    'Véhicules',
+    'Heure moteur',
+    'Ralenti moteur',
+    'En Mouvement',
+    'Kilométrage',
+    "Nbre d'exces de vitesse Agglomeration",
+    "Nbre d'exces de vitesse Hors Agglomeration",
+    'Acceleration excessives',
+    'Freinage Brusque',
+    'Virage',
+    "Nbre D'arret",
+    "Duree d'arret",
+    'Duree Conduite weekend',
+    'Kilometrage weekend',
+    'Duree Conduite nuit',
+    'Kilometrage nuit',
+    'Ralenti Moteur',
+    'En mouvement',
+  ];
+
+  if (isExistPath) {
+    setTimeout(async () => {
+      console.log(`Generating file ${sheet} ...`);
+      const readFile = await workbook.xlsx.readFile(path);
+      if (readFile) {
+        const existWorkSheet = workbook.getWorksheet(sheet);
+        if (existWorkSheet) {
+          const existWorkSheetName = existWorkSheet.name;
+          if (existWorkSheetName === sheet) {
+            //Add data to rows
+            data.map((item) => {
+              existWorkSheet.addRow(item).commit();
+            });
+          }
+        } else {
+          // creation of new sheet
+          const worksheet = workbook.addWorksheet(sheet);
+
+          worksheet.views = [{ showGridLines: false }];
+
+          const syntheseCol = thirdHeader.map((item) => {
+            return { key: item };
+          });
+
+          prepareSheetRazelForSynthese(
+            worksheet,
+            thirdHeader,
+            syntheseCol,
+            data
+          );
+
+          assignStyleToHeadersSyntheseRazel(worksheet);
+
+          //Center image header banner depending on number of columns
+          razelHeaderSheetSynthese(worksheet, thirdHeader, baner, Title);
+        }
+        // Export excel generated file
+        workbook.xlsx
+          .writeFile(path, { type: 'buffer', bookType: 'xlsx' })
+          .then((response) => {
+            console.log('file generated');
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
+    }, 15000);
+  }
+}
+
 module.exports = {
   convertJsonToExcel,
   generateSyntheseSheetAddax,
@@ -1454,4 +1718,7 @@ module.exports = {
   generateDashbordSpeedingPerenco,
   KPDCXlsx,
   generateDashbordKPDC,
+  razelXlsx,
+  razelExesVitesseXlsx,
+  razelSynthese,
 };

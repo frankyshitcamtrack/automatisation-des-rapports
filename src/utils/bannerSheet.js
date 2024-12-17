@@ -250,9 +250,83 @@ async function KPDCHeaderSheet(worksheet, headerColArr, sheet) {
   titleCell.value = getTitleHeaderSheetGuinness(sheet);
 }
 
+async function razelHeaderSheet(worksheet, headerColArr, banner, title) {
+  const arrLength = headerColArr.length;
+  const imageCell = `${cols[0]}1:${cols[arrLength - 1]}6`;
+  const titleHeader = [`${cols[0]}7`, `${cols[arrLength - 1]}8`];
+
+  worksheet.addImage(banner, imageCell);
+  worksheet.mergeCells(titleHeader[0], titleHeader[1]);
+
+  const titleCell = worksheet.getCell(titleHeader[0]);
+
+  titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+  titleCell.font = {
+    name: 'calibri',
+    size: 15,
+    bold: true,
+    color: { argb: 'FFFFFF' },
+  };
+  titleCell.border = {
+    top: { style: 'thin', color: { argb: '000000' } },
+    bottom: { style: 'thin', color: { argb: '000000' } },
+    right: { style: 'thin', color: { argb: '000000' } },
+    left: { style: 'thin', color: { argb: '000000' } },
+  };
+
+  titleCell.fill = {
+    type: 'pattern',
+    pattern: 'solid',
+    fgColor: { argb: '582900' },
+  };
+
+  titleCell.height = titleCell.value = title;
+}
+
+async function razelHeaderSheetSynthese(
+  worksheet,
+  headerColArr,
+  banner,
+  title
+) {
+  const arrLength = headerColArr.length;
+  const imageCell = `${cols[3]}1:${cols[arrLength - 5]}6`;
+  const titleHeader = [`${cols[0]}7`, `${cols[arrLength - 1]}8`];
+
+  worksheet.addImage(banner, imageCell);
+  worksheet.mergeCells(titleHeader[0], titleHeader[1]);
+
+  const titleCell = worksheet.getCell(titleHeader[0]);
+
+  titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+  titleCell.font = {
+    name: 'calibri',
+    size: 15,
+    bold: true,
+    color: { argb: 'FFFFFF' },
+  };
+  titleCell.border = {
+    top: { style: 'thin', color: { argb: '000000' } },
+    bottom: { style: 'thin', color: { argb: '000000' } },
+    right: { style: 'thin', color: { argb: '000000' } },
+    left: { style: 'thin', color: { argb: '000000' } },
+  };
+
+  titleCell.fill = {
+    type: 'pattern',
+    pattern: 'solid',
+    fgColor: { argb: '582900' },
+  };
+
+  titleCell.height = titleCell.value = title;
+}
+
 module.exports = {
   addImageBannerHeaderSheet,
   perencoHeaderSheet,
   guinnessHeaderSheet,
   cimencamHeaderSheet,
+  razelHeaderSheet,
+  KPDCHeaderSheet,
+  razelHeaderSheetSynthese,
 };

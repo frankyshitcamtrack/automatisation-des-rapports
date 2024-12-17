@@ -1,6 +1,7 @@
 const { createCanvas } = require('canvas');
 const { Title } = require('chart.js');
 const { ChartJSNodeCanvas } = require('chartjs-node-canvas');
+const fs = require('fs');
 
 // Fonction pour créer un graphique
 async function createChart(label, labels, data) {
@@ -29,6 +30,7 @@ async function createChart(label, labels, data) {
       ],
     },
     options: {
+      responsive: true,
       plugins: {
         title: {
           color: 'white',
@@ -100,6 +102,7 @@ async function createChartKPDC(label, labels, data) {
       ],
     },
     options: {
+      responsive: true,
       plugins: {
         title: {
           color: 'black',
@@ -147,15 +150,20 @@ async function createChartKPDC(label, labels, data) {
 
 // Fonction pour créer un graphique
 async function createChartDureeKPDC(label, labels, data) {
-  const width = 700; // largeur du graphique
+  const width = 500; // largeur du graphique
   const height = 500; // hauteur du graphique
   const formatLabels = labels.map((item) => item.slice(0, 9) + '...');
+  const convertArrTimeToHrs = data.map((time) => {
+    const arrTime = time.split(':');
+    const minHr = parseFloat(arrTime[1] / 60);
+    const secHr = parseFloat(arrTime[2] / 3600);
+    const hr = parseFloat(arrTime[0]) + minHr + secHr;
+    return hr;
+  });
   const chartJSNodeCanvas = new ChartJSNodeCanvas({
     width,
     height,
-    chartCallback: (ChartJS) => {},
   });
-
   const configuration = {
     type: 'bar',
     data: {
@@ -163,24 +171,25 @@ async function createChartDureeKPDC(label, labels, data) {
       datasets: [
         {
           label: label,
-          data: data,
-          backgroundColor: 'rgb(59, 38, 33 )',
-          borderColor: 'rgb(59, 38, 33 )',
+          data: convertArrTimeToHrs,
+          backgroundColor: 'rgb(203, 49, 16 )',
+          borderColor: 'rgb(203, 49, 16 )',
           borderWidth: 1,
         },
       ],
     },
     options: {
+      responsive: true,
       plugins: {
         title: {
-          color: 'white',
+          color: 'black',
           font: {
             size: 14,
             weight: 'bold',
           },
         },
         label: {
-          color: 'white',
+          color: 'black',
           font: {
             size: 14,
             weight: 'bold',
@@ -194,12 +203,11 @@ async function createChartDureeKPDC(label, labels, data) {
             color: 'black',
             font: {
               size: 14,
-              weight: 'white',
+              weight: 'bold',
             }, // Y-axis label font color
           },
         },
         x: {
-          beginAtZero: true,
           ticks: {
             color: 'black', // X-axis label font color
             font: {

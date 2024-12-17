@@ -4,14 +4,16 @@ const { generateAllRepportGuinness } = require('./guinness.controllers');
 const { generateAllRepportCotco } = require('./cotco.controllers');
 const { generateAllRepportCimencam } = require('./cimencam.controllers');
 const { generateAllRepportKPDC } = require('./kpdc.controllers');
+const { generateAllRepportRazel } = require('./razel.controllers');
 
 async function generalControllers() {
-  //await generateAllRepportGuinness();
-  //await generateAddaxRepports();
-  //await generateAllRepportPerenco();
-  //await generateAllRepportCimencam();
-  //await generateAllRepportCotco();
+  await generateAllRepportGuinness();
+  await generateAddaxRepports();
+  await generateAllRepportPerenco();
+  await generateAllRepportCimencam();
+  await generateAllRepportCotco();
   await generateAllRepportKPDC();
+  //await generateAllRepportRazel();
 }
 
 module.exports = { generalControllers };

@@ -1,3 +1,5 @@
+const { autoSizeColumnSheet } = require('./autoSizeColumnSheet');
+
 async function assignStyleToHeaders(ws) {
   const rows = ws.getColumn(1);
   const rowsCount = rows['_worksheet']['_rows'].length;
@@ -54,6 +56,27 @@ async function assignStyleToHeaders(ws) {
 }
 
 async function asignStyleToSheet(ws) {
+  const wsName = ws.name;
+  const razel = wsName.toString().includes('razel');
+  if (razel) {
+    ws.eachRow((row, rowNumber) => {
+      row.eachCell((cell, colNumber) => {
+        if (rowNumber > 9 && colNumber == 1) {
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'D3D3D3' },
+          };
+          cell.font = { color: { argb: 'FFFFFF' }, bold: false, size: 8 };
+        }
+
+        if (rowNumber > 9 && colNumber !== 1) {
+          cell.font = { color: { argb: '000000' }, bold: false, size: 8 };
+        }
+      });
+    });
+  }
+
   ws.eachRow((row, rowNumber) => {
     row.eachCell((cell, colNumber) => {
       cell.alignment = {
@@ -407,6 +430,109 @@ async function assignStyleToKPCDHeaders(ws) {
   });
 }
 
+//razel
+async function assignStyleToHeadersRazel(ws, numberOfColunm) {
+  const rows = ws.getColumn(1);
+  const rowsCount = rows['_worksheet']['_rows'].length;
+  const lastCell = `A${rowsCount}`;
+  const lastValCell = ws.getCell(lastCell).value;
+  const wsName = ws.name;
+  ws.eachRow((row, rowNumber) => {
+    row.eachCell((cell, colNumber) => {
+      cellVal = cell._value.toString();
+      cell.alignment = {
+        vertical: 'middle',
+        horizontal: 'center',
+        wrapText: true,
+      };
+      cell.border = {
+        top: { style: 'thin', color: { argb: '000000' } },
+        left: { style: 'thin', color: { argb: '000000' } },
+        bottom: { style: 'thin', color: { argb: '000000' } },
+        right: { style: 'thin', color: { argb: '000000' } },
+      };
+
+      cell.font = { bold: false, size: 9 };
+
+      if (rowNumber === 9) {
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '023E8A' },
+        };
+        cell.font = { color: { argb: 'FFFFFF' }, bold: true, size: 11 };
+      }
+    });
+  });
+
+  ws.eachRow((row, rowNumber) => {
+    let rowNumb;
+    if (
+      wsName == 'CONDUITE DE NUIT' ||
+      wsName == 'RALENTI MOTEUR' ||
+      wsName == 'DETAIL TRAJET FLOTTE RAZEL' ||
+      wsName.includes('CONDUITE DE WEEKEND RAZEL')
+    ) {
+      row.eachCell((cell, colNumber) => {
+        cellVal = cell._value.toString();
+        const includeUnits = cellVal.includes('-unit');
+
+        if (includeUnits) {
+          rowNumb = rowNumber;
+        }
+
+        if (rowNumber == rowNumb) {
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'D3D3D3' },
+          };
+          cell.font = { bold: true, size: 10 };
+        }
+      });
+    }
+    //Commit the changed row to the stream
+    row.commit();
+  });
+}
+
+async function assignStyleToHeadersSyntheseRazel(ws) {
+  const rows = ws.getColumn(1);
+  const rowsCount = rows['_worksheet']['_rows'].length;
+  const lastCell = `A${rowsCount}`;
+
+  ws.eachRow((row, rowNumber) => {
+    row.eachCell((cell, colNumber) => {
+      cellVal = cell.value;
+      cell.alignment = {
+        vertical: 'middle',
+        horizontal: 'center',
+        wrapText: true,
+      };
+      cell.border = {
+        top: { style: 'thin', color: { argb: '000000' } },
+        left: { style: 'thin', color: { argb: '000000' } },
+        bottom: { style: 'thin', color: { argb: '000000' } },
+        right: { style: 'thin', color: { argb: '000000' } },
+      };
+      if (rowNumber !== 11) {
+        cell.font = { name: 'calibri', size: 9 };
+      }
+
+      if (rowNumber == 12) {
+        // First set the background of header row
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '023E8A' },
+        };
+        cell.font = { color: { argb: 'FFFFFF' }, bold: true };
+      }
+    });
+    //Commit the changed row to the stream
+    row.commit();
+  });
+}
 module.exports = {
   assignStyleToHeaders,
   asignStyleToPerencoInfraction,
@@ -415,4 +541,6 @@ module.exports = {
   asignStyleToSheet,
   assignStyleToHeadersCimencam,
   assignStyleToKPCDHeaders,
+  assignStyleToHeadersSyntheseRazel,
+  assignStyleToHeadersRazel,
 };
