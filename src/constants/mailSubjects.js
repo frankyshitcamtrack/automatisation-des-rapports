@@ -50,6 +50,11 @@ const ACTIVITY_REPORT_SUBJECT_MAIL_RAZEL_VL_DAY =
 const ACTIVITY_REPORT_SUBJECT_MAIL_RAZEL_VL_WEEK =
   'Bonjour Mr/Mme retrouvez en PJ le rapport hebdomadaire  RAZEL VL';
 
+//DKT
+
+const ACTIVITY_REPORT_SUBJECT_MAIL_DKT_MONTH =
+  'Bonjour Mr/Mme retrouvez en PJ rapport Mensuel de la flotte DKT';
+
 module.exports = {
   ADDAX_NOT_AT_PARKING_SUBJECT_MAIL,
   EXCEPTION_REPORT_SUBJECT_MAIL,
@@ -71,4 +76,6 @@ module.exports = {
 
   ACTIVITY_REPORT_SUBJECT_MAIL_KPDC_WEEK,
   ACTIVITY_REPORT_SUBJECT_MAIL_KPDC_MONTH,
+
+  ACTIVITY_REPORT_SUBJECT_MAIL_DKT_MONTH,
 };

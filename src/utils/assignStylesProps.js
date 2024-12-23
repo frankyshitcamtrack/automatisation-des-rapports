@@ -527,6 +527,8 @@ async function assignStyleToHeadersSyntheseRazel(ws) {
           fgColor: { argb: '023E8A' },
         };
         cell.font = { color: { argb: 'FFFFFF' }, bold: true };
+
+        column.width = 10;
       }
     });
     //Commit the changed row to the stream

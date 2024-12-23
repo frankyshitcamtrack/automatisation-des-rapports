@@ -64,6 +64,8 @@ const {
 
 const { json } = require('body-parser');
 
+const RAZEL = 'RAZEL';
+
 //dayly report Razel
 async function generateDaylyRepportRazelVL() {
   try {
@@ -72,10 +74,20 @@ async function generateDaylyRepportRazelVL() {
     const ralentiMoteur = [];
     const detailTrajet = [];
     const conduitWeekend = [];
-    //const sender = await Senders(RAZEL_VL, 'E');
-    //const receivers = await Receivers(RAZEL_VL, 'D');
-    const sender = 'rapport.sav@camtrack.net';
-    const receivers = ['frankyshiti737@gmail.com,franky.shity@camtrack.net'];
+    const sender = await Senders(RAZEL, 'E');
+    const receivers = await Receivers(RAZEL, 'D');
+    /*   const sender = 'rapport.sav@camtrack.net';
+    const receivers = [
+      'franky.shity@camtrack.net',
+      'j.belloy@razel-bec.fayat.com',
+      'lrichard@razel.fr',
+      'ageorge@razel.fr',
+      'wketchankeu@razel.fr',
+      'wmbassi@razel.fr',
+      'Andjele@razel.fr',
+      'joel.youassi@camtrack.net',
+      'sav@camtrack.net',
+    ]; */
     const fistAndLastHourDay = getFistAndLastHourDay();
 
     const firstHourDay = fistAndLastHourDay.firstHourDayTimestamp;
@@ -90,7 +102,7 @@ async function generateDaylyRepportRazelVL() {
     // Ralenti moteur distinct synthese to detail
 
     let columnRalentiMoteur;
-    await getRepportDataUnit(
+    /*   await getRepportDataUnit(
       ADMIN_RAZEL,
       RAPPORT_RALENTI_MOTEUR_RAZEL,
       RAZEL_VL,
@@ -170,9 +182,9 @@ async function generateDaylyRepportRazelVL() {
           `${RAPPORT_RALENTI_MOTEUR_RAZEL} ${titleDate}`
         );
       })
-
-      //conduite de weekend disting unit to detail
-      .then(async () => {
+ */
+    //conduite de weekend disting unit to detail
+    /*  .then(async () => {
         let column;
         await getRepportDataUnit(
           ADMIN_RAZEL,
@@ -257,9 +269,9 @@ async function generateDaylyRepportRazelVL() {
             );
           });
       })
-
-      //conduite de nuit disting unit to detail
-      .then(async () => {
+ */
+    //conduite de nuit disting unit to detail
+    /*  .then(async () => {
         let column;
         await getRepportDataUnit(
           ADMIN_RAZEL,
@@ -343,54 +355,54 @@ async function generateDaylyRepportRazelVL() {
               `${CONDUITE_DE_NUIT_RAZEL} ${titleDate}`
             );
           });
-      })
+      }) */
 
-      //Eco driving
-      .then(async () => {
-        await getRepportData(
-          ADMIN_RAZEL,
-          ECO_DRIVING_RAZEL,
-          RAZEL_VL,
-          firstHourDay,
-          lastHourDay,
-          ECO_DRIVING_RAZEL_GROUP
-        ).then(async (res) => {
-          const objLenth = res?.obj.length;
-          if (objLenth > 0) {
-            const data = res.obj;
-            column = res.excelColum;
-            column[0] = { key: 'Véhicules' };
-            const replaceGroupinByVehicle = replaceProps(
-              data,
-              'Grouping',
-              'Véhicules'
-            );
+    //Eco driving
 
-            //push all data in synthese Arr
-            data.map((item) => {
-              if (item) {
-                const newItem = { ...item, template: 'eco-driving' };
-                synthese.push(newItem);
-              }
-            });
+    await getRepportData(
+      ADMIN_RAZEL,
+      ECO_DRIVING_RAZEL,
+      RAZEL_VL,
+      firstHourDay,
+      lastHourDay,
+      ECO_DRIVING_RAZEL_GROUP
+    )
+      .then(async (res) => {
+        const objLenth = res?.obj.length;
+        if (objLenth > 0) {
+          const data = res.obj;
+          column = res.excelColum;
+          column[0] = { key: 'Véhicules' };
+          const replaceGroupinByVehicle = replaceProps(
+            data,
+            'Grouping',
+            'Véhicules'
+          );
 
-            await razelXlsx(
-              replaceGroupinByVehicle,
-              ECO_DRIVING_RAZEL_GROUP,
-              `${pathFile}-${titleDate}.xlsx`,
-              column,
-              `${ECO_DRIVING_RAZEL_GROUP} ${titleDate}`
-            );
-          } else {
-            console.log(
-              `no data found in ${ECO_DRIVING_RAZEL_GROUP} ${ECO_DRIVING_RAZEL_GROUP}`
-            );
-          }
-        });
+          //push all data in synthese Arr
+          data.map((item) => {
+            if (item) {
+              const newItem = { ...item, template: 'eco-driving' };
+              synthese.push(newItem);
+            }
+          });
+
+          await razelXlsx(
+            replaceGroupinByVehicle,
+            ECO_DRIVING_RAZEL_GROUP,
+            `${pathFile}-${titleDate}.xlsx`,
+            column,
+            `${ECO_DRIVING_RAZEL_GROUP} ${titleDate}`
+          );
+        } else {
+          console.log(
+            `no data found in ${ECO_DRIVING_RAZEL_GROUP} ${ECO_DRIVING_RAZEL_GROUP}`
+          );
+        }
       })
 
       //Detail trajet
-      .then(async () => {
+      /*  .then(async () => {
         let column;
         await getRepportDataUnit(
           ADMIN_RAZEL,
@@ -473,7 +485,7 @@ async function generateDaylyRepportRazelVL() {
             );
           });
       })
-
+ */
       //EXCess de vitess VL
       .then(async () => {
         await getRepportData(
@@ -585,8 +597,9 @@ async function generateDaylyRepportRazelVL() {
           }
         });
       })
+
       //Razel VL synthese
-      .then(async () => {
+      /*  .then(async () => {
         await getRepportData(
           ADMIN_RAZEL,
           RAPPORT_SYNTHESE_ACTIVITE_RAZEL,
@@ -771,10 +784,10 @@ async function generateDaylyRepportRazelVL() {
               );
               return {
                 Véhicules: item['Véhicules'],
-                'Heure moteur': item['Heure moteur'] || '00:00:00',
-                'Ralenti moteur': item['Ralenti moteur'] || '00:00:00',
-                'En Mouvement': item['En mouvements'] || '00:00:00',
-                Kilométrage: item['Kilométrage'] || 0,
+                'Heure moteur (heure)': item['Heure moteur'] || '00:00:00',
+                'Ralenti moteur (heure)': item['Ralenti moteur'] || '00:00:00',
+                'En Mouvement (heure)': item['En mouvements'] || '00:00:00',
+                'Kilométrage (km)': item['Kilométrage'] || 0,
                 "Nbre d'exces de vitesse Agglomeration":
                   item["Nbre d'exces de vitesse Agglomeration"] || 0,
                 "Nbre d'exces de vitesse Hors Agglomeration":
@@ -783,15 +796,15 @@ async function generateDaylyRepportRazelVL() {
                 'Freinage Brusque': item['Freinage Brusque'] || 0,
                 Virage: item.Virage || 0,
                 "Nbre D'arret": item["Nbre D'arret"] || 0,
-                "Duree d'arret": item["Duree d'arret"] || 0,
-                'Duree Conduite weekend':
+                "Duree d'arret (heure)": item["Duree d'arret"] || 0,
+                'Duree Conduite weekend (heure)':
                   item['Duree Conduite weekend'] || '00:00:00',
-                'Kilometrage weekend': item['Kilometrage weekend'] || 0,
-                'Duree Conduite nuit':
+                'Kilometrage weekend (km)': item['Kilometrage weekend'] || 0,
+                'Duree Conduite nuit (heure)':
                   item['Duree Conduite nuit'] || '00:00:00',
-                'Kilometrage nuit': item['Kilometrage nuit'] || 0,
-                'Ralenti Moteur': ralentiMoteurProd.toFixed(2) + '%' || 0,
-                'En mouvement': mvtProd.toFixed(2) + '%' || 0,
+                'Kilometrage nuit (km)': item['Kilometrage nuit'] || 0,
+                'Ralenti Moteur (%)': ralentiMoteurProd.toFixed(2) + '%' || 0,
+                'En mouvement (%)': mvtProd.toFixed(2) + '%' || 0,
               };
             });
 
@@ -807,8 +820,10 @@ async function generateDaylyRepportRazelVL() {
             );
           }
         });
-      })
-      .then(() => {
+      })*/
+
+      //send mail
+      /* .then(() => {
         if (sender && receivers) {
           setTimeout(() => {
             sendMail(
@@ -823,10 +838,10 @@ async function generateDaylyRepportRazelVL() {
             deleteFile(
               path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
             );
-          }, 30000);
+          }, 180000);
         }
       })
-
+ */
       .catch((err) => console.log(err));
   } catch (err) {
     console.error(err);
@@ -841,11 +856,21 @@ async function generateWeeklyRepportRazelVL() {
     const ralentiMoteur = [];
     const detailTrajet = [];
     const conduitWeekend = [];
-    //const sender = await Senders(RAZEL_VL, 'E');
-    //const receivers = await Receivers(RAZEL_VL, 'D');
+    const sender = await Senders(RAZEL, 'E');
+    const receivers = await Receivers(RAZEL, 'D');
 
-    const sender = 'rapport.sav@camtrack.net';
-    const receivers = ['frankyshiti737@gmail.com,franky.shity@camtrack.net'];
+    /*    const sender = 'rapport.sav@camtrack.net';
+    const receivers = [
+      'franky.shity@camtrack.net',
+      '	j.belloy@razel-bec.fayat.com',
+      'lrichard@razel.fr',
+      'ageorge@razel.fr',
+      'wketchankeu@razel.fr',
+      'wmbassi@razel.fr',
+      'Andjele@razel.fr',
+      'joel.youassi@camtrack.net',
+      'sav@camtrack.net',
+    ]; */
     const fistAndLastHourDay = getFirstAndLastSevendays();
 
     const firstHourDay = fistAndLastHourDay.firstHourDayTimestamp;
@@ -1541,10 +1566,10 @@ async function generateWeeklyRepportRazelVL() {
               );
               return {
                 Véhicules: item['Véhicules'],
-                'Heure moteur': item['Heure moteur'] || '00:00:00',
-                'Ralenti moteur': item['Ralenti moteur'] || '00:00:00',
-                'En Mouvement': item['En mouvements'] || '00:00:00',
-                Kilométrage: item['Kilométrage'] || 0,
+                'Heure moteur (heure)': item['Heure moteur'] || '00:00:00',
+                'Ralenti moteur (heure)': item['Ralenti moteur'] || '00:00:00',
+                'En Mouvement (heure)': item['En mouvements'] || '00:00:00',
+                'Kilométrage (km)': item['Kilométrage'] || 0,
                 "Nbre d'exces de vitesse Agglomeration":
                   item["Nbre d'exces de vitesse Agglomeration"] || 0,
                 "Nbre d'exces de vitesse Hors Agglomeration":
@@ -1553,15 +1578,15 @@ async function generateWeeklyRepportRazelVL() {
                 'Freinage Brusque': item['Freinage Brusque'] || 0,
                 Virage: item.Virage || 0,
                 "Nbre D'arret": item["Nbre D'arret"] || 0,
-                "Duree d'arret": item["Duree d'arret"] || 0,
-                'Duree Conduite weekend':
+                "Duree d'arret (heure)": item["Duree d'arret"] || 0,
+                'Duree Conduite weekend (heure)':
                   item['Duree Conduite weekend'] || '00:00:00',
-                'Kilometrage weekend': item['Kilometrage weekend'] || 0,
-                'Duree Conduite nuit':
+                'Kilometrage weekend (km)': item['Kilometrage weekend'] || 0,
+                'Duree Conduite nuit (heure)':
                   item['Duree Conduite nuit'] || '00:00:00',
-                'Kilometrage nuit': item['Kilometrage nuit'] || 0,
-                'Ralenti Moteur': ralentiMoteurProd.toFixed(2) + '%' || 0,
-                'En mouvement': mvtProd.toFixed(2) + '%' || 0,
+                'Kilometrage nuit (km)': item['Kilometrage nuit'] || 0,
+                'Ralenti Moteur (%)': ralentiMoteurProd.toFixed(2) + '%' || 0,
+                'En mouvement (%)': mvtProd.toFixed(2) + '%' || 0,
               };
             });
 
@@ -1578,6 +1603,8 @@ async function generateWeeklyRepportRazelVL() {
           }
         });
       })
+
+      //send mail
       .then(() => {
         if (sender && receivers) {
           setTimeout(() => {
@@ -1593,7 +1620,7 @@ async function generateWeeklyRepportRazelVL() {
             deleteFile(
               path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
             );
-          }, 30000);
+          }, 180000);
         }
       })
 
@@ -1610,12 +1637,22 @@ async function generateDaylyRepportRazelPL() {
     const ralentiMoteur = [];
     const detailTrajet = [];
     const conduitWeekend = [];
-    // const sender = await Senders(RAZEL_PL, 'E');
-    //const receivers = await Receivers(RAZEL_PL, 'D');
+    const sender = await Senders(RAZEL, 'E');
+    const receivers = await Receivers(RAZEL, 'D');
 
-    const sender = 'rapport.sav@camtrack.net';
-    const receivers = ['frankyshiti737@gmail.com,franky.shity@camtrack.net'];
-
+    /*     const sender = 'rapport.sav@camtrack.net';
+    const receivers = [
+      'franky.shity@camtrack.net',
+      '	j.belloy@razel-bec.fayat.com',
+      'lrichard@razel.fr',
+      'ageorge@razel.fr',
+      'wketchankeu@razel.fr',
+      'wmbassi@razel.fr',
+      'Andjele@razel.fr',
+      'joel.youassi@camtrack.net',
+      'sav@camtrack.net',
+    ];
+ */
     const fistAndLastHourDay = getFistAndLastHourDay();
     const firstHourDay = fistAndLastHourDay.firstHourDayTimestamp;
     const lastHourDay = fistAndLastHourDay.lastHourDayTimestamp;
@@ -1629,7 +1666,7 @@ async function generateDaylyRepportRazelPL() {
     // Ralenti moteur distinct synthese to detail
 
     let columnRalentiMoteur;
-    await getRepportDataUnit(
+    /*  await getRepportDataUnit(
       ADMIN_RAZEL,
       RAPPORT_RALENTI_MOTEUR_RAZEL,
       RAZEL_PL,
@@ -1708,9 +1745,9 @@ async function generateDaylyRepportRazelPL() {
           `${RAPPORT_RALENTI_MOTEUR_RAZEL} ${titleDate}`
         );
       })
-
-      //conduite de nuit disting unit to detail
-      .then(async () => {
+ */
+    //conduite de nuit disting unit to detail
+    /*  .then(async () => {
         let column;
         await getRepportDataUnit(
           ADMIN_RAZEL,
@@ -1795,9 +1832,9 @@ async function generateDaylyRepportRazelPL() {
             );
           });
       })
-
-      //conduite de weekend disting unit to detail
-      .then(async () => {
+ */
+    //conduite de weekend disting unit to detail
+    /*   .then(async () => {
         let column;
         await getRepportDataUnit(
           ADMIN_RAZEL,
@@ -1882,53 +1919,53 @@ async function generateDaylyRepportRazelPL() {
             );
           });
       })
+ */
+    //Eco driving
 
-      //Eco driving
-      .then(async () => {
-        await getRepportData(
-          ADMIN_RAZEL,
-          ECO_DRIVING_RAZEL,
-          RAZEL_PL,
-          firstHourDay,
-          lastHourDay,
-          ECO_DRIVING_RAZEL_GROUP
-        ).then(async (res) => {
-          const objLenth = res?.obj.length;
-          if (objLenth > 0) {
-            const data = res.obj;
-            column = res.excelColum;
-            column[0] = { key: 'Véhicules' };
-            const replaceGroupinByVehicle = replaceProps(
-              data,
-              'Grouping',
-              'Véhicules'
-            );
+    await getRepportData(
+      ADMIN_RAZEL,
+      ECO_DRIVING_RAZEL,
+      RAZEL_PL,
+      firstHourDay,
+      lastHourDay,
+      ECO_DRIVING_RAZEL_GROUP
+    )
+      .then(async (res) => {
+        const objLenth = res?.obj.length;
+        if (objLenth > 0) {
+          const data = res.obj;
+          column = res.excelColum;
+          column[0] = { key: 'Véhicules' };
+          const replaceGroupinByVehicle = replaceProps(
+            data,
+            'Grouping',
+            'Véhicules'
+          );
 
-            //push all data in synthese Arr
-            data.map((item) => {
-              if (item) {
-                const newItem = { ...item, template: 'eco-driving' };
-                synthese.push(newItem);
-              }
-            });
+          //push all data in synthese Arr
+          data.map((item) => {
+            if (item) {
+              const newItem = { ...item, template: 'eco-driving' };
+              synthese.push(newItem);
+            }
+          });
 
-            await razelXlsx(
-              replaceGroupinByVehicle,
-              ECO_DRIVING_RAZEL_GROUP,
-              `${pathFile}-${titleDate}.xlsx`,
-              column,
-              `${ECO_DRIVING_RAZEL_GROUP} ${titleDate}`
-            );
-          } else {
-            console.log(
-              `no data found in ${ECO_DRIVING_RAZEL_GROUP} ${ECO_DRIVING_RAZEL_GROUP}`
-            );
-          }
-        });
+          await razelXlsx(
+            replaceGroupinByVehicle,
+            ECO_DRIVING_RAZEL_GROUP,
+            `${pathFile}-${titleDate}.xlsx`,
+            column,
+            `${ECO_DRIVING_RAZEL_GROUP} ${titleDate}`
+          );
+        } else {
+          console.log(
+            `no data found in ${ECO_DRIVING_RAZEL_GROUP} ${ECO_DRIVING_RAZEL_GROUP}`
+          );
+        }
       })
 
       //Detail trajet
-      .then(async () => {
+      /*   .then(async () => {
         let column;
         await getRepportDataUnit(
           ADMIN_RAZEL,
@@ -2009,7 +2046,7 @@ async function generateDaylyRepportRazelPL() {
               `${DETAIL_TRAJET_FLOTTE_RAZEL} ${titleDate}`
             );
           });
-      })
+      }) */
 
       //EXCes de vitess PL
       .then(async () => {
@@ -2124,7 +2161,7 @@ async function generateDaylyRepportRazelPL() {
       })
 
       //Razel PL synthese
-      .then(async () => {
+      /*  .then(async () => {
         await getRepportData(
           ADMIN_RAZEL,
           RAPPORT_SYNTHESE_ACTIVITE_RAZEL,
@@ -2309,10 +2346,10 @@ async function generateDaylyRepportRazelPL() {
               );
               return {
                 Véhicules: item['Véhicules'],
-                'Heure moteur': item['Heure moteur'] || '00:00:00',
-                'Ralenti moteur': item['Ralenti moteur'] || '00:00:00',
-                'En Mouvement': item['En mouvements'] || '00:00:00',
-                Kilométrage: item['Kilométrage'] || 0,
+                'Heure moteur (heure)': item['Heure moteur'] || '00:00:00',
+                'Ralenti moteur (heure)': item['Ralenti moteur'] || '00:00:00',
+                'En Mouvement (heure)': item['En mouvements'] || '00:00:00',
+                'Kilométrage (km)': item['Kilométrage'] || 0,
                 "Nbre d'exces de vitesse Agglomeration":
                   item["Nbre d'exces de vitesse Agglomeration"] || 0,
                 "Nbre d'exces de vitesse Hors Agglomeration":
@@ -2321,15 +2358,15 @@ async function generateDaylyRepportRazelPL() {
                 'Freinage Brusque': item['Freinage Brusque'] || 0,
                 Virage: item.Virage || 0,
                 "Nbre D'arret": item["Nbre D'arret"] || 0,
-                "Duree d'arret": item["Duree d'arret"] || 0,
-                'Duree Conduite weekend':
+                "Duree d'arret (heure)": item["Duree d'arret"] || 0,
+                'Duree Conduite weekend (heure)':
                   item['Duree Conduite weekend'] || '00:00:00',
-                'Kilometrage weekend': item['Kilometrage weekend'] || 0,
-                'Duree Conduite nuit':
+                'Kilometrage weekend (km)': item['Kilometrage weekend'] || 0,
+                'Duree Conduite nuit (heure)':
                   item['Duree Conduite nuit'] || '00:00:00',
-                'Kilometrage nuit': item['Kilometrage nuit'] || 0,
-                'Ralenti Moteur': ralentiMoteurProd.toFixed(2) + '%' || 0,
-                'En mouvement': mvtProd.toFixed(2) + '%' || 0,
+                'Kilometrage nuit (km)': item['Kilometrage nuit'] || 0,
+                'Ralenti Moteur (%)': ralentiMoteurProd.toFixed(2) + '%' || 0,
+                'En mouvement (%)': mvtProd.toFixed(2) + '%' || 0,
               };
             });
 
@@ -2345,7 +2382,10 @@ async function generateDaylyRepportRazelPL() {
             );
           }
         });
-      })
+      }) */
+
+      // send mail
+
       .then(() => {
         if (sender && receivers) {
           setTimeout(() => {
@@ -2361,7 +2401,7 @@ async function generateDaylyRepportRazelPL() {
             deleteFile(
               path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
             );
-          }, 30000);
+          }, 180000);
         }
       })
 
@@ -2378,17 +2418,27 @@ async function generateWeeklyRepportRazelPL() {
     const ralentiMoteur = [];
     const detailTrajet = [];
     const conduitWeekend = [];
-    //const sender = await Senders(RAZEL_PL, 'E');
-    //const receivers = await Receivers(RAZEL_PL, 'D');
-    const sender = 'rapport.sav@camtrack.net';
-    const receivers = ['frankyshiti737@gmail.com,franky.shity@camtrack.net'];
+    const sender = await Senders(RAZEL, 'E');
+    const receivers = await Receivers(RAZEL, 'D');
+    /*    const sender = 'rapport.sav@camtrack.net';
+    const receivers = [
+      'franky.shity@camtrack.net',
+      '	j.belloy@razel-bec.fayat.com',
+      'lrichard@razel.fr',
+      'ageorge@razel.fr',
+      'wketchankeu@razel.fr',
+      'wmbassi@razel.fr',
+      'Andjele@razel.fr',
+      'joel.youassi@camtrack.net',
+      'sav@camtrack.net',
+    ]; */
 
     const fistAndLastHourDay = getFirstAndLastSevendays();
     const firstHourDay = fistAndLastHourDay.firstHourDayTimestamp;
     const lastHourDay = fistAndLastHourDay.lastHourDayTimestamp;
     const titleDate = fistAndLastHourDay.dateTitle;
 
-    /*     const firstHourDay = '1734130800';
+    /*const firstHourDay = '1734130800';
     const lastHourDay = '1734217199';
     const titleDate = fistAndLastHourDay.dateTitle; */
     const pathFile = 'rapport/razel/RAPPORT-ACTIVITE-FLOTTE-RAZEL-PL';
@@ -3076,10 +3126,10 @@ async function generateWeeklyRepportRazelPL() {
               );
               return {
                 Véhicules: item['Véhicules'],
-                'Heure moteur': item['Heure moteur'] || '00:00:00',
-                'Ralenti moteur': item['Ralenti moteur'] || '00:00:00',
-                'En Mouvement': item['En mouvements'] || '00:00:00',
-                Kilométrage: item['Kilométrage'] || 0,
+                'Heure moteur (heure)': item['Heure moteur'] || '00:00:00',
+                'Ralenti moteur (heure)': item['Ralenti moteur'] || '00:00:00',
+                'En Mouvement (heure)': item['En mouvements'] || '00:00:00',
+                'Kilométrage (km)': item['Kilométrage'] || 0,
                 "Nbre d'exces de vitesse Agglomeration":
                   item["Nbre d'exces de vitesse Agglomeration"] || 0,
                 "Nbre d'exces de vitesse Hors Agglomeration":
@@ -3088,15 +3138,15 @@ async function generateWeeklyRepportRazelPL() {
                 'Freinage Brusque': item['Freinage Brusque'] || 0,
                 Virage: item.Virage || 0,
                 "Nbre D'arret": item["Nbre D'arret"] || 0,
-                "Duree d'arret": item["Duree d'arret"] || 0,
-                'Duree Conduite weekend':
+                "Duree d'arret (heure)": item["Duree d'arret"] || 0,
+                'Duree Conduite weekend (heure)':
                   item['Duree Conduite weekend'] || '00:00:00',
-                'Kilometrage weekend': item['Kilometrage weekend'] || 0,
-                'Duree Conduite nuit':
+                'Kilometrage weekend (km)': item['Kilometrage weekend'] || 0,
+                'Duree Conduite nuit (heure)':
                   item['Duree Conduite nuit'] || '00:00:00',
-                'Kilometrage nuit': item['Kilometrage nuit'] || 0,
-                'Ralenti Moteur': ralentiMoteurProd.toFixed(2) + '%' || 0,
-                'En mouvement': mvtProd.toFixed(2) + '%' || 0,
+                'Kilometrage nuit (km)': item['Kilometrage nuit'] || 0,
+                'Ralenti Moteur (%)': ralentiMoteurProd.toFixed(2) + '%' || 0,
+                'En mouvement (%)': mvtProd.toFixed(2) + '%' || 0,
               };
             });
 
@@ -3113,6 +3163,8 @@ async function generateWeeklyRepportRazelPL() {
           }
         });
       })
+
+      //send mail
       .then(() => {
         if (sender && receivers) {
           setTimeout(() => {
@@ -3128,7 +3180,7 @@ async function generateWeeklyRepportRazelPL() {
             deleteFile(
               path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
             );
-          }, 30000);
+          }, 180000);
         }
       })
 
@@ -3139,10 +3191,10 @@ async function generateWeeklyRepportRazelPL() {
 }
 
 async function generateAllRepportRazel() {
-  await generateDaylyRepportRazelVL();
+  /*   await generateDaylyRepportRazelVL();
   await generateDaylyRepportRazelPL();
   await generateWeeklyRepportRazelVL();
-  await generateWeeklyRepportRazelPL();
+  await generateWeeklyRepportRazelPL(); */
   cron.schedule(
     '30 06 * * *',
     async () => {

@@ -3,6 +3,7 @@ const ADMIN_PERENCO = 'Admin PERENCO';
 const ADMIN_SABC = 'admin SABC';
 const ADMIN_GLOBELEQ = 'admin GLOBELEQ';
 const ADMIN_RAZEL = 'ADMIN RAZEL-BELLOY JULIEN';
+const ADMIN_DKT = 'Admin DKT';
 
 module.exports = {
   ADMIN_ADDAX,
@@ -10,4 +11,5 @@ module.exports = {
   ADMIN_SABC,
   ADMIN_RAZEL,
   ADMIN_GLOBELEQ,
+  ADMIN_DKT,
 };

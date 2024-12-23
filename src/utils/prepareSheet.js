@@ -251,17 +251,11 @@ async function prepareSheetRazelExcessVitesse(
 
   if (titleGroupMarkerCellValue == '') {
     worksheet.mergeCells(titleGroupMarker[0], titleGroupMarker[1]);
-    titleGroupMarkerCell.font = {
-      name: 'calibri',
-      size: 12,
-      bold: true,
-      color: { argb: '582900' },
-    };
 
     titleGroupMarkerCell.fill = {
       type: 'pattern',
       pattern: 'solid',
-      fgColor: { argb: 'FDFD96' },
+      fgColor: { argb: 'D3D3D3' },
     };
 
     titleGroupMarkerCell.height = titleGroupMarkerCell.value = GroupMarkerTitle;
@@ -284,17 +278,10 @@ async function prepareSheetRazelExcessVitesse(
     worksheet.mergeCells(titleGroupMarker[0], titleGroupMarker[1]);
     const titleGroupMarkerCell = worksheet.getCell(titleGroupMarker[0]);
 
-    titleGroupMarkerCell.font = {
-      name: 'calibri',
-      size: 12,
-      bold: true,
-      color: { argb: '582900' },
-    };
-
     titleGroupMarkerCell.fill = {
       type: 'pattern',
       pattern: 'solid',
-      fgColor: { argb: 'FDFD96' },
+      fgColor: { argb: 'D3D3D3' },
     };
 
     titleGroupMarkerCell.height = titleGroupMarkerCell.value = GroupMarkerTitle;
@@ -341,6 +328,22 @@ function prepareSheetRazelForSynthese(
   row12 = worksheet.getRow(12);
   row12.values = dataHeader;
 
+  //legendes
+  const legende = `LEGENDE 
+                  heure moteur : Heure pendant la quelle le moteur du véhicule a été en marche  
+                  En mouvement: Heure pendant la quelle le véhicule a été en mouvement
+                  Ralenti Moteur: Heure pendant la quelle le véhicule a été en arrêt 
+                `;
+  worksheet.mergeCells('A1', 'B6');
+  const legendCel = worksheet.getCell('A1');
+  legendCel.value = legende;
+  legendCel.font = { color: { argb: '00FF00' }, bold: true };
+  legendCel.alignment = {
+    vertical: 'center',
+    horizontal: 'left',
+    wrapText: true,
+  };
+
   //Vehicules
   worksheet.mergeCells('A11', 'A12');
   const vehicle = worksheet.getCell('A11');
@@ -377,7 +380,7 @@ function prepareSheetRazelForSynthese(
   //infractions (eco driving)
   worksheet.mergeCells('H11', 'J11');
   const infraction = worksheet.getCell('H11');
-  infraction.value = 'Infractions';
+  infraction.value = 'éco driving';
 
   infraction.font = {
     name: 'calibri',
@@ -421,7 +424,7 @@ function prepareSheetRazelForSynthese(
   //Productivité
   worksheet.mergeCells('Q11', 'R11');
   const productivité = worksheet.getCell('R11');
-  productivité.value = 'Productivité (%)';
+  productivité.value = 'Productivité';
 
   productivité.font = {
     name: 'calibri',

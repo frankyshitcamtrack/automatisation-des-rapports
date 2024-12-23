@@ -5,6 +5,7 @@ const { generateAllRepportCotco } = require('./cotco.controllers');
 const { generateAllRepportCimencam } = require('./cimencam.controllers');
 const { generateAllRepportKPDC } = require('./kpdc.controllers');
 const { generateAllRepportRazel } = require('./razel.controllers');
+const { generateAllRepportDKT } = require('./dkt.controllers');
 
 async function generalControllers() {
   await generateAllRepportGuinness();
@@ -12,8 +13,10 @@ async function generalControllers() {
   await generateAllRepportPerenco();
   await generateAllRepportCimencam();
   await generateAllRepportCotco();
+  await generateAllRepportRazel();
   await generateAllRepportKPDC();
-  //await generateAllRepportRazel();
+
+  //await generateAllRepportDKT();
 }
 
 module.exports = { generalControllers };
