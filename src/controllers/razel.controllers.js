@@ -823,7 +823,7 @@ async function generateDaylyRepportRazelVL() {
       })*/
 
       //send mail
-      /* .then(() => {
+      .then(() => {
         if (sender && receivers) {
           setTimeout(() => {
             sendMail(
@@ -841,7 +841,7 @@ async function generateDaylyRepportRazelVL() {
           }, 180000);
         }
       })
- */
+
       .catch((err) => console.log(err));
   } catch (err) {
     console.error(err);
@@ -3191,7 +3191,7 @@ async function generateWeeklyRepportRazelPL() {
 }
 
 async function generateAllRepportRazel() {
-  /*   await generateDaylyRepportRazelVL();
+  /* await generateDaylyRepportRazelVL();
   await generateDaylyRepportRazelPL();
   await generateWeeklyRepportRazelVL();
   await generateWeeklyRepportRazelPL(); */

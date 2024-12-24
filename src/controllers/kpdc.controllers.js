@@ -703,7 +703,7 @@ async function generateMonthlyRepportKPDC() {
 async function generateAllRepportKPDC() {
   //await generateHebdoRepportKPDC();
   //await generateMonthlyRepportKPDC();
-  await generateHebdoRepportKPDC();
+  //await generateHebdoRepportKPDC();
   cron.schedule(
     '30 04 * * Monday',
     async () => {

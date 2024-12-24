@@ -2006,7 +2006,7 @@ async function generateHebdoRepportPerenco() {
 
 async function generateAllRepportPerenco() {
   //await generateHebdoRepportPerenco();
-  await generateDaylyRepportPerenco();
+  //await generateDaylyRepportPerenco();
   cron.schedule(
     '30 04 * * *',
     async () => {
