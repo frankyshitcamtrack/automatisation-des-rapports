@@ -2,6 +2,7 @@ const {
   assignStyleToHeadersSynthese,
   assignStyleToHeaders,
   asignStyleToSheet,
+  assignStyleToHeadersDKT,
   assignStyleToHeadersSyntheseRazel,
   assignStyleToHeadersRazel,
   assignStyleToKPCDHeaders,
@@ -446,6 +447,24 @@ function prepareSheetRazelForSynthese(
   assignStyleToHeadersSyntheseRazel(worksheet);
 }
 
+async function prepareSheetDKT(worksheet, data, dataHeader, excelColum) {
+  const numberOfColunm = excelColum.length;
+  //style worksheet
+  const autoFilter = addAutoFilter(dataHeader, 9);
+
+  worksheet.views = [{ showGridLines: false }];
+
+  worksheet.getRow(9).values = dataHeader;
+
+  worksheet.autoFilter = autoFilter;
+
+  //Add data to rows
+  addDataTosheet(worksheet, data, excelColum);
+
+  // Process each row for beautification
+  assignStyleToHeadersDKT(worksheet, numberOfColunm);
+}
+
 module.exports = {
   prepareSheet,
   prepareSheetForSynthese,
@@ -455,4 +474,5 @@ module.exports = {
   prepareSheetRazel,
   prepareSheetRazelExcessVitesse,
   prepareSheetRazelForSynthese,
+  prepareSheetDKT,
 };

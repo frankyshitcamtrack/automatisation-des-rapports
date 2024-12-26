@@ -13,7 +13,7 @@ const {
   getFirstAndLastDayMonth,
 } = require('../utils/getFistDayAndLastDayMonth');
 
-const { perencoXlsx } = require('../utils/genrateXlsx');
+const { DKTXlsx } = require('../utils/genrateXlsx');
 const { deleteFile } = require('../utils/deleteFile');
 const { calculateTime } = require('../utils/sommeArrTimes');
 const { Receivers } = require('../storage/mailReceivers.storage');
@@ -285,18 +285,6 @@ async function generateMonthlyRepportDKT() {
     const conduitWeekend = [];
     //const sender = await Senders(RAZEL_PL, 'E');
     //const receivers = await Receivers(RAZEL_PL, 'D');
-    const sender = 'rapport.sav@camtrack.net';
-    const receivers = [
-      'franky.shity@camtrack.net',
-      '	j.belloy@razel-bec.fayat.com',
-      'lrichard@razel.fr',
-      'ageorge@razel.fr',
-      'wketchankeu@razel.fr',
-      'wmbassi@razel.fr',
-      'Andjele@razel.fr',
-      'joel.youassi@camtrack.net',
-      'sav@camtrack.net',
-    ];
 
     const fistAndLastHourDay = getFirstAndLastDayMonth();
     const firstHourDay = fistAndLastHourDay.firstDayTimestamp;
@@ -375,7 +363,7 @@ async function generateMonthlyRepportDKT() {
           return 0;
         });
 
-        await razelXlsx(
+        await DKTXlsx(
           sortData,
           ECO_DRIVING_DKT,
           `${pathFile}-${titleDate}.xlsx`,
@@ -459,7 +447,7 @@ async function generateMonthlyRepportDKT() {
               return 0;
             });
 
-            await razelXlsx(
+            await DKTXlsx(
               sortData,
               STATIONNEMENT_ON,
               `${pathFile}-${titleDate}.xlsx`,
@@ -534,7 +522,7 @@ async function generateMonthlyRepportDKT() {
             });
           })
           .then(async () => {
-            const sortData = conduitWeekend.sort((a, b) => {
+            const sortData = conduiteDeNuit.sort((a, b) => {
               const nameA = a['Véhicules'].toUpperCase();
               const nameB = b['Véhicules'].toUpperCase();
               if (nameA > nameB) {
@@ -546,7 +534,7 @@ async function generateMonthlyRepportDKT() {
               return 0;
             });
 
-            await razelXlsx(
+            await DKTXlsx(
               sortData,
               CONDUITE_DE_NUIT_DKT,
               `${pathFile}-${titleDate}.xlsx`,
@@ -630,7 +618,7 @@ async function generateMonthlyRepportDKT() {
               return 0;
             });
 
-            await razelXlsx(
+            await DKTXlsx(
               sortData,
               DETAIL_TRAJET_VEHICULE_DKT,
               `${pathFile}-${titleDate}.xlsx`,
@@ -714,9 +702,9 @@ async function generateMonthlyRepportDKT() {
               return 0;
             });
 
-            await razelXlsx(
+            await DKTXlsx(
               sortData,
-              RAPPORT_DKT,
+              EXCES_DE_VITESSE_DKT,
               `${pathFile}-${titleDate}.xlsx`,
               column,
               `${EXCES_DE_VITESSE_DKT} ${titleDate}`
@@ -799,7 +787,7 @@ async function generateMonthlyRepportDKT() {
               return 0;
             });
 
-            await razelXlsx(
+            await DKTXlsx(
               sortData,
               CONDUITE_WEEKEND_DKT,
               `${pathFile}-${titleDate}.xlsx`,

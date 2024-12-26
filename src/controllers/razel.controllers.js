@@ -3191,7 +3191,7 @@ async function generateWeeklyRepportRazelPL() {
 }
 
 async function generateAllRepportRazel() {
-  /* await generateDaylyRepportRazelVL();
+  /*await generateDaylyRepportRazelVL();
   await generateDaylyRepportRazelPL();
   await generateWeeklyRepportRazelVL();
   await generateWeeklyRepportRazelPL(); */

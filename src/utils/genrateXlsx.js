@@ -7,6 +7,7 @@ const {
   guinnessHeaderSheet,
   cimencamHeaderSheet,
   razelHeaderSheet,
+  DKTHeaderSheet,
   razelHeaderSheetSynthese,
 } = require('./bannerSheet');
 const {
@@ -25,6 +26,7 @@ const {
   prepareSheetRazel,
   prepareSheetRazelExcessVitesse,
   prepareSheetRazelForSynthese,
+  prepareSheetDKT,
 } = require('./prepareSheet');
 const { addRowExistSheet } = require('./addRowExistSheet');
 const {
@@ -1707,6 +1709,82 @@ async function razelSynthese(path, data, sheet, Title) {
   }
 }
 
+//generate DKT sheets
+async function DKTXlsx(data, sheet, path, excelColum, title) {
+  const dataHeader = [];
+
+  const isExistPath = fs.existsSync(path);
+
+  let workbook = new XLSX.Workbook();
+
+  const baner = workbook.addImage({
+    buffer: fs.readFileSync('rapport/dkt/assets/baner.png'),
+    extension: 'png',
+  });
+
+  if (excelColum) {
+    excelColum.map((item) => {
+      dataHeader.push(item.key);
+    });
+  }
+
+  if (dataHeader.length > 0) {
+    if (isExistPath) {
+      setTimeout(async () => {
+        console.log(`Generating file ${sheet} ...`);
+        const readFile = await workbook.xlsx.readFile(path);
+        if (readFile) {
+          const existWorkSheet = workbook.getWorksheet(sheet);
+          if (existWorkSheet) {
+            const existWorkSheetName = existWorkSheet.name;
+            if (existWorkSheetName === sheet) {
+              asignStyleToSheet(existWorkSheet);
+              await addDataTosheet(existWorkSheet, data, excelColum);
+            }
+          } else {
+            const worksheet = workbook.addWorksheet(sheet);
+
+            await prepareSheetDKT(worksheet, data, dataHeader, excelColum);
+
+            //Center image header banner depending on number of columns
+            await DKTHeaderSheet(worksheet, dataHeader, baner, title);
+          }
+
+          // Export excel generated file
+          workbook.xlsx
+            .writeFile(path, { type: 'buffer', bookType: 'xlsx' })
+            .then((response) => {
+              console.log('file generated');
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        }
+      }, 15000);
+    } else {
+      console.log(`Generating file ${sheet} ...`);
+
+      // creation of new sheet
+      const worksheet = workbook.addWorksheet(sheet);
+
+      await prepareSheetDKT(worksheet, data, dataHeader, excelColum);
+
+      //Center image header banner depending on number of columns
+      await DKTHeaderSheet(worksheet, dataHeader, baner, title);
+
+      // Export excel generated file
+      workbook.xlsx
+        .writeFile(path, { type: 'buffer', bookType: 'xlsx' })
+        .then((response) => {
+          console.log('file generated');
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  }
+}
+
 module.exports = {
   convertJsonToExcel,
   generateSyntheseSheetAddax,
@@ -1721,4 +1799,6 @@ module.exports = {
   razelXlsx,
   razelExesVitesseXlsx,
   razelSynthese,
+
+  DKTXlsx,
 };

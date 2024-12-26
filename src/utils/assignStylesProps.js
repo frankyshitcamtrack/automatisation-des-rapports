@@ -535,6 +535,66 @@ async function assignStyleToHeadersSyntheseRazel(ws) {
     row.commit();
   });
 }
+
+async function assignStyleToHeadersDKT(ws, numberOfColunm) {
+  const rows = ws.getColumn(1);
+  const rowsCount = rows['_worksheet']['_rows'].length;
+  const lastCell = `A${rowsCount}`;
+  const lastValCell = ws.getCell(lastCell).value;
+  const wsName = ws.name;
+  ws.eachRow((row, rowNumber) => {
+    row.eachCell((cell, colNumber) => {
+      cellVal = cell._value.toString();
+      cell.alignment = {
+        vertical: 'middle',
+        horizontal: 'center',
+        wrapText: true,
+      };
+      cell.border = {
+        top: { style: 'thin', color: { argb: '000000' } },
+        left: { style: 'thin', color: { argb: '000000' } },
+        bottom: { style: 'thin', color: { argb: '000000' } },
+        right: { style: 'thin', color: { argb: '000000' } },
+      };
+
+      cell.font = { bold: false, size: 9 };
+
+      if (rowNumber === 9) {
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '023E8A' },
+        };
+        cell.font = { color: { argb: 'FFFFFF' }, bold: true, size: 11 };
+      }
+    });
+  });
+
+  ws.eachRow((row, rowNumber) => {
+    let rowNumb;
+    row.eachCell((cell, colNumber) => {
+      cellVal = cell._value.toString();
+      const includeUnits = cellVal.includes('-unit');
+
+      if (includeUnits) {
+        rowNumb = rowNumber;
+      }
+
+      if (rowNumber == rowNumb) {
+        cell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: '8A7BD9' },
+        };
+        cell.font = { bold: true, size: 10, color: { argb: 'FFFFFF' } };
+      }
+    });
+
+    //Commit the changed row to the stream
+    row.commit();
+  });
+}
+
 module.exports = {
   assignStyleToHeaders,
   asignStyleToPerencoInfraction,
@@ -545,4 +605,5 @@ module.exports = {
   assignStyleToKPCDHeaders,
   assignStyleToHeadersSyntheseRazel,
   assignStyleToHeadersRazel,
+  assignStyleToHeadersDKT,
 };
