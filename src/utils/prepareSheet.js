@@ -447,6 +447,7 @@ function prepareSheetRazelForSynthese(
   assignStyleToHeadersSyntheseRazel(worksheet);
 }
 
+//DKT
 async function prepareSheetDKT(worksheet, data, dataHeader, excelColum) {
   const numberOfColunm = excelColum.length;
   //style worksheet
@@ -465,6 +466,101 @@ async function prepareSheetDKT(worksheet, data, dataHeader, excelColum) {
   assignStyleToHeadersDKT(worksheet, numberOfColunm);
 }
 
+function prepareSheetDKTForSynthese(worksheet, dataHeader, syntheseCol, data) {
+  worksheet.views = [{ showGridLines: false }];
+  row12 = worksheet.getRow(12);
+  row12.values = dataHeader;
+
+  //Vehicules
+  worksheet.mergeCells('A11', 'A12');
+  const vehicle = worksheet.getCell('A11');
+  vehicle.value = 'Véhicules';
+
+  vehicle.font = {
+    name: 'calibri',
+    size: 8,
+    bold: true,
+  };
+
+  //Utilisation vehicule
+  worksheet.mergeCells('B11', 'C11');
+  const vehicleUtiliation = worksheet.getCell('B11');
+  vehicleUtiliation.value = 'Utilisation Véhicule';
+
+  vehicleUtiliation.font = {
+    name: 'calibri',
+    size: 14,
+    bold: true,
+  };
+
+  //EXCES DE vitesse
+  worksheet.mergeCells('D11', 'G11');
+  const ExcesVitesse = worksheet.getCell('D11');
+  ExcesVitesse.value = 'Infractions';
+
+  ExcesVitesse.font = {
+    name: 'calibri',
+    size: 14,
+    bold: true,
+  };
+
+  //infractions (eco driving)
+  worksheet.mergeCells('H11', 'I11');
+  const infraction = worksheet.getCell('H11');
+  infraction.value = 'Arrêt moteur en marche';
+
+  infraction.font = {
+    name: 'calibri',
+    size: 14,
+    bold: true,
+  };
+
+  //conduite de weekend
+  worksheet.mergeCells('J11', 'K11');
+  const ralentiMoteur = worksheet.getCell('J11');
+  ralentiMoteur.value = 'Conduite de Weekend';
+
+  ralentiMoteur.font = {
+    name: 'calibri',
+    size: 14,
+    bold: true,
+  };
+
+  //Conduite de nuit
+  worksheet.mergeCells('L11', 'M11');
+  const conduiteWeekend = worksheet.getCell('L11');
+  conduiteWeekend.value = 'Conduite de nuit';
+
+  conduiteWeekend.font = {
+    name: 'calibri',
+    size: 14,
+    bold: true,
+  };
+
+  //Productivité
+  const conduiteNuit = worksheet.getCell('N11');
+  conduiteNuit.value = 'Productivité';
+
+  conduiteNuit.font = {
+    name: 'calibri',
+    size: 14,
+    bold: true,
+  };
+
+  worksheet.columns = syntheseCol;
+
+  //Add data to rows
+  data.map((item) => {
+    worksheet.addRow(item).commit();
+  });
+
+  //autosize column width base on the content
+  autoSizeColumnSheet(worksheet);
+
+  // Process each row for beautification
+  assignStyleToHeadersSyntheseRazel(worksheet);
+}
+
 module.exports = {
   prepareSheet,
   prepareSheetForSynthese,
@@ -475,4 +571,5 @@ module.exports = {
   prepareSheetRazelExcessVitesse,
   prepareSheetRazelForSynthese,
   prepareSheetDKT,
+  prepareSheetDKTForSynthese,
 };

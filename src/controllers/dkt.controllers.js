@@ -3,15 +3,12 @@ const cron = require('node-cron');
 const _ = require('lodash');
 
 const { getRepportData, getRepportDataUnit } = require('../models/models');
-const {
-  razelXlsx,
-  razelExesVitesseXlsx,
-  razelSynthese,
-} = require('../utils/genrateXlsx');
+const { DKTSynthese, generateDashbordDKT } = require('../utils/genrateXlsx');
 const { replaceProps } = require('../utils/replaceProperties');
 const {
   getFirstAndLastDayMonth,
 } = require('../utils/getFistDayAndLastDayMonth');
+const { calculateTimeGlobal } = require('../utils/sommeArrTimes');
 
 const { DKTXlsx } = require('../utils/genrateXlsx');
 const { deleteFile } = require('../utils/deleteFile');
@@ -36,6 +33,7 @@ const {
   EXCES_DE_VITESSE_DKT,
   DETAIL_TRAJET_VEHICULE_DKT,
   CONDUITE_WEEKEND_DKT,
+  DASHBORD,
 } = require('../constants/subGroups');
 
 const { json } = require('body-parser');
@@ -341,7 +339,7 @@ async function generateMonthlyRepportDKT() {
             //push all data in synthese Arr
             data.map((item) => {
               if (item) {
-                const newItem = { ...item, template: 'eco-diving' };
+                const newItem = { ...item, template: 'eco-driving' };
                 synthese.push(newItem);
               }
             });
@@ -424,6 +422,7 @@ async function generateMonthlyRepportDKT() {
                 data.map((item) => {
                   if (item) {
                     const newItem = { ...item, template: 'stationnement' };
+
                     synthese.push(newItem);
                   }
                 });
@@ -564,7 +563,22 @@ async function generateMonthlyRepportDKT() {
                 ...item,
                 Véhicules: `${item['Grouping'] + '-unit'}`,
               }));
+
               addMarkerToUnit.map((item) => detailTrajet.push(item));
+
+              const replaceGroupinByVehicle = replaceProps(
+                data,
+                'Grouping',
+                'Véhicules'
+              );
+
+              //push all data in synthese Arr
+              replaceGroupinByVehicle.map((item) => {
+                if (item) {
+                  const newItem = { ...item, template: 'detail-trajet-global' };
+                  synthese.push(newItem);
+                }
+              });
             } else {
               console.log(
                 `no data found in data unit ${RAPPORT_DKT} ${DETAIL_TRAJET_VEHICULE_DKT}`
@@ -798,7 +812,7 @@ async function generateMonthlyRepportDKT() {
       })
 
       //synthese
-      /*    .then(async () => {
+      .then(async () => {
         await getRepportData(
           ADMIN_DKT,
           RAPPORT_DKT,
@@ -810,7 +824,7 @@ async function generateMonthlyRepportDKT() {
           const objLenth = res?.obj.length;
           if (objLenth > 0) {
             const data = res.obj;
-            column = res.excelColum;
+            let column = res.excelColum;
             column[0] = { key: 'Véhicules' };
 
             const replaceGroupinByVehicle = replaceProps(
@@ -819,23 +833,10 @@ async function generateMonthlyRepportDKT() {
               'Véhicules'
             );
 
-            const formatArr = replaceGroupinByVehicle.map((item) => {
-              return {
-                Véhicules: item['Véhicules'],
-                'Heure moteur': item['HEURE MOTEUR'],
-                'Ralenti moteur': item['RALENTI MOTEUR'],
-                'En mouvement': item['EN MOUVEMENT'],
-                Kilométrage: item.KILOMETRAGE,
-              };
-            });
-
             //push all data in synthese Arr
-
-            formatArr.map((item) => {
-              if (item) {
-                const newItem = { ...item, template: 'synthese-pl' };
-                synthese.push(newItem);
-              }
+            replaceGroupinByVehicle.map((item) => {
+              const newItem = { ...item, template: 'synthese' };
+              synthese.push(newItem);
             });
 
             //Group  By VehicleID
@@ -861,63 +862,65 @@ async function generateMonthlyRepportDKT() {
 
             const syntheseServices = arrGroup.map((item) => {
               return item.map((it) => {
-                //count number of excess vitesse  aglommeration
-                if (it[0]['template'] === 'excess-vitesse-pl-AG') {
+                //count number of excess vitesse
+                if (it[0]['template'] === 'exces-vitesse') {
                   const nbreAGPL = it.length;
                   return {
                     Véhicules: it[0]['Véhicules'],
-                    "Nbre d'exces de vitesse Agglomeration": nbreAGPL,
+                    "Nbre d'exces de vitesse": nbreAGPL,
                   };
                 }
 
-                //count number of excess vitesse Hors aglommeration
-                if (it[0]['template'] === 'excess-vitesse-pl-HAG') {
-                  const nbreHAGPL = it.length;
-                  return {
-                    Véhicules: it[0]['Véhicules'],
-                    "Nbre d'exces de vitesse Hors Agglomeration": nbreHAGPL,
-                  };
-                }
                 //count nbers of freinage,acceleration brusque,virage
                 if (it[0]['template'] === 'eco-driving') {
                   const freinage = it.filter(
-                    (item) => item.INFRACTION === 'Freinage Brusque'
+                    (item) =>
+                      item.Violations === 'Freinage Brusque' ||
+                      item.Violations === 'Harsh Braking'
                   ).length;
                   const accelerationExcess = it.filter(
-                    (item) => item.INFRACTION === 'Accélération Excessif'
+                    (item) =>
+                      item.Violations === 'Harsh acceleration' ||
+                      item.Violations === 'Accélération Excessif'
                   ).length;
                   const virage = it.filter(
-                    (item) => item.INFRACTION === 'Harsh Corning'
+                    (item) => item.Violations === 'Harsh Corning'
                   ).length;
 
                   return {
                     Véhicules: it[0]['Véhicules'],
-                    'Acceleration excessives': accelerationExcess,
-                    'Freinage Brusque': freinage,
-                    Virage: virage,
+                    'Acceleration excessives': accelerationExcess | 0,
+                    'Freinage Brusque': freinage | 0,
+                    Virage: virage | 0,
                   };
                 }
 
                 //count numbr of ralenti moteur and extract total duree
-                if (it[0]['template'] === 'ralenti-moteur') {
+                if (it[0]['template'] === 'stationnement') {
                   const nbreArret = it.length;
                   const totalDuree = calculateTimeGlobal(
                     it,
-                    'DUREE ARRËT MOTEUR EN MARCHE'
+                    'Duree arret moteur en marche'
                   );
                   return {
                     Véhicules: it[0]['Véhicules'],
                     "Nbre D'arret": nbreArret,
-                    "Duree d'arret": totalDuree,
+                    "Duree d'arret (heure)": totalDuree,
+                  };
+                }
+
+                //count numbr of detail trajet and calculate total productivity
+                if (it[0]['template'] === 'detail-trajet-global') {
+                  const produtivite = it[0]['Productivité de mouvement'];
+                  return {
+                    Véhicules: it[0]['Véhicules'],
+                    '%': produtivite + '%',
                   };
                 }
 
                 //calculate numbr of duree de nuit  and extract km
                 if (it[0]['template'] === 'conduite-nuit') {
-                  const dureeNuit = calculateTimeGlobal(
-                    it,
-                    'Durée de conduite'
-                  );
+                  const dureeNuit = calculateTimeGlobal(it, 'Durée Conduite');
                   const kmNuit = it
                     .reduce(
                       (acc, item) => acc + parseFloat(item['Kilométrage']),
@@ -926,18 +929,18 @@ async function generateMonthlyRepportDKT() {
                     .toFixed(2);
                   return {
                     Véhicules: it[0]['Véhicules'],
-                    'Duree Conduite nuit': dureeNuit,
-                    'Kilometrage nuit': kmNuit,
+                    'Duree Conduite nuit (heure)': dureeNuit,
+                    'Kilometrage nuit (km)': kmNuit,
                   };
                 }
 
                 //calculate numbr of duree de weekend  and extract km
-                if (it[0]['template'] === 'conduite-weekend') {
+                if (it[0]['template'] === 'conduit-weekend') {
                   const dureeConduiteWeekend = calculateTimeGlobal(
                     it,
-                    'Durée de conduite'
+                    'Durée Conduite'
                   );
-                  const kmNuit = it
+                  const kmWd = it
                     .reduce(
                       (acc, item) => acc + parseFloat(item['Kilométrage']),
                       0
@@ -946,18 +949,16 @@ async function generateMonthlyRepportDKT() {
 
                   return {
                     Véhicules: it[0]['Véhicules'],
-                    'Duree Conduite weekend': dureeConduiteWeekend,
-                    'Kilometrage weekend': kmNuit,
+                    'Duree Conduite weekend (heure)': dureeConduiteWeekend,
+                    'Kilometrage weekend (km)': kmWd,
                   };
                 }
 
-                if (it[0]['template'] === 'synthese-pl') {
+                if (it[0].template === 'synthese') {
                   return {
                     Véhicules: it[0]['Véhicules'],
-                    'Heure moteur': it[0]['Heure moteur'],
-                    'Ralenti moteur': it[0]['Ralenti moteur'],
-                    'En mouvements': it[0]['En mouvement'],
-                    Kilométrage: it[0].Kilométrage,
+                    'Durée Conduite (heure)': it[0]['Durée Conduite'],
+                    'Kilométrage (km)': it[0]['Kilométrage'],
                   };
                 }
               });
@@ -968,29 +969,16 @@ async function generateMonthlyRepportDKT() {
               return item.reduce((r, c) => Object.assign(r, c), {});
             });
 
+            //  console.log(mergObjects);
+
             //Range service
-            const finalService = mergObjects.map((item) => {
-              const rMoteur = item['Ralenti moteur'] || '00:00:00';
-              const mvtM = item['En mouvements'] || '00:00:00';
-              const hMoteur = item['Heure moteur'] || '00:00:00';
-              const ralentiMoteurProd = divideTimesAsPercentage(
-                rMoteur.toString(),
-                hMoteur.toString()
-              );
-              const mvtProd = divideTimesAsPercentage(
-                mvtM.toString(),
-                hMoteur.toString()
-              );
+            /*  const finalService = mergObjects.map((item) => {
               return {
                 Véhicules: item['Véhicules'],
-                'Heure moteur (heure)': item['Heure moteur'] || '00:00:00',
-                'Ralenti moteur (heure)': item['Ralenti moteur'] || '00:00:00',
-                'En Mouvement (heure)': item['En mouvements'] || '00:00:00',
+                'Duree Conduite (heure)': item['Duree Conduite'] || '00:00:00',
                 'Kilométrage (km)': item['Kilométrage'] || 0,
                 "Nbre d'exces de vitesse Agglomeration":
-                  item["Nbre d'exces de vitesse Agglomeration"] || 0,
-                "Nbre d'exces de vitesse Hors Agglomeration":
-                  item["Nbre d'exces de vitesse Hors Agglomeration"] || 0,
+                  item["Nbre d'exces de vitesse"] || 0,
                 'Acceleration excessives': item['Acceleration excessives'] || 0,
                 'Freinage Brusque': item['Freinage Brusque'] || 0,
                 Virage: item.Virage || 0,
@@ -1002,24 +990,29 @@ async function generateMonthlyRepportDKT() {
                 'Duree Conduite nuit (heure)':
                   item['Duree Conduite nuit'] || '00:00:00',
                 'Kilometrage nuit (km)': item['Kilometrage nuit'] || 0,
-                'Ralenti Moteur (%)': ralentiMoteurProd.toFixed(2) + '%' || 0,
-                'En mouvement (%)': mvtProd.toFixed(2) + '%' || 0,
+                '%': item['detail trajet'] + '%' || 0,
               };
             });
+ */
 
-            await razelSynthese(
+            await DKTSynthese(
               `${pathFile}-${titleDate}.xlsx`,
-              finalService,
+              mergObjects,
               'Synthese',
-              `Rapport Synthèse activité : RAZEL PL,${titleDate}`
+              `Rapport Synthèse activité : DKT CAMEROUN,${titleDate}`
             );
           } else {
-            console.log(
-              `no data found in ${RAPPORT_SYNTHESE_ACTIVITE_RAZEL} ${RAPPORT_SYNTHESE_ACTIVITE_RAZEL_GROUP}`
-            );
+            console.log(`no data found in ${RAPPORT_DKT} ${SYNTHESE_DKT}`);
           }
         });
-      }) */
+      })
+      .then(async () => {
+        await generateDashbordDKT(
+          synthese,
+          DASHBORD,
+          `${pathFile}-${titleDate}.xlsx`
+        );
+      })
 
       //send mail
       /*   .then(() => {

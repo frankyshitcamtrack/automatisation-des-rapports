@@ -101,8 +101,7 @@ async function generateDaylyRepportRazelVL() {
 
     // Ralenti moteur distinct synthese to detail
 
-    let columnRalentiMoteur;
-    /*   await getRepportDataUnit(
+    await getRepportDataUnit(
       ADMIN_RAZEL,
       RAPPORT_RALENTI_MOTEUR_RAZEL,
       RAZEL_VL,
@@ -138,7 +137,7 @@ async function generateDaylyRepportRazelVL() {
           const objLenth = res?.obj.length;
           if (objLenth > 0) {
             const data = res.obj;
-            columnRalentiMoteur = res.excelColum;
+            let columnRalentiMoteur = res.excelColum;
             columnRalentiMoteur[0] = { key: 'Véhicules' };
             const replaceGroupinByVehicle = replaceProps(
               data,
@@ -182,9 +181,9 @@ async function generateDaylyRepportRazelVL() {
           `${RAPPORT_RALENTI_MOTEUR_RAZEL} ${titleDate}`
         );
       })
- */
-    //conduite de weekend disting unit to detail
-    /*  .then(async () => {
+
+      //conduite de weekend disting unit to detail
+      /*  .then(async () => {
         let column;
         await getRepportDataUnit(
           ADMIN_RAZEL,
@@ -270,8 +269,8 @@ async function generateDaylyRepportRazelVL() {
           });
       })
  */
-    //conduite de nuit disting unit to detail
-    /*  .then(async () => {
+      //conduite de nuit disting unit to detail
+      /*  .then(async () => {
         let column;
         await getRepportDataUnit(
           ADMIN_RAZEL,
@@ -357,48 +356,49 @@ async function generateDaylyRepportRazelVL() {
           });
       }) */
 
-    //Eco driving
+      //Eco driving
 
-    await getRepportData(
-      ADMIN_RAZEL,
-      ECO_DRIVING_RAZEL,
-      RAZEL_VL,
-      firstHourDay,
-      lastHourDay,
-      ECO_DRIVING_RAZEL_GROUP
-    )
-      .then(async (res) => {
-        const objLenth = res?.obj.length;
-        if (objLenth > 0) {
-          const data = res.obj;
-          column = res.excelColum;
-          column[0] = { key: 'Véhicules' };
-          const replaceGroupinByVehicle = replaceProps(
-            data,
-            'Grouping',
-            'Véhicules'
-          );
+      .then(async () => {
+        await getRepportData(
+          ADMIN_RAZEL,
+          ECO_DRIVING_RAZEL,
+          RAZEL_VL,
+          firstHourDay,
+          lastHourDay,
+          ECO_DRIVING_RAZEL_GROUP
+        ).then(async (res) => {
+          const objLenth = res?.obj.length;
+          if (objLenth > 0) {
+            const data = res.obj;
+            let column = res.excelColum;
+            column[0] = { key: 'Véhicules' };
+            const replaceGroupinByVehicle = replaceProps(
+              data,
+              'Grouping',
+              'Véhicules'
+            );
 
-          //push all data in synthese Arr
-          data.map((item) => {
-            if (item) {
-              const newItem = { ...item, template: 'eco-driving' };
-              synthese.push(newItem);
-            }
-          });
+            //push all data in synthese Arr
+            data.map((item) => {
+              if (item) {
+                const newItem = { ...item, template: 'eco-driving' };
+                synthese.push(newItem);
+              }
+            });
 
-          await razelXlsx(
-            replaceGroupinByVehicle,
-            ECO_DRIVING_RAZEL_GROUP,
-            `${pathFile}-${titleDate}.xlsx`,
-            column,
-            `${ECO_DRIVING_RAZEL_GROUP} ${titleDate}`
-          );
-        } else {
-          console.log(
-            `no data found in ${ECO_DRIVING_RAZEL_GROUP} ${ECO_DRIVING_RAZEL_GROUP}`
-          );
-        }
+            await razelXlsx(
+              replaceGroupinByVehicle,
+              ECO_DRIVING_RAZEL_GROUP,
+              `${pathFile}-${titleDate}.xlsx`,
+              column,
+              `${ECO_DRIVING_RAZEL_GROUP} ${titleDate}`
+            );
+          } else {
+            console.log(
+              `no data found in ${ECO_DRIVING_RAZEL_GROUP} ${ECO_DRIVING_RAZEL_GROUP}`
+            );
+          }
+        });
       })
 
       //Detail trajet
@@ -499,7 +499,7 @@ async function generateDaylyRepportRazelVL() {
           const objLenth = res?.obj.length;
           if (objLenth > 0) {
             const data = res.obj;
-            column = res.excelColum;
+            let column = res.excelColum;
             column[0] = { key: 'Véhicules' };
             column.push({ key: 'Vitesse Limite' });
             const replaceGroupinByVehicle = replaceProps(
@@ -1665,8 +1665,7 @@ async function generateDaylyRepportRazelPL() {
 
     // Ralenti moteur distinct synthese to detail
 
-    let columnRalentiMoteur;
-    /*  await getRepportDataUnit(
+    await getRepportDataUnit(
       ADMIN_RAZEL,
       RAPPORT_RALENTI_MOTEUR_RAZEL,
       RAZEL_PL,
@@ -1702,7 +1701,7 @@ async function generateDaylyRepportRazelPL() {
           const objLenth = res?.obj.length;
           if (objLenth > 0) {
             const data = res.obj;
-            columnRalentiMoteur = res.excelColum;
+            let columnRalentiMoteur = res.excelColum;
             columnRalentiMoteur[0] = { key: 'Véhicules' };
             const replaceGroupinByVehicle = replaceProps(
               data,
@@ -1745,9 +1744,9 @@ async function generateDaylyRepportRazelPL() {
           `${RAPPORT_RALENTI_MOTEUR_RAZEL} ${titleDate}`
         );
       })
- */
-    //conduite de nuit disting unit to detail
-    /*  .then(async () => {
+
+      //conduite de nuit disting unit to detail
+      /*  .then(async () => {
         let column;
         await getRepportDataUnit(
           ADMIN_RAZEL,
@@ -1833,8 +1832,8 @@ async function generateDaylyRepportRazelPL() {
           });
       })
  */
-    //conduite de weekend disting unit to detail
-    /*   .then(async () => {
+      //conduite de weekend disting unit to detail
+      /*   .then(async () => {
         let column;
         await getRepportDataUnit(
           ADMIN_RAZEL,
@@ -1920,48 +1919,48 @@ async function generateDaylyRepportRazelPL() {
           });
       })
  */
-    //Eco driving
+      //Eco driving
+      .then(async () => {
+        await getRepportData(
+          ADMIN_RAZEL,
+          ECO_DRIVING_RAZEL,
+          RAZEL_PL,
+          firstHourDay,
+          lastHourDay,
+          ECO_DRIVING_RAZEL_GROUP
+        ).then(async (res) => {
+          const objLenth = res?.obj.length;
+          if (objLenth > 0) {
+            const data = res.obj;
+            let column = res.excelColum;
+            column[0] = { key: 'Véhicules' };
+            const replaceGroupinByVehicle = replaceProps(
+              data,
+              'Grouping',
+              'Véhicules'
+            );
 
-    await getRepportData(
-      ADMIN_RAZEL,
-      ECO_DRIVING_RAZEL,
-      RAZEL_PL,
-      firstHourDay,
-      lastHourDay,
-      ECO_DRIVING_RAZEL_GROUP
-    )
-      .then(async (res) => {
-        const objLenth = res?.obj.length;
-        if (objLenth > 0) {
-          const data = res.obj;
-          column = res.excelColum;
-          column[0] = { key: 'Véhicules' };
-          const replaceGroupinByVehicle = replaceProps(
-            data,
-            'Grouping',
-            'Véhicules'
-          );
+            //push all data in synthese Arr
+            data.map((item) => {
+              if (item) {
+                const newItem = { ...item, template: 'eco-driving' };
+                synthese.push(newItem);
+              }
+            });
 
-          //push all data in synthese Arr
-          data.map((item) => {
-            if (item) {
-              const newItem = { ...item, template: 'eco-driving' };
-              synthese.push(newItem);
-            }
-          });
-
-          await razelXlsx(
-            replaceGroupinByVehicle,
-            ECO_DRIVING_RAZEL_GROUP,
-            `${pathFile}-${titleDate}.xlsx`,
-            column,
-            `${ECO_DRIVING_RAZEL_GROUP} ${titleDate}`
-          );
-        } else {
-          console.log(
-            `no data found in ${ECO_DRIVING_RAZEL_GROUP} ${ECO_DRIVING_RAZEL_GROUP}`
-          );
-        }
+            await razelXlsx(
+              replaceGroupinByVehicle,
+              ECO_DRIVING_RAZEL_GROUP,
+              `${pathFile}-${titleDate}.xlsx`,
+              column,
+              `${ECO_DRIVING_RAZEL_GROUP} ${titleDate}`
+            );
+          } else {
+            console.log(
+              `no data found in ${ECO_DRIVING_RAZEL_GROUP} ${ECO_DRIVING_RAZEL_GROUP}`
+            );
+          }
+        });
       })
 
       //Detail trajet
@@ -3191,10 +3190,10 @@ async function generateWeeklyRepportRazelPL() {
 }
 
 async function generateAllRepportRazel() {
-  /*await generateDaylyRepportRazelVL();
-  await generateDaylyRepportRazelPL();
-  await generateWeeklyRepportRazelVL();
-  await generateWeeklyRepportRazelPL(); */
+  //await generateDaylyRepportRazelVL();
+  //await generateDaylyRepportRazelPL();
+  //await generateWeeklyRepportRazelVL();
+  //await generateWeeklyRepportRazelPL();
   cron.schedule(
     '30 06 * * *',
     async () => {

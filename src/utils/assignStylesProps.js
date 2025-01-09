@@ -394,7 +394,7 @@ async function assignStyleToKPCDHeaders(ws) {
   const lastCell = `A${rowsCount}`;
 
   ws.eachRow((row, rowNumber) => {
-    row.height = 40;
+    row.height = 30;
     row.eachCell((cell, colNumber) => {
       cellVal = cell.value;
       cell.alignment = {
@@ -438,6 +438,7 @@ async function assignStyleToHeadersRazel(ws, numberOfColunm) {
   const lastValCell = ws.getCell(lastCell).value;
   const wsName = ws.name;
   ws.eachRow((row, rowNumber) => {
+    row.height = 50;
     row.eachCell((cell, colNumber) => {
       cellVal = cell._value.toString();
       cell.alignment = {
@@ -502,6 +503,7 @@ async function assignStyleToHeadersSyntheseRazel(ws) {
   const lastCell = `A${rowsCount}`;
 
   ws.eachRow((row, rowNumber) => {
+    row.height = 30;
     row.eachCell((cell, colNumber) => {
       cellVal = cell.value;
       cell.alignment = {
@@ -527,8 +529,6 @@ async function assignStyleToHeadersSyntheseRazel(ws) {
           fgColor: { argb: '023E8A' },
         };
         cell.font = { color: { argb: 'FFFFFF' }, bold: true };
-
-        column.width = 10;
       }
     });
     //Commit the changed row to the stream
@@ -543,6 +543,7 @@ async function assignStyleToHeadersDKT(ws, numberOfColunm) {
   const lastValCell = ws.getCell(lastCell).value;
   const wsName = ws.name;
   ws.eachRow((row, rowNumber) => {
+    row.height = 30;
     row.eachCell((cell, colNumber) => {
       cellVal = cell._value.toString();
       cell.alignment = {

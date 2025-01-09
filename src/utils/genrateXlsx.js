@@ -27,6 +27,7 @@ const {
   prepareSheetRazelExcessVitesse,
   prepareSheetRazelForSynthese,
   prepareSheetDKT,
+  prepareSheetDKTForSynthese,
 } = require('./prepareSheet');
 const { addRowExistSheet } = require('./addRowExistSheet');
 const {
@@ -1785,6 +1786,410 @@ async function DKTXlsx(data, sheet, path, excelColum, title) {
   }
 }
 
+async function DKTSynthese(path, data, sheet, Title) {
+  const isExistPath = fs.existsSync(path);
+
+  let workbook = new XLSX.Workbook();
+
+  const baner = workbook.addImage({
+    buffer: fs.readFileSync('rapport/dkt/assets/baner.png'),
+    extension: 'png',
+  });
+
+  const thirdHeader = [
+    'Véhicules',
+    'Durée Conduite (heure)',
+    'Kilométrage (km)',
+    "Nbre d'exces de vitesse",
+    'Acceleration excessives',
+    'Freinage Brusque',
+    'Virage',
+    "Nbre D'arret",
+    "Duree d'arret (heure)",
+    'Duree Conduite weekend (heure)',
+    'Kilometrage weekend (km)',
+    'Duree Conduite nuit (heure)',
+    'Kilometrage nuit (km)',
+    '%',
+  ];
+
+  if (isExistPath) {
+    setTimeout(async () => {
+      console.log(`Generating file ${sheet} ...`);
+      const readFile = await workbook.xlsx.readFile(path);
+      if (readFile) {
+        const existWorkSheet = workbook.getWorksheet(sheet);
+        if (existWorkSheet) {
+          const existWorkSheetName = existWorkSheet.name;
+          if (existWorkSheetName === sheet) {
+            //Add data to rows
+            data.map((item) => {
+              existWorkSheet.addRow(item).commit();
+            });
+          }
+        } else {
+          // creation of new sheet
+          const worksheet = workbook.addWorksheet(sheet);
+
+          worksheet.views = [{ showGridLines: false }];
+
+          const syntheseCol = thirdHeader.map((item) => {
+            return { key: item };
+          });
+
+          prepareSheetDKTForSynthese(worksheet, thirdHeader, syntheseCol, data);
+
+          assignStyleToHeadersSyntheseRazel(worksheet);
+
+          //Center image header banner depending on number of columns
+          razelHeaderSheetSynthese(worksheet, thirdHeader, baner, Title);
+        }
+        // Export excel generated file
+        workbook.xlsx
+          .writeFile(path, { type: 'buffer', bookType: 'xlsx' })
+          .then((response) => {
+            console.log('file generated');
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
+    }, 15000);
+  }
+}
+
+async function generateDashbordDKT(data, sheet, path) {
+  const isExistPath = fs.existsSync(path);
+
+  let workbook = new XLSX.Workbook();
+
+  //distance from detail trajet
+  const trajet = data.filter((item) => item.template === 'detail-trajet');
+
+  //harsh braking from eco-driving
+  const ecodriving = data.filter((item) => item.template === 'eco-driving');
+  const harshBraking = ecodriving.filter(
+    (item) =>
+      item.Violations === 'Freinage Brusque' ||
+      item.Violations === 'Harsh Braking'
+  );
+
+  //harsh acceleration from eco-driving
+  const harshAcceleration = ecodriving.filter(
+    (item) =>
+      item.Violations === 'Harsh acceleration' ||
+      item.Violations === 'Accélération Excessif'
+  );
+
+  //conduite de weekend
+  const conduiteWeekend = data.filter(
+    (item) => item.template === 'conduit-weekend'
+  );
+
+  //conduite de nuit
+  const conduiteNuit = data.filter((item) => item.template === 'conduite-nuit');
+
+  //exces de vitesse
+  const excesVitesse = data.filter((item) => item.template === 'exces-vitesse');
+
+  //Group notifications By VehicleID
+  const groupTrajetByCoducteur = _.groupBy(trajet, (item) => item['Véhicules']);
+
+  const groupBrakingByCoducteur = _.groupBy(
+    harshBraking,
+    (item) => item['Véhicules']
+  );
+
+  const groupharshAccelerationByCoducteur = _.groupBy(
+    harshAcceleration,
+    (item) => item['Véhicules']
+  );
+
+  const groupConduiteWeekendtByCoducteur = _.groupBy(
+    conduiteWeekend,
+    (item) => item['Véhicules']
+  );
+
+  const groupConduiteNuitByCoducteur = _.groupBy(
+    conduiteNuit,
+    (item) => item['Véhicules']
+  );
+
+  const groupExcesVitesseByCoducteur = _.groupBy(
+    excesVitesse,
+    (item) => item['Véhicules']
+  );
+
+  //get labels and values distance
+  const keyValuesTrajet = Object.keys(groupTrajetByCoducteur);
+  const valuesLenthTrajet = keyValuesTrajet.map((item) => {
+    return groupTrajetByCoducteur[item];
+  });
+  const distanceCluster = valuesLenthTrajet.map((item) => {
+    return item.map((i) => i['Kilométrage']);
+  });
+  const sumDistanceCluster = distanceCluster.map((item) => {
+    const sumDistance = item.reduce((a, b) => parseInt(a) + parseInt(b), 0);
+    return sumDistance;
+  });
+
+  //get labels and values harsh braking
+  const keyValuesBraking = Object.keys(groupBrakingByCoducteur);
+  const valuesLenthBraking = keyValuesBraking.map((item) => {
+    return groupBrakingByCoducteur[item];
+  });
+
+  const countHasrbrakingCluster = valuesLenthBraking.map((item) => {
+    return item.length;
+  });
+
+  //get labels and values harsh acceleration
+  const keyValuesHarshAcceleration = Object.keys(
+    groupharshAccelerationByCoducteur
+  );
+  const valuesLenthHarshAcceleration = keyValuesHarshAcceleration.map(
+    (item) => {
+      return groupharshAccelerationByCoducteur[item];
+    }
+  );
+
+  const countHarshAccelerationCluster = valuesLenthHarshAcceleration.map(
+    (item) => {
+      return item.length;
+    }
+  );
+
+  /* 
+  console.log(keyValuesHarshAcceleration);
+  console.log(countHarshAccelerationCluster); */
+
+  //get labels and values conduite weekend
+  const keyValuesConduiteWeekend = Object.keys(
+    groupConduiteWeekendtByCoducteur
+  );
+  const valuesLenthConduiteWeekend = keyValuesConduiteWeekend.map((item) => {
+    return groupConduiteWeekendtByCoducteur[item];
+  });
+
+  const distanceClusterConduiteWeekend = valuesLenthConduiteWeekend.map(
+    (item) => {
+      return item.map((i) => i['Kilométrage']);
+    }
+  );
+  const sumDistanceClusterConduiteWeekend = distanceClusterConduiteWeekend.map(
+    (item) => {
+      const sumDistance = item.reduce((a, b) => parseInt(a) + parseInt(b), 0);
+      return sumDistance;
+    }
+  );
+
+  /*  
+  console.log(keyValuesConduiteWeekend);
+  console.log(sumDistanceClusterConduiteWeekend);
+ */
+
+  //get labels and conduite de nuit
+  const keyValuesConduiteNuit = Object.keys(groupConduiteNuitByCoducteur);
+  const valuesLenthConduiteNuit = keyValuesConduiteNuit.map((item) => {
+    return groupConduiteNuitByCoducteur[item];
+  });
+
+  const distanceClusterConduiteNuit = valuesLenthConduiteNuit.map((item) => {
+    return item.map((i) => i['Kilométrage']);
+  });
+
+  const sumDistanceClusterConduiteNuit = distanceClusterConduiteNuit.map(
+    (item) => {
+      const sumDistance = item.reduce((a, b) => parseInt(a) + parseInt(b), 0);
+      return sumDistance;
+    }
+  );
+
+  //get labels and Exces Vitesse
+  const keyValuesExcessVitesse = Object.keys(groupExcesVitesseByCoducteur);
+  const valuesLenthExcessVitesse = keyValuesExcessVitesse.map((item) => {
+    return groupExcesVitesseByCoducteur[item];
+  });
+
+  const countExcessVitesseCluster = valuesLenthExcessVitesse.map((item) => {
+    return item.length;
+  });
+
+  if (isExistPath) {
+    setTimeout(async () => {
+      console.log(`Generating file ${sheet} ...`);
+
+      const readFile = await workbook.xlsx.readFile(path);
+
+      if (readFile) {
+        // creation of new sheet
+        const worksheet = workbook.addWorksheet(sheet);
+
+        //remove grid lines
+        worksheet.views = [{ showGridLines: false }];
+
+        worksheet.mergeCells(`F2`, `W5`);
+
+        const titleCell = worksheet.getCell(`F2`);
+
+        titleCell.alignment = { vertical: 'middle', horizontal: 'center' };
+
+        titleCell.fill = {
+          type: 'pattern',
+          pattern: 'solid',
+          fgColor: { argb: 'FFFF00' },
+        };
+
+        titleCell.font = {
+          color: { argb: '000000' },
+          bold: true,
+          name: 'calibri',
+          size: 15,
+        };
+
+        titleCell.value = 'DASHBOARD SUIVI ACTIVITE CHAUFFEURS DKT';
+        // Générer le graphique Distance by Driver
+        const chartImageBrake = await createChartKPDC(
+          'Total Distances By Driver',
+          keyValuesTrajet,
+          sumDistanceCluster
+        );
+
+        //add logo DKT headers
+        const logoKPDC = workbook.addImage({
+          buffer: fs.readFileSync('rapport/DKT/assets/dkt.png'),
+          extension: 'png',
+        });
+        worksheet.addImage(logoKPDC, {
+          tl: { col: 4, row: 0 },
+          ext: { width: 100, height: 100 },
+        });
+
+        //add logo camtrack
+        const logoCamtrack = workbook.addImage({
+          buffer: fs.readFileSync('rapport/dkt/assets/camtrack.png'),
+          extension: 'png',
+        });
+        worksheet.addImage(logoCamtrack, {
+          tl: { col: 22 + 0.999999999999, row: 0 },
+          ext: { width: 100, height: 100 },
+        });
+
+        // Ajouter le graphique dans une cellule
+        const imageBrake = workbook.addImage({
+          buffer: chartImageBrake,
+          extension: 'png',
+        });
+
+        worksheet.addImage(imageBrake, {
+          tl: { col: 5, row: 8 },
+          ext: { width: 500, height: 500 },
+        });
+
+        // Générer le graphique  Harsh braking by driver
+        const chartImageSpeeding = await createChartKPDC(
+          'Harsh Braking By Driver',
+          keyValuesBraking,
+          countHasrbrakingCluster
+        );
+
+        // Ajouter le graphique dans une cellule
+        const imageSpeeding = workbook.addImage({
+          buffer: chartImageSpeeding,
+          extension: 'png',
+        });
+
+        worksheet.addImage(imageSpeeding, {
+          tl: { col: 14, row: 8 },
+          ext: { width: 500, height: 500 },
+        });
+
+        // Générer le graphique harsh acceleration by driver
+        const chartImageStop = await createChartKPDC(
+          'Harsh Acceleration by driver',
+          keyValuesHarshAcceleration,
+          countHarshAccelerationCluster
+        );
+
+        // Ajouter le graphique dans une cellule
+        const imageStop = workbook.addImage({
+          buffer: chartImageStop,
+          extension: 'png',
+        });
+
+        worksheet.addImage(imageStop, {
+          tl: { col: 5, row: 38 },
+          ext: { width: 500, height: 500 },
+        });
+
+        // Générer le graphique conduite weekend by driver
+        const chartImageConduiteWeekend = await createChartKPDC(
+          'Distances Conduite Weekend by driver',
+          keyValuesConduiteWeekend,
+          sumDistanceClusterConduiteWeekend
+        );
+
+        // Ajouter le graphique dans une cellule
+        const ImageConduiteWeekend = workbook.addImage({
+          buffer: chartImageConduiteWeekend,
+          extension: 'png',
+        });
+
+        worksheet.addImage(ImageConduiteWeekend, {
+          tl: { col: 14, row: 38 },
+          ext: { width: 500, height: 500 },
+        });
+
+        // Générer le graphique conduite nuit by driver
+        const chartImageConduiteNuit = await createChartKPDC(
+          'Distances Conduite de nui by driver',
+          keyValuesConduiteNuit,
+          sumDistanceClusterConduiteNuit
+        );
+
+        // Ajouter le graphique dans une cellule
+        const ImageConduiteNuit = workbook.addImage({
+          buffer: chartImageConduiteNuit,
+          extension: 'png',
+        });
+
+        worksheet.addImage(ImageConduiteNuit, {
+          tl: { col: 5, row: 63 },
+          ext: { width: 500, height: 500 },
+        });
+
+        // Générer le graphique Excess de vitesse by driver
+        const chartImageExcessVitesse = await createChartKPDC(
+          'Number of Speeding by driver',
+          keyValuesExcessVitesse,
+          countExcessVitesseCluster
+        );
+
+        // Ajouter le graphique dans une cellule
+        const ImageExcessVitesse = workbook.addImage({
+          buffer: chartImageExcessVitesse,
+          extension: 'png',
+        });
+
+        worksheet.addImage(ImageExcessVitesse, {
+          tl: { col: 14, row: 63 },
+          ext: { width: 500, height: 500 },
+        });
+
+        // Export excel generated file
+        workbook.xlsx
+          .writeFile(path, { type: 'buffer', bookType: 'xlsx' })
+          .then((response) => {
+            console.log('file generated');
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
+    }, 30000);
+  }
+}
+
 module.exports = {
   convertJsonToExcel,
   generateSyntheseSheetAddax,
@@ -1799,6 +2204,7 @@ module.exports = {
   razelXlsx,
   razelExesVitesseXlsx,
   razelSynthese,
-
+  DKTSynthese,
   DKTXlsx,
+  generateDashbordDKT,
 };
