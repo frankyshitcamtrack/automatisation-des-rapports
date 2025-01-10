@@ -67,6 +67,7 @@ const { json } = require('body-parser');
 const RAZEL = 'RAZEL';
 
 //dayly report Razel
+
 async function generateDaylyRepportRazelVL() {
   try {
     const synthese = [];
@@ -100,7 +101,7 @@ async function generateDaylyRepportRazelVL() {
     const pathFile = 'rapport/razel/RAPPORT-ACTIVITE-FLOTTE-RAZEL-VL';
 
     // Ralenti moteur distinct synthese to detail
-
+    let columnRalentiMoteur;
     await getRepportDataUnit(
       ADMIN_RAZEL,
       RAPPORT_RALENTI_MOTEUR_RAZEL,
@@ -137,7 +138,7 @@ async function generateDaylyRepportRazelVL() {
           const objLenth = res?.obj.length;
           if (objLenth > 0) {
             const data = res.obj;
-            let columnRalentiMoteur = res.excelColum;
+            columnRalentiMoteur = res.excelColum;
             columnRalentiMoteur[0] = { key: 'Véhicules' };
             const replaceGroupinByVehicle = replaceProps(
               data,
@@ -1664,7 +1665,7 @@ async function generateDaylyRepportRazelPL() {
     const pathFile = 'rapport/razel/RAPPORT-ACTIVITE-FLOTTE-RAZEL-PL';
 
     // Ralenti moteur distinct synthese to detail
-
+    let columnRalentiMoteur;
     await getRepportDataUnit(
       ADMIN_RAZEL,
       RAPPORT_RALENTI_MOTEUR_RAZEL,
@@ -1701,7 +1702,7 @@ async function generateDaylyRepportRazelPL() {
           const objLenth = res?.obj.length;
           if (objLenth > 0) {
             const data = res.obj;
-            let columnRalentiMoteur = res.excelColum;
+            columnRalentiMoteur = res.excelColum;
             columnRalentiMoteur[0] = { key: 'Véhicules' };
             const replaceGroupinByVehicle = replaceProps(
               data,
