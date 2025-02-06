@@ -2190,6 +2190,107 @@ async function generateDashbordDKT(data, sheet, path) {
   }
 }
 
+async function generateComAlios(data, sheet, path, excelColum, colorSheet) {
+  const dataHeader = [];
+
+  const isExistPath = fs.existsSync(path);
+
+  let workbook = new XLSX.Workbook();
+
+  const imageId2 = workbook.addImage({
+    buffer: fs.readFileSync('rapport/alios/assets/banner.png'),
+    extension: 'png',
+  });
+
+  const logo1 = workbook.addImage({
+    buffer: fs.readFileSync('rapport/alios/assets/alios.png'),
+    extension: 'png',
+  });
+
+  const logo2 = workbook.addImage({
+    buffer: fs.readFileSync('rapport/alios/assets/camtrack.png'),
+    extension: 'png',
+  });
+
+  if (excelColum) {
+    excelColum.map((item) => {
+      dataHeader.push(item.key);
+    });
+  }
+
+  if (dataHeader.length > 0) {
+    if (isExistPath) {
+      setTimeout(async () => {
+        console.log(`Generating file ${sheet} ...`);
+        const readFile = await workbook.xlsx.readFile(path);
+        if (readFile) {
+          const existWorkSheet = workbook.getWorksheet(sheet);
+          if (existWorkSheet) {
+            const existWorkSheetName = existWorkSheet.name;
+            if (existWorkSheetName === sheet) {
+              addRowExistSheet(existWorkSheet, data);
+            }
+          } else {
+            const worksheet = workbook.addWorksheet(sheet, {
+              properties: { tabColor: { argb: colorSheet } },
+            });
+
+            prepareSheet(worksheet, data, dataHeader, excelColum);
+
+            //Center image header banner depending on number of columns
+            addImageBannerHeaderSheet(
+              worksheet,
+              dataHeader,
+              sheet,
+              imageId2,
+              logo1,
+              logo2
+            );
+          }
+          // Export excel generated file
+          workbook.xlsx
+            .writeFile(path, { type: 'buffer', bookType: 'xlsx' })
+            .then((response) => {
+              console.log('file generated');
+            })
+            .catch((err) => {
+              console.log(err);
+            });
+        }
+      }, 15000);
+    } else {
+      console.log(`Generating file ${sheet} ...`);
+
+      // creation of new sheet
+      const worksheet = workbook.addWorksheet(sheet, {
+        properties: { tabColor: { argb: colorSheet } },
+      });
+
+      prepareSheet(worksheet, data, dataHeader, excelColum);
+
+      //Center image header banner depending on number of columns
+      addImageBannerHeaderSheet(
+        worksheet,
+        dataHeader,
+        sheet,
+        imageId2,
+        logo1,
+        logo2
+      );
+
+      // Export excel generated file
+      workbook.xlsx
+        .writeFile(path, { type: 'buffer', bookType: 'xlsx' })
+        .then((response) => {
+          console.log('file generated');
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  }
+}
+
 module.exports = {
   convertJsonToExcel,
   generateSyntheseSheetAddax,
@@ -2207,4 +2308,5 @@ module.exports = {
   DKTSynthese,
   DKTXlsx,
   generateDashbordDKT,
+  generateComAlios,
 };

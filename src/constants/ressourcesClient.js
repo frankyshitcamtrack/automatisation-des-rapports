@@ -4,6 +4,7 @@ const ADMIN_SABC = 'admin SABC';
 const ADMIN_GLOBELEQ = 'admin GLOBELEQ';
 const ADMIN_RAZEL = 'ADMIN RAZEL-BELLOY JULIEN';
 const ADMIN_DKT = 'Admin DKT';
+const ADMIN_CLIENT = 'admin client';
 
 module.exports = {
   ADMIN_ADDAX,
@@ -12,4 +13,5 @@ module.exports = {
   ADMIN_RAZEL,
   ADMIN_GLOBELEQ,
   ADMIN_DKT,
+  ADMIN_CLIENT,
 };

@@ -40,7 +40,6 @@ const {
   RAPPORT_EXCES_DE_VITESSE_HAG_RAZEL,
   RAPPORT_RALENTI_MOTEUR_RAZEL,
   RAPPORT_SYNTHESE_ACTIVITE_RAZEL,
-
   RAPPORT_HEBDOMADAIRE_VL_RAZEL,
   RAPPORT_JOURNALIER_VL_RAZEL,
   RAPPORT_HEBDOMADAIRE_TRUCKS_RAZEL,
@@ -826,6 +825,8 @@ async function generateDaylyRepportRazelVL() {
       //send mail
       .then(() => {
         if (sender && receivers) {
+          console.log(sender);
+          console.log(receivers);
           setTimeout(() => {
             sendMail(
               sender,

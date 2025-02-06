@@ -50,6 +50,10 @@ const RAPPORT_HEBDOMADAIRE_KPDC_KRIBI = 'Rapport hebdomadaire KPDC Kribi';
 const RAPPORT_MENSUEL_KPDC_KRIBI = 'Rapport mensuel KPDC Kribi';
 
 const RAPPORT_DKT = 'Rapport programmé';
+const RAPPORT_MENSUEL_DKT = 'Rapport mensuel DKT Kribi';
+
+// ALIOS
+const LIST_VEHICULES = 'Liste Des Véhicules';
 
 module.exports = {
   ACTIVITY_REPORT_OF_ADDAX_PETROLEUM,
@@ -83,5 +87,9 @@ module.exports = {
   RAPPORT_JOURNALIER_VL_RAZEL,
   RAPPORT_HEBDOMADAIRE_TRUCKS_RAZEL,
   RAPPORT_JOURNALIER_TRUCKS_RAZEL,
+
   RAPPORT_DKT,
+  RAPPORT_MENSUEL_DKT,
+
+  LIST_VEHICULES,
 };

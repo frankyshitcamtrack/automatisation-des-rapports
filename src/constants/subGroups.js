@@ -75,6 +75,9 @@ const EXCES_DE_VITESSE_DKT = 'Excès de vitesse';
 const DETAIL_TRAJET_VEHICULE_DKT = 'Detail trajet véhicule';
 const CONDUITE_WEEKEND_DKT = 'Conduite du weekend';
 
+// ALIOS
+const LIST_VEHICULES_GROUP = 'Liste des Vehicules';
+
 module.exports = {
   SYNTHESE,
   EXCEPTIONS,
@@ -133,4 +136,6 @@ module.exports = {
   EXCES_DE_VITESSE_DKT,
   DETAIL_TRAJET_VEHICULE_DKT,
   CONDUITE_WEEKEND_DKT,
+
+  LIST_VEHICULES_GROUP,
 };

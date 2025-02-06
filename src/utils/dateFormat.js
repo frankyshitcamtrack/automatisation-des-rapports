@@ -1,5 +1,5 @@
 function padTwoDigits(num) {
-  return num.toString().padStart(2, "0");
+  return num.toString().padStart(2, '0');
 }
 
 //format date with -
@@ -9,13 +9,13 @@ function dateInYyyyMmDdHhMmSs(date) {
       date.getFullYear(),
       padTwoDigits(date.getMonth() + 1),
       padTwoDigits(date.getDate()),
-    ].join("-") +
-    " " +
+    ].join('-') +
+    ' ' +
     [
       padTwoDigits(date.getHours()),
       padTwoDigits(date.getMinutes()),
       padTwoDigits(date.getSeconds()),
-    ].join(":")
+    ].join(':')
   );
 }
 
@@ -26,13 +26,29 @@ function dateInYyyyMmDdHhMmSsWithSlash(date) {
       date.getFullYear(),
       padTwoDigits(date.getMonth() + 1),
       padTwoDigits(date.getDate()),
-    ].join("/") +
-    " " +
+    ].join('/') +
+    ' ' +
     [
       padTwoDigits(date.getHours()),
       padTwoDigits(date.getMinutes()),
       padTwoDigits(date.getSeconds()),
-    ].join(":")
+    ].join(':')
+  );
+}
+
+function dateFormat(date) {
+  return (
+    [
+      date.getFullYear(),
+      padTwoDigits(date.getMonth() + 1),
+      padTwoDigits(date.getDate()),
+    ].join('-') +
+    ' ' +
+    [
+      padTwoDigits(date.getHours()),
+      padTwoDigits(date.getMinutes()),
+      padTwoDigits(date.getSeconds()),
+    ].join(':')
   );
 }
 
@@ -45,13 +61,13 @@ function dateFormatMinusOneDay(date) {
         date.getFullYear(),
         padTwoDigits(date.getMonth() + 1),
         padTwoDigits(date.getDate()),
-      ].join("-") +
-      " " +
+      ].join('-') +
+      ' ' +
       [
         padTwoDigits(date.getHours()),
         padTwoDigits(date.getMinutes()),
         padTwoDigits(date.getSeconds()),
-      ].join(":")
+      ].join(':')
     );
   } else {
     return (
@@ -59,13 +75,13 @@ function dateFormatMinusOneDay(date) {
         date.getFullYear(),
         padTwoDigits(date.getMonth() + 1),
         padTwoDigits(date.getDate() - 1),
-      ].join("-") +
-      " " +
+      ].join('-') +
+      ' ' +
       [
         padTwoDigits(date.getHours()),
         padTwoDigits(date.getMinutes()),
         padTwoDigits(date.getSeconds()),
-      ].join(":")
+      ].join(':')
     );
   }
 }
@@ -80,13 +96,13 @@ function dateFormatMinusTwoDay(date) {
         date.getFullYear(),
         padTwoDigits(date.getMonth() + 1),
         padTwoDigits(date.getDate() - 2),
-      ].join("-") +
-      " " +
+      ].join('-') +
+      ' ' +
       [
         padTwoDigits(date.getHours()),
         padTwoDigits(date.getMinutes()),
         padTwoDigits(date.getSeconds()),
-      ].join(":")
+      ].join(':')
     );
   } else {
     return (
@@ -94,13 +110,13 @@ function dateFormatMinusTwoDay(date) {
         date.getFullYear(),
         padTwoDigits(date.getMonth() + 1),
         padTwoDigits(date.getDate() - 2),
-      ].join("-") +
-      " " +
+      ].join('-') +
+      ' ' +
       [
         padTwoDigits(date.getHours()),
         padTwoDigits(date.getMinutes()),
         padTwoDigits(date.getSeconds()),
-      ].join(":")
+      ].join(':')
     );
   }
 }
@@ -116,13 +132,13 @@ function dateFormatMinusSevenDay(date) {
         date.getFullYear(),
         padTwoDigits(date.getMonth() + 1),
         padTwoDigits(date.getDate() - 7),
-      ].join("-") +
-      " " +
+      ].join('-') +
+      ' ' +
       [
         padTwoDigits(date.getHours()),
         padTwoDigits(date.getMinutes()),
         padTwoDigits(date.getSeconds()),
-      ].join(":")
+      ].join(':')
     );
   } else if (today !== 1 && d < 0) {
     date.setDate(0);
@@ -131,13 +147,13 @@ function dateFormatMinusSevenDay(date) {
         date.getFullYear(),
         padTwoDigits(date.getMonth() + 1),
         padTwoDigits(date.getDate() + d),
-      ].join("-") +
-      " " +
+      ].join('-') +
+      ' ' +
       [
         padTwoDigits(date.getHours()),
         padTwoDigits(date.getMinutes()),
         padTwoDigits(date.getSeconds()),
-      ].join(":")
+      ].join(':')
     );
   } else {
     return (
@@ -145,13 +161,13 @@ function dateFormatMinusSevenDay(date) {
         date.getFullYear(),
         padTwoDigits(date.getMonth() + 1),
         padTwoDigits(date.getDate() - 7),
-      ].join("-") +
-      " " +
+      ].join('-') +
+      ' ' +
       [
         padTwoDigits(date.getHours()),
         padTwoDigits(date.getMinutes()),
         padTwoDigits(date.getSeconds()),
-      ].join(":")
+      ].join(':')
     );
   }
 }
@@ -163,13 +179,13 @@ function dateFormatPlusOneHour(val) {
       date.getFullYear(),
       padTwoDigits(date.getMonth() + 1),
       padTwoDigits(date.getDate()),
-    ].join("-") +
-    " " +
+    ].join('-') +
+    ' ' +
     [
       padTwoDigits(date.getHours() + 1),
       padTwoDigits(date.getMinutes()),
       padTwoDigits(date.getSeconds()),
-    ].join(":")
+    ].join(':')
   );
 }
 
@@ -185,13 +201,13 @@ function dateFormatIso(date) {
       date.getFullYear(),
       padTwoDigits(date.getMonth() + 1),
       padTwoDigits(date.getDate()),
-    ].join("") +
+    ].join('') +
     [
-      "T",
+      'T',
       padTwoDigits(date.getHours()),
       padTwoDigits(date.getMinutes()),
       padTwoDigits(date.getSeconds()),
-    ].join("")
+    ].join('')
   );
 }
 
@@ -204,13 +220,13 @@ function dateFormatIsoMinusOneDay(date) {
         date.getFullYear(),
         padTwoDigits(date.getMonth() + 1),
         padTwoDigits(date.getDate()),
-      ].join(" ") +
+      ].join(' ') +
       [
-        "T",
+        'T',
         padTwoDigits(date.getHours()),
         padTwoDigits(date.getMinutes()),
         padTwoDigits(date.getSeconds()),
-      ].join("")
+      ].join('')
     );
   } else {
     return (
@@ -218,13 +234,13 @@ function dateFormatIsoMinusOneDay(date) {
         date.getFullYear(),
         padTwoDigits(date.getMonth() + 1),
         padTwoDigits(date.getDate() - 1),
-      ].join("") +
+      ].join('') +
       [
-        "T",
+        'T',
         padTwoDigits(date.getHours()),
         padTwoDigits(date.getMinutes()),
         padTwoDigits(date.getSeconds()),
-      ].join("")
+      ].join('')
     );
   }
 }
@@ -239,4 +255,5 @@ module.exports = {
   dateFormatIso,
   dateFormatIsoMinusOneDay,
   dateInYyyyMmDdHhMmSsWithSlash,
+  dateFormat,
 };

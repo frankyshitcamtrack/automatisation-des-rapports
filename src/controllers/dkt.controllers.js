@@ -16,9 +16,9 @@ const { calculateTime } = require('../utils/sommeArrTimes');
 const { Receivers } = require('../storage/mailReceivers.storage');
 const { Senders } = require('../storage/mailSender.storage');
 const { sendMail } = require('../utils/sendMail');
-const { DKT } = require('../constants/clients');
+const { DKT, DKT_CAMEROUN } = require('../constants/clients');
 const { ADMIN_DKT } = require('../constants/ressourcesClient');
-const { RAPPORT_DKT } = require('../constants/template');
+const { RAPPORT_DKT, RAPPORT_MENSUEL_DKT } = require('../constants/template');
 const {
   ACTIVITY_REPORT_SUBJECT_MAIL_DKT_MONTH,
 } = require('../constants/mailSubjects');
@@ -281,8 +281,11 @@ async function generateMonthlyRepportDKT() {
     const detailTrajet = [];
     const excesVitesse = [];
     const conduitWeekend = [];
-    //const sender = await Senders(RAZEL_PL, 'E');
-    //const receivers = await Receivers(RAZEL_PL, 'D');
+    const sender = await Senders(DKT_CAMEROUN, 'E');
+    const receivers = await Receivers(DKT_CAMEROUN, 'D');
+
+    //const sender = 'rapport.sav@camtrack.net';
+    //const receivers = ['franky.shity@camtrack.net'];
 
     const fistAndLastHourDay = getFirstAndLastDayMonth();
     const firstHourDay = fistAndLastHourDay.firstDayTimestamp;
@@ -1015,16 +1018,16 @@ async function generateMonthlyRepportDKT() {
       })
 
       //send mail
-      /*   .then(() => {
+      .then(() => {
         if (sender && receivers) {
           setTimeout(() => {
             sendMail(
               sender,
               receivers,
               pass,
-              RAPPORT_HEBDOMADAIRE_TRUCKS_RAZEL,
-              `${ACTIVITY_REPORT_SUBJECT_MAIL_RAZEL_PL_WEEK}`,
-              `${RAPPORT_HEBDOMADAIRE_TRUCKS_RAZEL}.xlsx`,
+              RAPPORT_MENSUEL_DKT,
+              `${ACTIVITY_REPORT_SUBJECT_MAIL_DKT_MONTH}`,
+              `${RAPPORT_MENSUEL_DKT}.xlsx`,
               path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
             );
             deleteFile(
@@ -1033,7 +1036,6 @@ async function generateMonthlyRepportDKT() {
           }, 180000);
         }
       })
- */
       .catch((err) => console.log(err));
   } catch (err) {
     console.error(err);
@@ -1041,8 +1043,7 @@ async function generateMonthlyRepportDKT() {
 }
 
 async function generateAllRepportDKT() {
-  await generateMonthlyRepportDKT();
-
+  //await generateMonthlyRepportDKT();
   cron.schedule(
     '30 6 3 1,2,3,4,5,6,7,8,9,10,11,12 *',
     async () => {

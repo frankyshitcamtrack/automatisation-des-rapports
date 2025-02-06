@@ -561,6 +561,24 @@ function prepareSheetDKTForSynthese(worksheet, dataHeader, syntheseCol, data) {
   assignStyleToHeadersSyntheseRazel(worksheet);
 }
 
+async function prepareSheetRazel(worksheet, data, dataHeader, excelColum) {
+  const numberOfColunm = excelColum.length;
+  //style worksheet
+  const autoFilter = addAutoFilter(dataHeader, 9);
+
+  worksheet.views = [{ showGridLines: false }];
+
+  worksheet.getRow(9).values = dataHeader;
+
+  worksheet.autoFilter = autoFilter;
+
+  //Add data to rows
+  addDataTosheet(worksheet, data, excelColum);
+
+  // Process each row for beautification
+  assignStyleToHeadersRazel(worksheet, numberOfColunm);
+}
+
 module.exports = {
   prepareSheet,
   prepareSheetForSynthese,

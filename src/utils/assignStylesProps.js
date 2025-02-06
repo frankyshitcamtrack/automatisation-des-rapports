@@ -5,7 +5,7 @@ async function assignStyleToHeaders(ws) {
   const rowsCount = rows['_worksheet']['_rows'].length;
   const lastCell = `A${rowsCount}`;
   const lastValCell = ws.getCell(lastCell).value;
-
+  const wsName = ws.name;
   ws.eachRow((row, rowNumber) => {
     row.height = 40;
     row.eachCell((cell, colNumber) => {
@@ -50,6 +50,31 @@ async function assignStyleToHeaders(ws) {
         cell.font = { color: { argb: 'FFFFFF' }, bold: true };
       }
     });
+
+    if (wsName === 'Liste Des Véhicules') {
+      ws.eachRow((row, rowNumber) => {
+        let rowNumb;
+        row.eachCell((cell, colNumber) => {
+          const cellVal = cell._value.toString();
+          const includeNoCom = cellVal.includes('No Communication');
+          if (includeNoCom) {
+            rowNumb = rowNumber;
+          }
+
+          if (rowNumber == rowNumb) {
+            cell.fill = {
+              type: 'pattern',
+              pattern: 'solid',
+              fgColor: { argb: 'FF0000' },
+            };
+            cell.font = { bold: true, size: 10, color: { argb: 'FFFFFF' } };
+          }
+        });
+        //Commit the changed row to the stream
+        row.commit();
+      });
+    }
+
     //Commit the changed row to the stream
     row.commit();
   });
