@@ -1,46 +1,46 @@
-const path = require("path");
-const cron = require("node-cron");
-const _ = require("lodash");
-const { getRepportData } = require("../models/models");
-const { getFistAndLastHourDay } = require("../utils/getFirstAndLastHourDay");
+const path = require('path');
+const cron = require('node-cron');
+const _ = require('lodash');
+const { getRepportData } = require('../models/models');
+const { getFistAndLastHourDay } = require('../utils/getFirstAndLastHourDay');
 const {
   getFirstAndLastDayMonth,
-} = require("../utils/getFistDayAndLastDayMonth");
-const { guinnessXlsx } = require("../utils/genrateXlsx");
-const { deleteFile } = require("../utils/deleteFile");
+} = require('../utils/getFistDayAndLastDayMonth');
+const { guinnessXlsx } = require('../utils/genrateXlsx');
+const { deleteFile } = require('../utils/deleteFile');
 const {
   changePropertiesDateTOLocal,
-} = require("../utils/convertDatePropertiesToLocaltime");
-const { Receivers } = require("../storage/mailReceivers.storage");
-const { Senders } = require("../storage/mailSender.storage");
-const { sendMail } = require("../utils/sendMail");
+} = require('../utils/convertDatePropertiesToLocaltime');
+const { Receivers } = require('../storage/mailReceivers.storage');
+const { Senders } = require('../storage/mailSender.storage');
+const { sendMail } = require('../utils/sendMail');
 const {
   RAPPORT_GUINNESS,
   EXCES_DE_VITESSE,
-} = require("../constants/subGroups");
-const { GUINNESS } = require("../constants/clients");
-const { ADMIN_SABC, ADMIN_ADDAX } = require("../constants/ressourcesClient");
+} = require('../constants/subGroups');
+const { GUINNESS } = require('../constants/clients');
+const { ADMIN_SABC, ADMIN_ADDAX } = require('../constants/ressourcesClient');
 const {
   ACTIVITY_REPORT_SUBJECT_MAIL_GUINNESS,
-} = require("../constants/mailSubjects");
+} = require('../constants/mailSubjects');
 const {
   RAPPORT_JOURNALIER_GUINESS,
   EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM,
   RAPPORT_MENSUEL_GUINESS,
-} = require("../constants/template");
+} = require('../constants/template');
 
 //const pass=process.env.PASS_MAIL_FRANCK;
 const pass = process.env.PASS_MAIL_SAV;
 
 async function generateDaylyRepportGuinness() {
-  const sender = await Senders(GUINNESS, "E");
-  const receivers = await Receivers(GUINNESS, "D");
+  const sender = await Senders(GUINNESS, 'E');
+  const receivers = await Receivers(GUINNESS, 'D');
   const fistAndLastHourDay = getFistAndLastHourDay();
   const firstHourDay = fistAndLastHourDay.firstHourDayTimestamp;
   const lastHourDay = fistAndLastHourDay.lastHourDayTimestamp;
 
   const titleDate = fistAndLastHourDay.dateTitle;
-  const pathFile = "rapport/Guinness/RAPPORT-GUINNESS";
+  const pathFile = 'rapport/Guinness/RAPPORT-GUINNESS';
   try {
     await getRepportData(
       ADMIN_SABC,
@@ -92,14 +92,14 @@ async function generateDaylyRepportGuinness() {
 }
 
 async function generateMonthlyRepportGuinness() {
-  const sender = await Senders(GUINNESS, "E");
-  const receivers = await Receivers(GUINNESS, "D");
+  const sender = await Senders(GUINNESS, 'E');
+  const receivers = await Receivers(GUINNESS, 'D');
   const firstDayLastDayMonth = getFirstAndLastDayMonth();
 
   const firstDayMonth = firstDayLastDayMonth.firstDayTimestamp;
   const lastDayMonth = firstDayLastDayMonth.lastDayTimestamp;
   const titleDate = firstDayLastDayMonth.dateTitle;
-  const pathFile = "rapport/Guinness/RAPPORT-MENSUEL-GUINNESS";
+  const pathFile = 'rapport/Guinness/RAPPORT-MENSUEL-GUINNESS';
   try {
     await getRepportData(
       ADMIN_ADDAX,
@@ -114,10 +114,10 @@ async function generateMonthlyRepportGuinness() {
         if (objLenth > 0) {
           const data = res.obj;
           const column = res.excelColum;
-          const fillterCol = column.filter((item) => item.key !== "Conducteur");
+          const fillterCol = column.filter((item) => item.key !== 'Conducteur');
 
           const filter = data.filter((item) => {
-            const date = item["Durée"].split(":");
+            const date = item['Durée'].split(':');
             const sec = parseInt(date[2]);
             const min = parseInt(date[1]);
             return sec >= 10 || min > 0;
@@ -163,24 +163,24 @@ async function generateAllRepportGuinness() {
   //await generateMonthlyRepportGuinness()
   //await generateDaylyRepportGuinness();
   cron.schedule(
-    "30 6 * * *",
+    '30 6 * * *',
     async () => {
       await generateDaylyRepportGuinness();
     },
     {
       scheduled: true,
-      timezone: "Africa/Lagos",
+      timezone: 'Africa/Lagos',
     }
   );
 
   cron.schedule(
-    "30 6 1 1,2,3,4,5,6,7,8,9,10,11,12 *",
+    '30 6 1 1,2,3,4,5,6,7,8,9,10,11,12 *',
     async () => {
       await generateMonthlyRepportGuinness();
     },
     {
       scheduled: true,
-      timezone: "Africa/Lagos",
+      timezone: 'Africa/Lagos',
     }
   );
 }

@@ -102,20 +102,10 @@ async function generateDaylyAlios() {
 }
 
 async function generateAllAliosRepport() {
-  //await generateDaylyAlios();
-  cron.schedule(
-    '* 30 8 * * 2',
-    async () => {
-      await generateDaylyAlios();
-    },
-    {
-      scheduled: true,
-      timezone: 'Africa/Lagos',
-    }
-  );
+  // await generateDaylyAlios();
 
   cron.schedule(
-    '* 30 8 * * 5',
+    '30 6 * * *',
     async () => {
       await generateDaylyAlios();
     },

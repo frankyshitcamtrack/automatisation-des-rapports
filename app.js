@@ -15,8 +15,8 @@ const routes = require('./src/routes/mainRoute');
 const app = express();
 
 // Sets server port and logs message on success
-app.listen(process.env.PORT || 8080, () =>
-  console.log('app is listening to port 8080 ')
+app.listen(process.env.PORT || 8000, () =>
+  console.log('app is listening to port 8000 ')
 );
 
 app.use(morgan('combined'));

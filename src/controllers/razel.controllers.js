@@ -59,6 +59,8 @@ const {
   EXCES_DE_VITESSE_HA_VL_GROUP,
   EXCES_DE_VITESSE_HA_PL_GROUP,
   DETAIL_TRAJET_FLOTTE_GROUP,
+  DETAIL_FLOTTE_PRODUCTIVITE,
+  DETAIL_FLOTTE_PRODUCTIVITE_TITLE_VL,
 } = require('../constants/subGroups');
 
 const { json } = require('body-parser');
@@ -357,7 +359,6 @@ async function generateDaylyRepportRazelVL() {
       }) */
 
       //Eco driving
-
       .then(async () => {
         await getRepportData(
           ADMIN_RAZEL,
@@ -396,6 +397,56 @@ async function generateDaylyRepportRazelVL() {
           } else {
             console.log(
               `no data found in ${ECO_DRIVING_RAZEL_GROUP} ${ECO_DRIVING_RAZEL_GROUP}`
+            );
+          }
+        });
+      })
+      //productivite
+      .then(async () => {
+        await getRepportData(
+          ADMIN_RAZEL,
+          RAPPORT_SYNTHESE_ACTIVITE_RAZEL,
+          RAZEL_VL,
+          firstHourDay,
+          lastHourDay,
+          RAPPORT_SYNTHESE_ACTIVITE_RAZEL_GROUP
+        ).then(async (res) => {
+          const objLenth = res?.obj.length;
+          if (objLenth > 0) {
+            const data = res.obj;
+            let column = res.excelColum;
+            column[0] = { key: 'Véhicules' };
+            column.push({ key: 'PRODUCTIVITE(%)' });
+            const replaceGroupinByVehicle = replaceProps(
+              data,
+              'Grouping',
+              'Véhicules'
+            );
+
+            const prodData = replaceGroupinByVehicle.map((item) => {
+              const mvtM = item['EN MOUVEMENT'] || '00:00:00';
+              const hMoteur = item['HEURE MOTEUR'] || '00:00:00';
+              const mvtProd = divideTimesAsPercentage(
+                mvtM.toString(),
+                hMoteur.toString()
+              );
+
+              return {
+                ...item,
+                'PRODUCTIVITE(%)': `${mvtProd.toFixed(2)}%`,
+              };
+            });
+
+            await razelXlsx(
+              prodData,
+              DETAIL_FLOTTE_PRODUCTIVITE,
+              `${pathFile}-${titleDate}.xlsx`,
+              column,
+              `${DETAIL_FLOTTE_PRODUCTIVITE_TITLE_VL} ${titleDate}`
+            );
+          } else {
+            console.log(
+              `no data found in ${RAPPORT_SYNTHESE_ACTIVITE_RAZEL} ${DETAIL_FLOTTE_PRODUCTIVITE}`
             );
           }
         });
@@ -597,7 +648,62 @@ async function generateDaylyRepportRazelVL() {
           }
         });
       })
+      .then(async () => {
+        await getRepportData(
+          ADMIN_RAZEL,
+          RAPPORT_EXCES_DE_VITESSE_HAG_RAZEL,
+          RAZEL_VL,
+          firstHourDay,
+          lastHourDay,
+          EXCES_DE_VITESSE_HA_VL_GROUP
+        ).then(async (res) => {
+          const objLenth = res?.obj.length;
+          if (objLenth > 0) {
+            const data = res.obj;
+            column = res.excelColum;
+            column[0] = { key: 'Véhicules' };
+            column.push({ key: 'Vitesse Limite' });
+            const replaceGroupinByVehicle = replaceProps(
+              data,
+              'Grouping',
+              'Véhicules'
+            );
 
+            const addVitesseLimite = replaceGroupinByVehicle.map((item) => {
+              return { ...item, 'Vitesse Limite': '90km/H' };
+            });
+
+            const removeDuplicateItem = _.uniqBy(
+              addVitesseLimite,
+              function (e) {
+                return e['Durée'];
+              }
+            );
+
+            //push all data in synthese Arr
+            removeDuplicateItem.map((item) => {
+              if (item) {
+                const newItem = { ...item, template: 'excess-vitesse-vl-HAG' };
+
+                synthese.push(newItem);
+              }
+            });
+
+            await razelExesVitesseXlsx(
+              removeDuplicateItem,
+              'Exces de vitesse razel VL',
+              `${pathFile}-${titleDate}.xlsx`,
+              column,
+              `Exces de vitesse VL ${titleDate}`,
+              'HORS AGGLOMERATION (90km/H)'
+            );
+          } else {
+            console.log(
+              `no data found in ${RAPPORT_EXCES_DE_VITESSE_HAG_RAZEL} ${EXCES_DE_VITESSE_HA_VL_GROUP}`
+            );
+          }
+        });
+      })
       //Razel VL synthese
       /*  .then(async () => {
         await getRepportData(
@@ -823,7 +929,8 @@ async function generateDaylyRepportRazelVL() {
       })*/
 
       //send mail
-      .then(() => {
+
+      /* .then(() => {
         if (sender && receivers) {
           console.log(sender);
           console.log(receivers);
@@ -842,7 +949,7 @@ async function generateDaylyRepportRazelVL() {
             );
           }, 180000);
         }
-      })
+      }) */
 
       .catch((err) => console.log(err));
   } catch (err) {

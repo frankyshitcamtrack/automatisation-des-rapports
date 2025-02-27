@@ -49,7 +49,8 @@ async function vehicleRessourceAndTemplateId(
     const filtertemplateId = templateValues.filter(
       (data) => data.n === reportTemplate
     );
-    reportTemplateId = filtertemplateId[0].id;
+
+    if (filtertemplateId) reportTemplateId = filtertemplateId[0].id;
   }
   return { ressourceId, reportTemplateId };
 }

@@ -517,6 +517,40 @@ async function assignStyleToHeadersRazel(ws, numberOfColunm) {
         }
       });
     }
+
+    if (wsName === 'Trajet flotte+Productivité') {
+      row.eachCell((cell, colNumber) => {
+        let rowNumb;
+        cellVal = cell._value.toString();
+        const includePercent = cellVal.includes('%');
+
+        if (includePercent) {
+          rowNumb = rowNumber;
+        }
+
+        if (
+          rowNumber == rowNumb &&
+          includePercent &&
+          parseFloat(cellVal) >= 50
+        ) {
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: '008000' },
+          };
+        } else if (
+          rowNumber == rowNumb &&
+          includePercent &&
+          parseFloat(cellVal) < 50
+        ) {
+          cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FFFF80' },
+          };
+        }
+      });
+    }
     //Commit the changed row to the stream
     row.commit();
   });
