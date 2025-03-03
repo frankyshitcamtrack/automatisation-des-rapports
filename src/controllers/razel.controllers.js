@@ -2264,10 +2264,10 @@ async function generateDaylyRepportRazelPL() {
             );
           }
         });
-      });
+      })
 
-    //Razel PL synthese
-    /*  .then(async () => {
+      //Razel PL synthese
+      /*  .then(async () => {
         await getRepportData(
           ADMIN_RAZEL,
           RAPPORT_SYNTHESE_ACTIVITE_RAZEL,
@@ -2490,9 +2490,9 @@ async function generateDaylyRepportRazelPL() {
         });
       }) */
 
-    // send mail
+      // send mail
 
-    .then(() => {
+      .then(() => {
         if (sender && receivers) {
           setTimeout(() => {
             sendMail(
@@ -2511,7 +2511,7 @@ async function generateDaylyRepportRazelPL() {
         }
       })
 
-      .catch((err) => console.log(err)); 
+      .catch((err) => console.log(err));
   } catch (err) {
     console.error(err);
   }

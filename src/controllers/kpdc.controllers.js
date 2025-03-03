@@ -425,6 +425,7 @@ async function generateMonthlyRepportKPDC() {
 
           const rangeData = data.map((item) => {
             if (item) {
+              console.log(item);
               const extractDateDebut = item['Début']
                 ? item['Début'].text.split(' ')[0]
                 : '';
@@ -703,7 +704,6 @@ async function generateMonthlyRepportKPDC() {
 async function generateAllRepportKPDC() {
   //await generateHebdoRepportKPDC();
   //await generateMonthlyRepportKPDC();
-  //await generateHebdoRepportKPDC();
   cron.schedule(
     '30 04 * * Monday',
     async () => {
