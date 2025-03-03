@@ -425,11 +425,10 @@ async function generateMonthlyRepportKPDC() {
 
           const rangeData = data.map((item) => {
             if (item) {
-              console.log(item);
-              const extractDateDebut = item['Début']
-                ? item['Début'].text.split(' ')[0]
-                : '';
-
+              const debut = item['Début'];
+              const extractDateDebut = debut.text
+                ? debut.text.split(' ')[0]
+                : debut;
               const day = getStringDay(extractDateDebut);
 
               return {
