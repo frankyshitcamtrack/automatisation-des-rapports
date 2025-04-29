@@ -880,7 +880,7 @@ async function generateDaylyRepportPerenco() {
         );
       })
 
-      .then(() => {
+     /*  .then(() => {
         if (sender && receivers) {
           setTimeout(() => {
             sendMail(
@@ -897,7 +897,7 @@ async function generateDaylyRepportPerenco() {
             );
           }, 30000);
         }
-      })
+      }) */
       .catch((err) => console.log(err));
   } catch (err) {
     console.error(err);
@@ -1914,7 +1914,7 @@ async function generateHebdoRepportPerenco() {
           SYNTHESE
         );
       })
-      .then(() => {
+    .then(() => {
         if (sender && receivers) {
           setTimeout(() => {
             sendMail(
@@ -1997,7 +1997,7 @@ async function generateHebdoRepportPerenco() {
             );
           }, 30000);
         }
-      })
+      })  
       .catch((err) => console.log(err));
   } catch (err) {
     console.error(err);
@@ -2006,8 +2006,7 @@ async function generateHebdoRepportPerenco() {
 
 async function generateAllRepportPerenco() {
   //await generateDaylyRepportPerenco();
-  //await generateHebdoRepportPerenco();
-  //await generateDaylyRepportPerenco();
+ // await generateHebdoRepportPerenco();
   cron.schedule(
     '30 04 * * *',
     async () => {

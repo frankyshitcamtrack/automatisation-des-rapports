@@ -1,10 +1,11 @@
 const nodemailer = require('nodemailer');
+var nodeoutlook = require('nodejs-nodemailer-outlook')
 
-async function sendMail(from,to,pass,subject,text,filename,path) {
-
+/* async function sendMail(from,to,pass,subject,text,filename,path) {
+ 
     const transporter = nodemailer.createTransport({
         host: "smtp.gmail.com",
-        port: 465,
+        port: 587,
         secure: true, // Use `true` for port 465, `false` for all other ports
         auth: {
           user: from,
@@ -31,7 +32,30 @@ async function sendMail(from,to,pass,subject,text,filename,path) {
             console.log('Email sent: ' + info.response);
         }
     });
+} */
+
+async function sendMail(from,to,pass,subject,text,filename,path) {
+
+    nodeoutlook.sendEmail({
+        auth: {
+            user: from,
+            pass: pass
+        },
+        from: from,
+        to: to,
+        subject: subject,
+        text: text,
+        attachments: [{
+            filename: filename,
+            path :path,
+            contentType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        }],
+        onError: (e) => console.log(e),
+        onSuccess: (i) => console.log(i)
+    })
+
 }
+    
 
 module.exports={sendMail}
 

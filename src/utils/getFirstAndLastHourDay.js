@@ -63,6 +63,8 @@ function getFirstAndLastSevendays() {
   const date2 = dateFormatMinusSevenDay(date).split(' ')[0];
   let dateTitle = `${date2}-${date1}`;
 
+ 
+
   return { firstHourDayTimestamp, lastHourDayTimestamp, dateTitle };
 }
 
