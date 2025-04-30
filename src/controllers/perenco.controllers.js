@@ -880,7 +880,7 @@ async function generateDaylyRepportPerenco() {
         );
       })
 
-     /*  .then(() => {
+      .then(() => {
         if (sender && receivers) {
           setTimeout(() => {
             sendMail(
@@ -897,7 +897,7 @@ async function generateDaylyRepportPerenco() {
             );
           }, 30000);
         }
-      }) */
+      }) 
       .catch((err) => console.log(err));
   } catch (err) {
     console.error(err);

@@ -161,7 +161,7 @@ async function generateMonthlyRepportGuinness() {
 
 async function generateAllRepportGuinness() {
   //await generateMonthlyRepportGuinness()
-  //await generateDaylyRepportGuinness();
+ // await generateDaylyRepportGuinness();
   cron.schedule(
     '30 6 * * *',
     async () => {
