@@ -34,6 +34,7 @@ async function generateDaylyRepportCimencam() {
      */
 
   const pathFile = 'rapport/Cimencam/RAPPORT-CIMENCAM';
+
   try {
     await getCimencamData()
       .then((res) => {

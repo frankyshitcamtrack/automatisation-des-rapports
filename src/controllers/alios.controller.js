@@ -102,7 +102,7 @@ async function generateDaylyAlios() {
 }
 
 async function generateAllAliosRepport() {
-  //await generateDaylyAlios();
+  await generateDaylyAlios();
   cron.schedule(
     '30 6 * * *',
     async () => {

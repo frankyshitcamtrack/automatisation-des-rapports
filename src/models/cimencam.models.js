@@ -33,6 +33,7 @@ async function getCimencamData() {
     const vehicleGroup = await getVehiclesGroups();
 
     if (vehicleGroup) {
+        console.log(vehicleGroup);
 
         const AllVehicleGroupId = vehicleGroup.filter(item => item.Description === ALL_VEHICLES)[0].Id;
         //first page entry exit notification for all vehicle
