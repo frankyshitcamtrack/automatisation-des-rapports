@@ -3297,8 +3297,8 @@ async function generateWeeklyRepportRazelPL() {
 }
 
 async function generateAllRepportRazel() {
-  await generateDaylyRepportRazelVL();
-  await generateDaylyRepportRazelPL();
+  //await generateDaylyRepportRazelVL();
+  //await generateDaylyRepportRazelPL();
   //await generateWeeklyRepportRazelVL();
   //await generateWeeklyRepportRazelPL();
   cron.schedule(

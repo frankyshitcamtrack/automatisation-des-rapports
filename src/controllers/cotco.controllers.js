@@ -162,7 +162,7 @@ async function generateDaylyRepportCotco() {
 }
 
 async function generateAllRepportCotco() {
-  await generateDaylyRepportCotco();
+  //await generateDaylyRepportCotco();
   cron.schedule(
     '30 6 * * *',
     async () => {
