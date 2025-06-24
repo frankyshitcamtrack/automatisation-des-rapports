@@ -40,6 +40,9 @@ async function generateDaylyAlios() {
   const firstHourDay = fistAndLastHourDay.firstHourDayTimestamp;
   const lastHourDay = fistAndLastHourDay.lastHourDayTimestamp;
 
+  //const firstHourDay = "1749769200";
+  //const lastHourDay = "1749855540";
+
   const titleDate = fistAndLastHourDay.dateTitle;
   const pathFile = 'rapport/alios/COMMUNICATION-VEHICULE';
   try {

@@ -14,7 +14,7 @@ function addRowExistSheet(worksheet,data,dataHeader,excelColum){
 
     worksheet.autoFilter = autoFilter;
     //Add data to rows
-    data.map(item => {
+    data?.map(item => {
         worksheet.addRow(item);
     })
 

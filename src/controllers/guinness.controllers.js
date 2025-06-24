@@ -38,6 +38,8 @@ async function generateDaylyRepportGuinness() {
   const fistAndLastHourDay = getFistAndLastHourDay();
   const firstHourDay = fistAndLastHourDay.firstHourDayTimestamp;
   const lastHourDay = fistAndLastHourDay.lastHourDayTimestamp;
+  //const firstHourDay = "1749769200";
+  //const lastHourDay = "1749855540";
 
   const titleDate = fistAndLastHourDay.dateTitle;
   const pathFile = 'rapport/Guinness/RAPPORT-GUINNESS';
@@ -161,7 +163,7 @@ async function generateMonthlyRepportGuinness() {
 
 async function generateAllRepportGuinness() {
   //await generateMonthlyRepportGuinness()
- //await generateDaylyRepportGuinness();
+  //await generateDaylyRepportGuinness();
   cron.schedule(
     '30 6 * * *',
     async () => {

@@ -63,7 +63,7 @@ function getFirstAndLastSevendays() {
   const date2 = dateFormatMinusSevenDay(date).split(' ')[0];
   let dateTitle = `${date2}-${date1}`;
 
- 
+
 
   return { firstHourDayTimestamp, lastHourDayTimestamp, dateTitle };
 }
@@ -74,10 +74,15 @@ function getFistAndLastHourDay() {
   let firstHourDayFormat = dateFormatMinusOneDay(startOfDay);
   let firstHourDayTimestamp = convertDateToTimeStamp(firstHourDayFormat);
 
+  //const firstHourDayTimestamp = '1750460400';
+
+
   let endofDay = new Date();
   endofDay.setHours(23, 59, 59, 999);
   let lasthourDayFormat = dateFormatMinusOneDay(endofDay);
   let lastHourDayTimestamp = convertDateToTimeStamp(lasthourDayFormat);
+
+  //const lastHourDayTimestamp = '1750546799'
 
   let date = new Date();
 

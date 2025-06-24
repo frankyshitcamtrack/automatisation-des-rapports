@@ -54,8 +54,8 @@ async function generateAddaxDaylyRepport() {
   const firstHourDay = fistAndLastHourDay.firstHourDayTimestamp;
   const lastHourDay = fistAndLastHourDay.lastHourDayTimestamp;
 
-  // const firstHourDay = "1726354800";
-  //const lastHourDay = "1726441199";
+  /*  const firstHourDay = "1749769200";
+   const lastHourDay = "1749855540"; */
   const titleDate = fistAndLastHourDay.dateTitle;
   const pathFile = 'rapport/Adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM';
 
@@ -197,7 +197,7 @@ async function generateAddaxDaylyRepport22h06h() {
         );
       }
     })
- .then(() => {
+    .then(() => {
       if (sender && receivers) {
         setTimeout(() => {
           sendMail(
@@ -211,7 +211,7 @@ async function generateAddaxDaylyRepport22h06h() {
           );
         }, 30000);
       }
-    }) 
+    })
     .catch((err) => console.log(err));
 }
 
@@ -448,7 +448,7 @@ async function AddaxMonthlyRepportSynthese() {
 async function generateAddaxRepports() {
   //await generateAddaxDaylyRepport();
   //await generateAddaxDaylyRepport22h06h();
- // await generateAddaxMonthlyRepport();
+  //await generateAddaxMonthlyRepport();
   cron.schedule(
     '30 6 * * *',
     async () => {

@@ -79,6 +79,9 @@ async function generateDaylyRepportPerenco() {
     const firstHourDay = fistAndLastHourDay.firstHourDayTimestamp;
     const lastHourDay = fistAndLastHourDay.lastHourDayTimestamp;
 
+    //const firstHourDay = "1749769200";
+    //const lastHourDay = "1749855540";
+
     const titleDate = fistAndLastHourDay.dateTitle;
     const pathFile = 'rapport/Perenco/RAPPORT-ACTIVITE-FLOTTE-PERENCO';
 
@@ -897,7 +900,7 @@ async function generateDaylyRepportPerenco() {
             );
           }, 30000);
         }
-      }) 
+      })
       .catch((err) => console.log(err));
   } catch (err) {
     console.error(err);
@@ -1914,7 +1917,7 @@ async function generateHebdoRepportPerenco() {
           SYNTHESE
         );
       })
-    .then(() => {
+      .then(() => {
         if (sender && receivers) {
           setTimeout(() => {
             sendMail(
@@ -1997,7 +2000,7 @@ async function generateHebdoRepportPerenco() {
             );
           }, 30000);
         }
-      })  
+      })
       .catch((err) => console.log(err));
   } catch (err) {
     console.error(err);
@@ -2006,7 +2009,7 @@ async function generateHebdoRepportPerenco() {
 
 async function generateAllRepportPerenco() {
   //await generateDaylyRepportPerenco();
- // await generateHebdoRepportPerenco();
+  //await generateHebdoRepportPerenco();
   cron.schedule(
     '30 04 * * *',
     async () => {
