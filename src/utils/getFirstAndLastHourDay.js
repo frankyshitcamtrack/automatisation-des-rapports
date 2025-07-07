@@ -55,6 +55,8 @@ function getFirstAndLastSevendays() {
   endofDay.setHours(23, 59, 59, 999);
   let lasthourDayFormat = dateFormatMinusOneDay(endofDay);
 
+
+
   //let lasthourDayFormat ="2024-08-04 00:00:00";
   let lastHourDayTimestamp = convertDateToTimeStamp(lasthourDayFormat);
 
@@ -63,7 +65,7 @@ function getFirstAndLastSevendays() {
   const date2 = dateFormatMinusSevenDay(date).split(' ')[0];
   let dateTitle = `${date2}-${date1}`;
 
-
+  console.log(firstHourDayFormat);
 
   return { firstHourDayTimestamp, lastHourDayTimestamp, dateTitle };
 }

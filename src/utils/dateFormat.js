@@ -140,7 +140,7 @@ function dateFormatMinusSevenDay(date) {
         padTwoDigits(date.getSeconds()),
       ].join(':')
     );
-  } else if (today !== 1 && d < 0) {
+  } else if (today !== 1 && d <= 0) {
     date.setDate(0);
     return (
       [
