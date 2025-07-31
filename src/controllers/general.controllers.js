@@ -17,7 +17,7 @@ async function generalControllers() {
   await generateAllRepportRazel();
   await generateAllRepportKPDC();
   await generateAllRepportDKT();
-  await generateAllAliosRepport(); 
+  await generateAllAliosRepport();
 }
 
 module.exports = { generalControllers };

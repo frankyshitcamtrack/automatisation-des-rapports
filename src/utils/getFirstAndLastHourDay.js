@@ -76,7 +76,7 @@ function getFistAndLastHourDay() {
   let firstHourDayFormat = dateFormatMinusOneDay(startOfDay);
   let firstHourDayTimestamp = convertDateToTimeStamp(firstHourDayFormat);
 
-  //const firstHourDayTimestamp = '1750460400';
+  //const firstHourDayTimestamp = '1753484400';
 
 
   let endofDay = new Date();
@@ -84,12 +84,13 @@ function getFistAndLastHourDay() {
   let lasthourDayFormat = dateFormatMinusOneDay(endofDay);
   let lastHourDayTimestamp = convertDateToTimeStamp(lasthourDayFormat);
 
-  //const lastHourDayTimestamp = '1750546799'
+  //const lastHourDayTimestamp = '1753570799'
 
   let date = new Date();
 
   let dateTitle = dateFormatMinusOneDay(date).split(' ')[0];
-
+  //const dateTitle = '2025-07-26'
+  //console.log(dateTitle);
   return { firstHourDayTimestamp, lastHourDayTimestamp, dateTitle };
 }
 
