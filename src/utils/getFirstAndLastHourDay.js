@@ -76,7 +76,11 @@ function getFistAndLastHourDay() {
   let firstHourDayFormat = dateFormatMinusOneDay(startOfDay);
   let firstHourDayTimestamp = convertDateToTimeStamp(firstHourDayFormat);
 
-  //const firstHourDayTimestamp = '1753484400';
+  //const firstHourDayTimestamp = '1754607600';
+  //const lastHourDayTimestamp = '1754693999';
+  //const dateTitle = '2025-08-08'
+
+
 
 
   let endofDay = new Date();
@@ -84,15 +88,14 @@ function getFistAndLastHourDay() {
   let lasthourDayFormat = dateFormatMinusOneDay(endofDay);
   let lastHourDayTimestamp = convertDateToTimeStamp(lasthourDayFormat);
 
-  //const lastHourDayTimestamp = '1753570799'
 
   let date = new Date();
-
   let dateTitle = dateFormatMinusOneDay(date).split(' ')[0];
-  //const dateTitle = '2025-07-26'
+
   //console.log(dateTitle);
   return { firstHourDayTimestamp, lastHourDayTimestamp, dateTitle };
 }
+
 
 function getFistAndLastHourDay22H06H() {
   let startOfDay = new Date();
@@ -114,6 +117,8 @@ function getFistAndLastHourDay22H06H() {
   return { firstHourDayTimestamp06h, lastHourDayTimestamp22h, dateTitle };
 }
 
+
+
 function getFistAndLastHourActualDay() {
   let startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);
@@ -131,6 +136,9 @@ function getFistAndLastHourActualDay() {
 
   return { firstHourDayTimestamp, lastHourDayTimestamp, dateTitle };
 }
+
+
+
 
 module.exports = {
   getFistAndLastHourDay,
