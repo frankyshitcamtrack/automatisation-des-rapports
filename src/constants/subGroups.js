@@ -86,6 +86,7 @@ const LIST_VEHICULES_GROUP = 'Liste des Vehicules';
 
 //total
 STATUS = 'Status';
+TRIP_END = "Trip end";
 
 module.exports = {
   SYNTHESE,
@@ -150,5 +151,6 @@ module.exports = {
   CONDUITE_WEEKEND_DKT,
 
   LIST_VEHICULES_GROUP,
-  STATUS
+  STATUS,
+  TRIP_END
 };

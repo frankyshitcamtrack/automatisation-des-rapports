@@ -3,6 +3,7 @@ const cron = require('node-cron');
 const { getTotalRepportData } = require('../models/total.model');
 const { getTotalAfiliate, getTotalTransporter, getTotalTrucks, getPIO, getTotalNigths, allExceptionType, summaryException, summaryTrip, getTotalDrivers, getpreventreposhebdo, getpreventTestreposhebdo, getLastDriving, getLastDayTransporter } = require('../services/total.service')
 const { getFistAndLastHourDay, getFistAndLastHourDay18H05H } = require('../utils/getFirstAndLastHourDay');
+const { compensateDrivers } = require('../utils/fillsDriverFromArray');
 const { mergeSimpleParkingData } = require('../utils/mergeTotalDataParking');
 const { convertJsonToExcelTotal } = require('../utils/genrateXlsx');
 const { processNightDrivingSimple } = require('../utils/processNigthDriving');
@@ -16,7 +17,7 @@ const { deleteFile } = require('../utils/deleteFile');
 const { ADDAX_PETROLEUM, ALL_VEHICLE } = require('../constants/clients');
 const { TOTAL_ENERGIES } = require('../constants/ressourcesClient');
 const { STATUS_VEHICLE } = require('../constants/template');
-const { STATUS } = require('../constants/subGroups');
+const { STATUS, TRIP_END } = require('../constants/subGroups');
 const { ADDAX_NOT_AT_PARKING_SUBJECT_MAIL } = require('../constants/mailSubjects');
 
 const test = [{ name: 'frank', address: 'franky.shity@camtrack.net' }];
@@ -31,18 +32,21 @@ async function generateNigthDrivingReport() {
     const totalAfiliate = await getTotalAfiliate();
 
     const firstHourLastNigth = getFistAndLastHourDay18H05H();
+    const drivers = await getTotalDrivers()
+
 
     const fisrtHourNigth = firstHourLastNigth.firstHourDayFormat;
     const lastHourNigth = firstHourLastNigth.lasthourDayFormat;
-    const titleDate = firstHourLastNigth.dateTitle
+    //const titleDate = firstHourLastNigth.dateTitle
+    const titleDate = '2025-08-22'
     const pathFile = 'rapport/Total/Nigth';
 
-    const column = [{ key: "filiale" }, { key: "transporteur" }, { key: "Driver" }, { key: "start point" }, { key: "end point" }, { key: "start date and time" }, { key: "Total duration" }, { key: "exception" }, { key: "Observation" }];
+    const column = [{ key: "filiale" }, { key: "transporteur" }, { key: "Vehicule" }, { key: "Driver" }, { key: "start point" }, { key: "end point" }, { key: "start date and time" }, { key: "Total duration" }, { key: "Exception" }, { key: "Niveau" }, { key: "Observation" }];
 
-    const totalNigthsDriving = await getTotalNigths(fisrtHourNigth, lastHourNigth);
+    const totalNigthsDriving = await getTotalNigths('2025-08-22 17:00:00', '2025-08-23 06:00:00');
 
     if (totalTrucks, totalTransporter, totalAfiliate) {
-        const nigtDrivingData = processNightDrivingSimple(totalNigthsDriving["resultat"], totalTrucks['resultat'], totalTransporter['resultat'], totalAfiliate['resultat'])
+        const nigtDrivingData = processNightDrivingSimple(totalNigthsDriving["resultat"], drivers['resultat'], totalTrucks['resultat'], totalTransporter['resultat'], totalAfiliate['resultat'])
 
         await convertJsonToExcelTotal(
             nigtDrivingData,
@@ -64,6 +68,7 @@ async function generateTotalClotureRepport() {
     const lastHourDay = fistAndLastHourDay.lastHourDayTimestamp;
 
     const totalTrucks = await getTotalTrucks();
+
     const totalTransporter = await getTotalTransporter();
     const totalAfiliate = await getTotalAfiliate();
 
@@ -74,6 +79,7 @@ async function generateTotalClotureRepport() {
     const titleDate = fistAndLastHourDay.dateTitle;
     const pathFile = 'rapport/Total/Cloture';
 
+    const AllDataStatusTripEnd = [];
 
     await getTotalRepportData(
         TOTAL_ENERGIES,
@@ -82,77 +88,92 @@ async function generateTotalClotureRepport() {
         firstHourDay,
         lastHourDay,
         STATUS
-    )
-        .then(async (res) => {
-            const objLenth = res?.obj.length;
-            if (objLenth > 0) {
-                const data = res.obj;
+    ).then(async (res) => {
+        const objLenth = res?.obj.length;
+        const tripEnd = await getTotalRepportData(
+            TOTAL_ENERGIES,
+            STATUS_VEHICLE,
+            ALL_VEHICLE,
+            firstHourDay,
+            lastHourDay,
+            TRIP_END
+        )
+        if (objLenth > 0 && tripEnd) {
+
+            const fullArr = compensateDrivers(res.obj, tripEnd.obj)
+
+            const column = [{ key: "Filiale" }, { key: "Transporteur" }, { key: 'Grouping' }, { key: 'Status Ignition' }, { key: 'Vitesse' }, { key: 'Dernier Conducteur' }, { key: 'Heure de Cloture' }, { key: 'Emplacement' }, { key: 'Coordonnées' }, { key: "Statut POI" }];
+            const fleetColumn = [{ key: "Transporteur" }, { key: "Nombre De Camions" }, { key: "Etat flotte" }, { key: "Heure De cloture" }, { key: "Camions Hors POI" }, { key: "Derniere mise a jour" }];
+
+            if (totalTrucks, totalTransporter, totalAfiliate, PIO) {
+                const finalData = mergeSimpleParkingData(fullArr, totalTrucks["resultat"], totalTransporter["resultat"], totalAfiliate["resultat"]);
+
+                const filterData = finalData.map(item => {
+                    return { ...item, "Statut PIO": PIO.includes(item?.Emplacement?.text) ? "Dans POI" : "Hors POI" }
+                });
+
+                const removeDup = keepLatestNotifications(filterData);
 
 
-
-                const column = [{ key: "Filiale" }, { key: "Transporteur" }, { key: 'Grouping' }, { key: 'Status Ignition' }, { key: 'Vitesse' }, { key: 'Dernier Conducteur' }, { key: 'Heure de Cloture' }, { key: 'Emplacement' }, { key: 'Coordonnées' }, { key: "Statut POI" }];
-                const fleetColumn = [{ key: "Transporteur" }, { key: "Nombre De Camions" }, { key: "Etat flotte" }, { key: "Heure De cloture" }, { key: "Camions Hors POI" }, { key: "Derniere mise a jour" }];
-
-                if (totalTrucks, totalTransporter, totalAfiliate, PIO) {
-                    const finalData = mergeSimpleParkingData(data, totalTrucks["resultat"], totalTransporter["resultat"], totalAfiliate["resultat"]);
-
-                    const filterData = finalData.map(item => {
-                        return { ...item, "Statut PIO": PIO.includes(item?.Emplacement?.text) ? "Dans POI" : "Hors POI" }
-                    });
-
-
-
-                    const removeDup = keepLatestNotifications(filterData);
-
-
-                    const listVehicleData = removeDup.map(item => {
-                        const status = parseFloat(item['Status Ignition']);
-                        const statusIgnition = !isNaN(status)
-                            ? (status === 0 ? "OFF" : "ON")
-                            : item['Status Ignition'];
-                        return {
-                            Filiale: item.Filiale ? item.Filiale : '--',
-                            Transporteur: item.Transporteur ? item.Transporteur : '--',
-                            Grouping: item.Grouping ? item.Grouping : '--',
-                            'Status Ignition': item['Status Ignition'] ? statusIgnition : '--',
-                            Vitesse: item.Vitesse ? item.Vitesse : '--',
-                            'Dernier Conducteur': item.Conducteur ? item.Conducteur : '--',
-                            'Heure de Cloture': item.Heure ? item.Heure : '--',
-                            Emplacement: item.Emplacement ? item.Emplacement : '--',
-                            Coordonnées: item['Coordonnées'] ? item['Coordonnées'] : '--',
-                            'Statut POI': item['Statut PIO'] ? item['Statut PIO'] : '--'
-                        }
-                    })
-
-                    const fleetReport = generateFleetReport(listVehicleData);
-
-                    if (fleetReport) {
-                        await convertJsonToExcelTotal(
-                            fleetReport,
-                            'Feuille Etat Flotte',
-                            `${pathFile}-${titleDate}.xlsx`,
-                            fleetColumn
-                        ).then(
-
-                            setTimeout(async () => {
-                                await convertJsonToExcelTotal(
-                                    listVehicleData,
-                                    'Feuille Liste des camions',
-                                    `${pathFile}-${titleDate}.xlsx`,
-                                    column
-                                )
-                            }, 5000)
-
-                        );
+                const listVehicleData = removeDup.map(item => {
+                    const status = parseFloat(item['Status Ignition']);
+                    const statusIgnition = !isNaN(status)
+                        ? (status === 0 ? "OFF" : "ON")
+                        : item['Status Ignition'];
+                    return {
+                        Filiale: item.Filiale ? item.Filiale : '--',
+                        Transporteur: item.Transporteur ? item.Transporteur : '--',
+                        Grouping: item.Grouping ? item.Grouping : '--',
+                        'Status Ignition': item['Status Ignition'] ? statusIgnition : '--',
+                        Vitesse: item.Vitesse ? item.Vitesse : '--',
+                        'Dernier Conducteur': item.Conducteur ? item.Conducteur : '--',
+                        'Heure de Cloture': item.Heure ? item.Heure : '--',
+                        Emplacement: item.Emplacement ? item.Emplacement : '--',
+                        Coordonnées: item['Coordonnées'] ? item['Coordonnées'] : '--',
+                        'Statut POI': item['Statut PIO'] ? item['Statut PIO'] : '--'
                     }
+                })
 
+                const fleetReport = generateFleetReport(listVehicleData);
+
+                if (fleetReport) {
+                    await convertJsonToExcelTotal(
+                        fleetReport,
+                        'Feuille Etat Flotte',
+                        `${pathFile}-${titleDate}.xlsx`,
+                        fleetColumn
+                    ).then(
+
+                        setTimeout(async () => {
+                            await convertJsonToExcelTotal(
+                                listVehicleData,
+                                'Feuille Liste des camions',
+                                `${pathFile}-${titleDate}.xlsx`,
+                                column
+                            )
+                        }, 5000)
+
+                    );
                 }
-            } else {
-                console.log(
-                    `no data found in ${STATUS_VEHICLE} ${STATUS}`
-                );
+
             }
-        })
+
+        }
+    }
+
+    )
+
+
+        /*  .then(async (res) => {
+ 
+             if (objLenth > 0) {
+                
+             } else {
+                 console.log(
+                     `no data found in ${STATUS_VEHICLE} ${STATUS}`
+                 );
+             }
+         }) */
 
         .catch((err) => console.log(err));
 }
@@ -176,28 +197,31 @@ async function generateTotalRankingRepport() {
 
     const titleDate = fistAndLastHourDay.dateTitle;
     const pathFile = 'rapport/Total/Ranking';
-    const column = [{ key: "Driver" }, { key: "Nombre totale de points perdu sur la période" }, { key: "Distance totale Parcouru sur la période" }, { key: "Durée de Conduite sur la période" }, { key: "Ratio" }, { key: "Ranking" }];
+    const column = [{ key: "Driver" }, { key: "Nombres d'Alertes Conduite de nuit" }, { key: "Nombres d'Alarme Conduite de nuit" }, { key: "Nombres d'Alertes conduite hebdomadaire" }, { key: "Nombres d'Alarme conduite hebdomadaire" }, { key: "Nombres d'Alertes Repos hebdomadaire" }, { key: "Nombres d'Alarme Repos hebdomadaire" }, { key: "Nombres d'Alertes Travail hebdomadaire" }, { key: "Nombres d'Alarme Travail hebdomadaire" }, { key: "Nombres d'Alertes HB" }, { key: "Nombres d'Alarme HB" }, { key: "Nombres d'Alertes HA" }, { key: "Nombres d'Alarme HA" }, { key: "Nombres de Téléphone au volant" }, { key: "Nombres de smoking" }, { key: "Nombres de Ceinture de Sécurité" }, { key: "Nombres de fatigues" }, { key: "Nombres de distraction" }, { key: "Nombre totale de points perdu sur la période" }, { key: "Distance totale Parcouru sur la période" }, { key: "Durée de Conduite sur la période" }, { key: "Ratio" }, { key: "Ranking" }];
     const rankinColumn = [{ key: "Driver" }, { key: "Ranking" }];
 
     if (drivers, getSummaryExceptions, exceptionType, getSummaryTrip) {
-        const ranking = analyzeDrivers(drivers["resultat"], exceptionType, getSummaryExceptions['resultat'], getSummaryTrip['resultat'])
+        const ranking = analyzeDrivers(drivers["resultat"], exceptionType, getSummaryExceptions['resultat'], getSummaryTrip['resultat']);
 
-        await convertJsonToExcelTotal(
-            ranking.detailedResults,
-            'Detail Ranking Chauffeurs',
-            `${pathFile}-${titleDate}.xlsx`,
-            column
-        ).then(
-            setTimeout(async () => {
+        if (ranking) {
+            await convertJsonToExcelTotal(
+                ranking?.rankingOnly,
+                'Ranking Chauffeurs',
+                `${pathFile}-${titleDate}.xlsx`,
+                rankinColumn
+            ).then(
+                setTimeout(async () => {
+                    await convertJsonToExcelTotal(
+                        ranking?.detailedResults,
+                        'Detail Ranking Chauffeurs',
+                        `${pathFile}-${titleDate}.xlsx`,
+                        column
+                    )
+                }, 5000)
+            )
+        }
 
-                await convertJsonToExcelTotal(
-                    ranking.rankingOnly,
-                    'Ranking Chauffeurs',
-                    `${pathFile}-${titleDate}.xlsx`,
-                    rankinColumn
-                )
-            }, 5000)
-        )
+
     }
 
 
@@ -214,8 +238,8 @@ async function generateTotalReposHebdo() {
     const lastDayDriving = await getLastDriving();
     const lastDayTransporter = await getLastDayTransporter()
 
-    //const reposHebdoSummary5 = await getpreventreposhebdo(5, true);
-    const reposHebdoSummary5 = await getpreventTestreposhebdo(5, true);
+    const reposHebdoSummary5 = await getpreventreposhebdo(5, true);
+    //const reposHebdoSummary5 = await getpreventTestreposhebdo(5, true);
     const reposHebdoSummary5Update = reposHebdoSummary5['resultat']?.map(item => {
         return {
             transporterid: item.transporterid,
@@ -223,8 +247,8 @@ async function generateTotalReposHebdo() {
         }
     })
 
-    //const reposHebdoSummary6 = await getpreventreposhebdo(6, true);
-    const reposHebdoSummary6 = await getpreventTestreposhebdo(6, true);
+    const reposHebdoSummary6 = await getpreventreposhebdo(6, true);
+    //const reposHebdoSummary6 = await getpreventTestreposhebdo(6, true);
     const reposHebdoSummary6Update = reposHebdoSummary6['resultat']?.map(item => {
         return {
             transporterid: item.transporterid,
@@ -291,8 +315,8 @@ async function generateTotalReposHebdo() {
 
 
 
-    const reposHebdodetails5 = await getpreventTestreposhebdo(5, false);
-    //const reposHebdodetails5 = await getpreventreposhebdo(5, false);
+    //const reposHebdodetails5 = await getpreventTestreposhebdo(5, false);
+    const reposHebdodetails5 = await getpreventreposhebdo(5, false);
     const reposHebdoDetails5Update = reposHebdodetails5['resultat']?.map(item => {
         return {
             ...item,
@@ -300,8 +324,8 @@ async function generateTotalReposHebdo() {
         }
     })
 
-    //const reposHebdoDetails6 = await getpreventreposhebdo(6, false);
-    const reposHebdoDetails6 = await getpreventTestreposhebdo(6, false);
+    const reposHebdoDetails6 = await getpreventreposhebdo(6, false);
+    //const reposHebdoDetails6 = await getpreventTestreposhebdo(6, false);
     const reposHebdoDetails6Update = reposHebdoDetails6['resultat']?.map(item => {
         return {
             ...item,
@@ -385,9 +409,9 @@ async function generateTotalReposHebdo() {
 
 async function generateTotalRepports() {
     //await generateTotalClotureRepport();
-    await generateTotalReposHebdo()
+    //await generateTotalReposHebdo()
     //await generateNigthDrivingReport();
-    //await generateTotalRankingRepport()
+    await generateTotalRankingRepport()
     cron.schedule(
         '30 6 * * *',
         async () => {

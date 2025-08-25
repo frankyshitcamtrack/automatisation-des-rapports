@@ -1,8 +1,11 @@
-function processNightDrivingSimple(nightDrivingData, vehicles, transporters, subsidiaries) {
+const { level } = require('../storage/exception.level');
 
+function processNightDrivingSimple(nightDrivingData, drivers, vehicles, transporters, subsidiaries) {
+    const driverMap = Object.fromEntries(drivers.map(d => [d.drivid, d]))
     const vehicleMap = Object.fromEntries(vehicles.map(v => [v.vclid, v]));
     const transporterMap = Object.fromEntries(transporters.map(t => [t.trpid, t]));
     const subsidiaryMap = Object.fromEntries(subsidiaries.map(s => [s.affid, s]));
+
 
     function isInCity(gps) {
         if (!gps) return false;
@@ -64,9 +67,15 @@ function processNightDrivingSimple(nightDrivingData, vehicles, transporters, sub
         return `${h}h${m}m${s}s`;
     }
 
+
+
     return nightDrivingData?.map(exception => {
-        const subsidiary = subsidiaryMap[exception.affiliateid];
-        const transporter = transporterMap[exception.transporterid];
+
+        const subsidiary = subsidiaryMap[exception?.affiliateid];
+        const transporter = transporterMap[exception?.transporterid];
+        const vehicle = vehicleMap[exception?.vehicleid];
+        const driver = driverMap[exception?.driverid];
+        const Level = level.filter(item => item.id === exception.level)
 
         const derogation = isInCity(exception.startgps) &&
             isInCity(exception.endgps) &&
@@ -76,12 +85,14 @@ function processNightDrivingSimple(nightDrivingData, vehicles, transporters, sub
         return {
             filiale: subsidiary?.nm || 'Inconnu',
             transporteur: transporter?.nm || 'Inconnu',
-            Driver: `Chauffeur ${exception.driverid || 'Inconnu'}`,
+            Vehicule: vehicle?.vclenm || 'Inconnu',
+            Driver: driver?.drivnm || `Chauffeur Inconnu`,
             "start point": exception.startgps,
             "end point": exception.endgps,
             "start date and time": new Date(exception.startdatetime).toLocaleString('fr-FR'),
             "Total duration": formatDuration(exception.totalduration),
-            exception: "Night driving",
+            Exception: "Night driving",
+            Niveau: Level[0].value,
             Observation: derogation ? "derogation 00h" : "--"
         };
     });
