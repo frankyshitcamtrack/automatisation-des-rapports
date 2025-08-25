@@ -83,6 +83,10 @@ const CONDUITE_WEEKEND_DKT = 'Conduite du weekend';
 // ALIOS
 const LIST_VEHICULES_GROUP = 'Liste des Vehicules';
 
+
+//total
+STATUS = 'Status';
+
 module.exports = {
   SYNTHESE,
   EXCEPTIONS,
@@ -146,4 +150,5 @@ module.exports = {
   CONDUITE_WEEKEND_DKT,
 
   LIST_VEHICULES_GROUP,
+  STATUS
 };

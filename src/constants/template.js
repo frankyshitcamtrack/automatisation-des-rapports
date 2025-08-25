@@ -55,6 +55,10 @@ const RAPPORT_MENSUEL_DKT = 'Rapport mensuel DKT Kribi';
 // ALIOS
 const LIST_VEHICULES = 'Liste Des Véhicules';
 
+
+// total energie
+const STATUS_VEHICLE = 'Statut véhicule '
+
 module.exports = {
   ACTIVITY_REPORT_OF_ADDAX_PETROLEUM,
   EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM,
@@ -92,4 +96,5 @@ module.exports = {
   RAPPORT_MENSUEL_DKT,
 
   LIST_VEHICULES,
+  STATUS_VEHICLE
 };

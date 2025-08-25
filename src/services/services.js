@@ -42,8 +42,10 @@ async function vehicleRessourceAndTemplateId(
     .then((res) => res.data.filter((data) => data.d.nm === reportRessource))
     .catch((err) => console.log(err));
 
+
+
   if (ressourceTemplate) {
-    ressourceId = ressourceTemplate[0].d.id;
+    ressourceId = ressourceTemplate[0]?.d?.id;
     const getReportTemplate = ressourceTemplate[0].d.rep;
     const templateValues = Object.values(getReportTemplate);
     const filtertemplateId = templateValues.filter(

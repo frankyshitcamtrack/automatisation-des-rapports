@@ -7,6 +7,7 @@ const {
   assignStyleToHeadersRazel,
   assignStyleToKPCDHeaders,
   assignStyleToHeadersCimencam,
+  asignStyleorksheetGlobal
 } = require('./assignStylesProps');
 const { autoSizeColumnSheet } = require('../utils/autoSizeColumnSheet');
 const { addAutoFilter } = require('./addAutofilter');
@@ -57,6 +58,8 @@ async function prepareSheet(worksheet, data, dataHeader, excelColum) {
 
   // Process each row for beautification
   assignStyleToHeaders(worksheet);
+
+  asignStyleorksheetGlobal(worksheet)
 
   //autosize column width base on the content
   autoSizeColumnSheet(worksheet);

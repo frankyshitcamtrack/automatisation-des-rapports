@@ -65,7 +65,6 @@ function getFirstAndLastSevendays() {
   const date2 = dateFormatMinusSevenDay(date).split(' ')[0];
   let dateTitle = `${date2}-${date1}`;
 
-  console.log(firstHourDayFormat);
 
   return { firstHourDayTimestamp, lastHourDayTimestamp, dateTitle };
 }
@@ -90,10 +89,12 @@ function getFistAndLastHourDay() {
 
 
   let date = new Date();
-  let dateTitle = dateFormatMinusOneDay(date).split(' ')[0];
+  let dateTitle1 = dateFormatMinusOneDay(date).split(' ')[0];
+  let dateTitle2 = dateFormatMinusOneDay(date).split(' ')[1].split(':');
+  const dateTitle = `${dateTitle1}-${dateTitle2[0]}H ${dateTitle2[1]}Min ${dateTitle2[2]}Sec`
 
-  //console.log(dateTitle);
-  return { firstHourDayTimestamp, lastHourDayTimestamp, dateTitle };
+
+  return { firstHourDayTimestamp, lastHourDayTimestamp, firstHourDayFormat, lasthourDayFormat, dateTitle };
 }
 
 
@@ -115,6 +116,27 @@ function getFistAndLastHourDay22H06H() {
   let dateTitle = dateFormatMinusOneDay(date).split(' ')[0];
 
   return { firstHourDayTimestamp06h, lastHourDayTimestamp22h, dateTitle };
+}
+
+
+
+function getFistAndLastHourDay18H05H() {
+  let startOfDay = new Date();
+
+  startOfDay.setHours(17, 0, 0);
+  let firstHourDayFormat = dateFormatMinusOneDay(startOfDay);
+
+
+  let endofDay = new Date();
+  endofDay.setHours(6, 0, 0);
+  let lasthourDayFormat = dateInYyyyMmDdHhMmSs(endofDay);
+
+
+
+  let date = new Date();
+  let dateTitle = dateFormatMinusOneDay(date).split(' ')[0];
+
+  return { firstHourDayFormat, lasthourDayFormat, dateTitle };
 }
 
 
@@ -147,4 +169,5 @@ module.exports = {
   getFirstAndLastSevendays,
   getFistAndLastHourDayIso,
   getFistAndLastHourActualDay,
+  getFistAndLastHourDay18H05H
 };

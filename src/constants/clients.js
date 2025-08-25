@@ -11,6 +11,7 @@ const RAZEL_VL = 'RAZEL VL(SAV CAMTRACK)';
 const DKT = 'DKT INTERNATIONAL';
 const DKT_CAMEROUN = 'DKT CAMEROUN';
 const ALIOS = 'LOCATAIRES ALIOS';
+const ALL_VEHICLE = 'All Vehicle'
 
 module.exports = {
   ADDAX_PETROLEUM,
@@ -26,4 +27,5 @@ module.exports = {
   DKT,
   DKT_CAMEROUN,
   ALIOS,
+  ALL_VEHICLE
 };

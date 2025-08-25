@@ -83,6 +83,7 @@ async function assignStyleToHeaders(ws) {
 async function asignStyleToSheet(ws) {
   const wsName = ws.name;
   const razel = wsName.toString().includes('razel');
+  const nigthDriving = wsName.toString().includes('Conduite de Nuit');
   if (razel) {
     ws.eachRow((row, rowNumber) => {
       row.eachCell((cell, colNumber) => {
@@ -99,6 +100,28 @@ async function asignStyleToSheet(ws) {
           cell.font = { color: { argb: '000000' }, bold: false, size: 8 };
         }
       });
+    });
+  }
+
+  if (nigthDriving) {
+    console.log(nigthDriving)
+    ws.eachRow((row, rowNumber) => {
+      row.eachCell((cell, colNumber) => {
+        const cellVal = cell._value.toString();
+        const includeDerogation = cellVal.includes('derogation 00h');
+        if (rowNumber !== 8 && colNumber === 9) {
+          if (includeDerogation) {
+            cell.fill = {
+              type: 'pattern',
+              pattern: 'solid',
+              fgColor: { argb: 'FFFF00' },
+            };
+            cell.font = { color: { argb: 'FFFFFF' } };
+          }
+        }
+      });
+      //Commit the changed row to the stream
+      row.commit();
     });
   }
 
@@ -119,6 +142,33 @@ async function asignStyleToSheet(ws) {
     //Commit the changed row to the stream
     row.commit();
   });
+}
+
+
+async function asignStyleorksheetGlobal(ws) {
+  const wsName = ws.name;
+
+  if (wsName === 'Conduite de Nuit') {
+    ws.eachRow((row, rowNumber) => {
+      row.eachCell((cell, colNumber) => {
+        const cellVal = cell._value.toString();
+        const includeDerogation = cellVal.includes('derogation 00h');
+        if (rowNumber !== 8) {
+          if (includeDerogation) {
+            cell.fill = {
+              type: 'pattern',
+              pattern: 'solid',
+              fgColor: { argb: 'FFFF00' },
+            };
+            /*  cell.font = { color: { argb: 'FFFFFF' } }; */
+          }
+        }
+      });
+      //Commit the changed row to the stream
+      row.commit();
+    });
+  }
+
 }
 
 async function asignStyleToPerencoInfraction(ws) {
@@ -666,4 +716,5 @@ module.exports = {
   assignStyleToHeadersSyntheseRazel,
   assignStyleToHeadersRazel,
   assignStyleToHeadersDKT,
+  asignStyleorksheetGlobal
 };
