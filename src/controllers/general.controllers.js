@@ -10,16 +10,16 @@ const { generateAllAliosRepport } = require('./alios.controller');
 const { generateTotalRepports } = require('./total.controllers')
 
 async function generalControllers() {
-  /*   await generateAllRepportGuinness();
-    await generateAddaxRepports();
-    await generateAllRepportPerenco();
-    await generateAllRepportCimencam();
-    await generateAllRepportCotco();
-    await generateAllRepportRazel();
-    await generateAllRepportKPDC();
-    await generateAllRepportDKT();
-    await generateAllAliosRepport(); */
-  await generateTotalRepports();
+  await generateAllRepportGuinness();
+  await generateAddaxRepports();
+  await generateAllRepportPerenco();
+  await generateAllRepportCimencam();
+  await generateAllRepportCotco();
+  await generateAllRepportRazel();
+  await generateAllRepportKPDC();
+  await generateAllRepportDKT();
+  await generateAllAliosRepport();
+  //await generateTotalRepports();
 }
 
 module.exports = { generalControllers };

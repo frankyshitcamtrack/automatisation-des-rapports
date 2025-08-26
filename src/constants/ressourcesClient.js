@@ -6,6 +6,7 @@ const ADMIN_RAZEL = 'ADMIN RAZEL-BELLOY JULIEN';
 const ADMIN_DKT = 'Admin DKT';
 const ADMIN_CLIENT = 'admin client';
 const TOTAL_ENERGIES = 'TotalEnergies PL Cameroun';
+const OBC_TEMCM = 'OBC TEMCM'
 
 module.exports = {
   ADMIN_ADDAX,
@@ -15,5 +16,6 @@ module.exports = {
   ADMIN_GLOBELEQ,
   ADMIN_DKT,
   ADMIN_CLIENT,
-  TOTAL_ENERGIES
+  TOTAL_ENERGIES,
+  OBC_TEMCM
 };

@@ -14,9 +14,9 @@ const { Receivers } = require('../storage/mailReceivers.storage');
 const { Senders } = require('../storage/mailSender.storage');
 const { sendMail } = require('../utils/sendMail');
 const { deleteFile } = require('../utils/deleteFile');
-const { ADDAX_PETROLEUM, ALL_VEHICLE } = require('../constants/clients');
-const { TOTAL_ENERGIES } = require('../constants/ressourcesClient');
-const { STATUS_VEHICLE } = require('../constants/template');
+const { ADDAX_PETROLEUM, ALL_VEHICLE, LX_45 } = require('../constants/clients');
+const { TOTAL_ENERGIES, OBC_TEMCM } = require('../constants/ressourcesClient');
+const { STATUS_VEHICLE, STATUS_VEHICLE_NEW } = require('../constants/template');
 const { STATUS, TRIP_END } = require('../constants/subGroups');
 const { ADDAX_NOT_AT_PARKING_SUBJECT_MAIL } = require('../constants/mailSubjects');
 
@@ -98,9 +98,32 @@ async function generateTotalClotureRepport() {
             lastHourDay,
             TRIP_END
         )
-        if (objLenth > 0 && tripEnd) {
+        const OBCTripEnd = await getTotalRepportData(
+            OBC_TEMCM,
+            STATUS_VEHICLE_NEW,
+            LX_45,
+            firstHourDay,
+            lastHourDay,
+            TRIP_END
+        )
 
-            const fullArr = compensateDrivers(res.obj, tripEnd.obj)
+        const OBCstatus = await getTotalRepportData(
+            OBC_TEMCM,
+            STATUS_VEHICLE_NEW,
+            LX_45,
+            firstHourDay,
+            lastHourDay,
+            STATUS
+        )
+
+
+
+        if (objLenth > 0 && tripEnd && OBCTripEnd) {
+
+            const compensateDriver = compensateDrivers(res.obj, tripEnd.obj);
+            const fullArr = compensateDrivers(compensateDriver, OBCTripEnd.obj);
+
+
 
             const column = [{ key: "Filiale" }, { key: "Transporteur" }, { key: 'Grouping' }, { key: 'Status Ignition' }, { key: 'Vitesse' }, { key: 'Dernier Conducteur' }, { key: 'Heure de Cloture' }, { key: 'Emplacement' }, { key: 'Coordonnées' }, { key: "Statut POI" }];
             const fleetColumn = [{ key: "Transporteur" }, { key: "Nombre De Camions" }, { key: "Etat flotte" }, { key: "Heure De cloture" }, { key: "Camions Hors POI" }, { key: "Derniere mise a jour" }];
@@ -411,7 +434,7 @@ async function generateTotalRepports() {
     //await generateTotalClotureRepport();
     //await generateTotalReposHebdo()
     //await generateNigthDrivingReport();
-    await generateTotalRankingRepport()
+    //await generateTotalRankingRepport()
     cron.schedule(
         '30 6 * * *',
         async () => {

@@ -58,6 +58,7 @@ const LIST_VEHICULES = 'Liste Des Véhicules';
 
 // total energie
 const STATUS_VEHICLE = 'Statut véhicule '
+const STATUS_VEHICLE_NEW = 'Statut véhicule new'
 
 module.exports = {
   ACTIVITY_REPORT_OF_ADDAX_PETROLEUM,
@@ -96,5 +97,6 @@ module.exports = {
   RAPPORT_MENSUEL_DKT,
 
   LIST_VEHICULES,
-  STATUS_VEHICLE
+  STATUS_VEHICLE,
+  STATUS_VEHICLE_NEW
 };

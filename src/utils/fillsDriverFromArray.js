@@ -1,4 +1,5 @@
 function compensateDrivers(arr1, arr2) {
+
     // Fonction de normalisation robuste du Grouping
     const normalize = (str) => str
         .toString()
@@ -15,7 +16,7 @@ function compensateDrivers(arr1, arr2) {
         const driver = item.Conducteur;
 
         // Ne stocker que si le conducteur est non vide
-        if (driver && driver.trim() !== '' && driver !== '--') {
+        if (driver && driver.trim() !== '' && driver !== '--' && driver !== '-') {
             driverMap.set(key, driver.trim());
         }
     });
@@ -25,8 +26,9 @@ function compensateDrivers(arr1, arr2) {
         const key = normalize(item.Grouping);
         const currentDriver = item.Conducteur;
 
+
         // Vérifier si le conducteur est vide
-        const isEmpty = !currentDriver || currentDriver.trim() === '' || currentDriver === '--';
+        const isEmpty = !currentDriver || currentDriver.trim() === '' || currentDriver === '--' || currentDriver === '-';
 
         if (isEmpty && driverMap.has(key)) {
             return {
@@ -39,6 +41,9 @@ function compensateDrivers(arr1, arr2) {
         return item;
     });
 }
+
+
+
 
 
 module.exports = { compensateDrivers }

@@ -1,152 +1,61 @@
+
+function filtrerExceptions(exceptionsArray) {
+    const nomsRecherches = new Set([
+        'Night Driving',
+        'Weekly Drive',
+        'Weekly Rest',
+        'Weekly Work',
+        'Harsh Braking',
+        'Harsh Acceleration',
+        'Phone Call',
+        'Smoking',
+        'No SeatBelt',
+        'Fatigue',
+        'Distraction'
+        // Les autres ('Continuous Drive', 'Daily Rest', etc.) sont retirés car non utilisés
+    ]);
+
+    return exceptionsArray.filter(exception => nomsRecherches.has(exception.nm));
+}
+
 function analyzeDrivers(drivers, exceptions, exceptionsSummary, tripsSummary) {
     // === 1. Map des chauffeurs
     const driversMap = {};
     drivers.forEach(driver => {
         driversMap[driver.drivid] = {
-            name: driver.drivnm,
-            trpid: driver.trpid
+            name: driver.drivnm
         };
     });
 
-    // === 2. Map des exceptions par ID (pour retrouver les noms)
-    const exceptionNames = {};
-    exceptions.forEach(ex => {
-        exceptionNames[ex.exceptionid] = ex.nm;
+
+    // === 2. Filtrer les exceptions pertinentes
+    const filteredExceptions = filtrerExceptions(exceptions);
+
+    // === 3. Map exceptionid → exception (pour accès rapide)
+    const exceptionById = {};
+    filteredExceptions.forEach(ex => {
+        exceptionById[ex.exceptionid] = ex;
     });
 
-    // === 3. Liste des exceptions avec leurs noms cibles
-    const mapping = {
-        // Conduite de nuit
-        nightDriving: [4], // "Night Driving"
-
-        // Conduite hebdomadaire
-        weeklyDrive: [9], // "Weekly Drive"
-
-        // Repos hebdomadaire
-        weeklyRest: [8], // "Weekly Rest"
-
-        // Travail hebdomadaire
-        weeklyWork: [17], // "Weekly Work"
-
-        // Harsh Braking
-        harshBraking: [3], // "Harsh Braking"
-
-        // Harsh Acceleration
-        harshAcceleration: [2], // "Harsh Acceleration"
-
-        // Téléphone au volant
-        phoneCall: [10], // "Phone Call"
-
-        // Cigarette
-        smoking: [15], // "Smoking"
-
-        // Ceinture de sécurité
-        seatBelt: [11], // "No SeatBelt"
-
-        // Fatigue
-        fatigue: [13], // "Fatigue"
-
-        // Distraction
-        distraction: [20] // "Distraction"
+    // === 4. Map ID → catégorie
+    const categoryMap = {
+        4: 'nightDriving',           // Night Driving
+        9: 'weeklyDrive',            // Weekly Drive
+        8: 'weeklyRest',             // Weekly Rest
+        17: 'weeklyWork',            // Weekly Work
+        3: 'harshBraking',           // Harsh Braking
+        2: 'harshAcceleration',      // Harsh Acceleration
+        10: 'phoneCall',             // Phone Call
+        15: 'smoking',               // Smoking
+        11: 'seatBelt',              // No SeatBelt
+        13: 'fatigue',               // Fatigue
+        20: 'distraction'            // Distraction
     };
 
-    // === 4. Calculer les points et compter les exceptions par chauffeur
+    // === 5. Initialiser les stats pour tous les chauffeurs
     const driverStats = {};
-
-    exceptionsSummary.forEach(ex => {
-        const driverId = ex.driverid;
-        const exceptionId = ex.alertid;
-        const level = ex.level;
-        const count = ex.nbrexep;
-
-        if (!driverStats[driverId]) {
-            driverStats[driverId] = {
-                points: 0,
-                // Initialiser tous les compteurs
-                nightDrivingAlert: 0, nightDrivingAlarm: 0,
-                weeklyDriveAlert: 0, weeklyDriveAlarm: 0,
-                weeklyRestAlert: 0, weeklyRestAlarm: 0,
-                weeklyWorkAlert: 0, weeklyWorkAlarm: 0,
-                harshBrakingAlert: 0, harshBrakingAlarm: 0,
-                harshAccelerationAlert: 0, harshAccelerationAlarm: 0,
-                phoneCall: 0,
-                smoking: 0,
-                seatBelt: 0,
-                fatigue: 0,
-                distraction: 0
-            };
-        }
-
-        // === Ajouter les points perdus
-        const exception = exceptions.find(e => e.exceptionid === exceptionId);
-        if (exception) {
-            const points = level === 1 ? exception.sanctionsalert : exception.sanctionsalarm;
-            driverStats[driverId].points += points * count;
-        }
-
-        // === Compter par type
-        const stat = driverStats[driverId];
-
-        // Fonction pour ajouter selon le level
-        const addCount = (baseName, count) => {
-            if (level === 1) {
-                stat[`${baseName}Alert`] += count;
-            } else {
-                stat[`${baseName}Alarm`] += count;
-            }
-        };
-
-        // Vérifier chaque catégorie
-        if (mapping.nightDriving.includes(exceptionId)) {
-            addCount('nightDriving', count);
-        }
-        if (mapping.weeklyDrive.includes(exceptionId)) {
-            addCount('weeklyDrive', count);
-        }
-        if (mapping.weeklyRest.includes(exceptionId)) {
-            addCount('weeklyRest', count);
-        }
-        if (mapping.weeklyWork.includes(exceptionId)) {
-            addCount('weeklyWork', count);
-        }
-        if (mapping.harshBraking.includes(exceptionId)) {
-            addCount('harshBraking', count);
-        }
-        if (mapping.harshAcceleration.includes(exceptionId)) {
-            addCount('harshAcceleration', count);
-        }
-        if (mapping.phoneCall.includes(exceptionId)) {
-            stat.phoneCall += count;
-        }
-        if (mapping.smoking.includes(exceptionId)) {
-            stat.smoking += count;
-        }
-        if (mapping.seatBelt.includes(exceptionId)) {
-            stat.seatBelt += count;
-        }
-        if (mapping.fatigue.includes(exceptionId)) {
-            stat.fatigue += count;
-        }
-        if (mapping.distraction.includes(exceptionId)) {
-            stat.distraction += count;
-        }
-    });
-
-    // === 5. Map des trajets
-    const tripsPerDriver = {};
-    tripsSummary.forEach(trip => {
-        tripsPerDriver[trip.driverid] = {
-            distance: trip.totdist,
-            duration: trip.dur
-        };
-    });
-
-    // === 6. Construire les résultats
-    const results = [];
-
     Object.keys(driversMap).forEach(driverId => {
-        const driver = driversMap[driverId];
-        const stats = driverStats[driverId] || {
+        driverStats[driverId] = {
             points: 0,
             nightDrivingAlert: 0, nightDrivingAlarm: 0,
             weeklyDriveAlert: 0, weeklyDriveAlarm: 0,
@@ -154,38 +63,145 @@ function analyzeDrivers(drivers, exceptions, exceptionsSummary, tripsSummary) {
             weeklyWorkAlert: 0, weeklyWorkAlarm: 0,
             harshBrakingAlert: 0, harshBrakingAlarm: 0,
             harshAccelerationAlert: 0, harshAccelerationAlarm: 0,
-            phoneCall: 0, smoking: 0, seatBelt: 0, fatigue: 0, distraction: 0
+            phoneCall: 0,
+            smoking: 0,
+            seatBelt: 0,
+            fatigue: 0,
+            distraction: 0
+        };
+    });
+
+    // === 6. Remplir les stats à partir de exceptionsSummary
+    exceptionsSummary.forEach(ex => {
+        const driverId = String(ex.driverid);
+        const exceptionId = ex.alertid;
+        const level = ex.level;  // 1 = alert, 2 = alarm
+        const count = ex.nbrexep || 0;
+
+        if (!driversMap[driverId]) return;
+        if (!driverStats[driverId]) return;
+
+        const stat = driverStats[driverId];
+        const exception = exceptionById[exceptionId];
+
+        // === Ajouter les points
+        if (exception) {
+            const points = level === 1 ? exception.sanctionsalert : exception.sanctionsalarm;
+            stat.points += points * count;
+        }
+
+        // === Fonction utilitaire pour ajouter alert/alarm
+        const addCount = (baseName, cnt) => {
+            const key = level === 1 ? `${baseName}Alert` : `${baseName}Alarm`;
+            stat[key] = (stat[key] || 0) + cnt;
         };
 
-        const tripInfo = tripsPerDriver[driverId];
+        // === Compter par catégorie
+        const category = categoryMap[exceptionId];
+        if (!category) return;
 
-        if (tripInfo && tripInfo.distance > 0) {
-            const ratio = stats.points / tripInfo.distance;
-
-            results.push({
-                Driver: driver.name,
-                ...stats,
-                "Distance totale Parcouru sur la période": parseFloat(tripInfo.distance.toFixed(3)),
-                "Durée de Conduite sur la période": tripInfo.duration,
-                "Ratio": ratio,
-                "driverId": parseInt(driverId)
-            });
+        switch (category) {
+            case 'nightDriving':
+            case 'weeklyDrive':
+            case 'weeklyRest':
+            case 'weeklyWork':
+            case 'harshBraking':
+            case 'harshAcceleration':
+                addCount(category, count);
+                break;
+            case 'phoneCall':
+            case 'smoking':
+            case 'seatBelt':
+            case 'fatigue':
+            case 'distraction':
+                stat[category] = (stat[category] || 0) + count;
+                break;
         }
     });
 
-    // === 7. Trier : ratio croissant, puis durée décroissante
-    results.sort((a, b) => {
-        if (a.Ratio !== b.Ratio) return a.Ratio - b.Ratio;
+    // === 7. Map des trajets
+    const tripsPerDriver = {};
+    tripsSummary.forEach(trip => {
+        const driverId = String(trip.driverid);
+        tripsPerDriver[driverId] = {
+            distance: trip.totdist != null ? parseFloat(trip.totdist) : 0,
+            duration: trip.dur != null ? parseFloat(trip.dur) : 0
+        };
+    });
+
+    // === 8. Construire les résultats
+    const activeResults = [];
+    const inactiveResults = [];
+
+    Object.keys(driversMap).forEach(driverId => {
+        const driver = driversMap[driverId];
+        const stats = driverStats[driverId];
+        const tripInfo = tripsPerDriver[driverId] || { distance: 0, duration: 0 };
+
+        const distance = tripInfo.distance || 0;
+        const duration = tripInfo.duration || 0;
+
+        // === Déterminer si actif
+        const isActive = distance > 0;
+
+        // Calcul du ratio (si actif)
+        const ratio = isActive ? stats.points / distance : Infinity;
+
+        const baseResult = {
+            Driver: driver.name,
+            ...stats,
+            "Distance totale Parcouru sur la période": isActive ? parseFloat(distance.toFixed(3)) : "--",
+            "Durée de Conduite sur la période": isActive ? duration : "--",
+            "Ratio": isActive ? parseFloat(ratio.toFixed(4)) : "--",
+            "driverId": parseInt(driverId)
+        };
+
+        if (isActive) {
+            activeResults.push(baseResult);
+        } else {
+            // Pour les inactifs : remplacer aussi les stats par "--" ?
+            // Option : garder les stats à 0 mais afficher "--" pour les métriques clés
+            // Ici, on garde les stats internes, mais on remplace les affichages
+            const inactiveDisplay = {
+                ...baseResult,
+                points: "--",
+                nightDrivingAlert: "--", nightDrivingAlarm: "--",
+                weeklyDriveAlert: "--", weeklyDriveAlarm: "--",
+                weeklyRestAlert: "--", weeklyRestAlarm: "--",
+                weeklyWorkAlert: "--", weeklyWorkAlarm: "--",
+                harshBrakingAlert: "--", harshBrakingAlarm: "--",
+                harshAccelerationAlert: "--", harshAccelerationAlarm: "--",
+                phoneCall: "--", smoking: "--", seatBelt: "--", fatigue: "--", distraction: "--"
+            };
+            inactiveResults.push(inactiveDisplay);
+        }
+    });
+
+    // === 9. Trier les actifs : ratio croissant, puis durée décroissante
+    activeResults.sort((a, b) => {
+        if (a.Ratio !== b.Ratio) {
+            return a.Ratio - b.Ratio;
+        }
         return b["Durée de Conduite sur la période"] - a["Durée de Conduite sur la période"];
     });
 
-    // === 8. Ajouter le classement
-    results.forEach((r, i) => {
+    // === 10. Ajouter le classement aux actifs
+    activeResults.forEach((r, i) => {
         r.Ranking = i + 1;
     });
 
-    // === 9. Formater la durée
+    // === 11. Classement pour les inactifs : à partir du dernier actif + 1
+    const lastRank = activeResults.length;
+    inactiveResults.forEach((r, i) => {
+        r.Ranking = lastRank + 1 + i;
+    });
+
+    // === 12. Fusionner : actifs d'abord, inactifs après
+    const allResults = [...activeResults, ...inactiveResults];
+
+    // === 13. Fonction de formatage de durée
     function formatDuration(hours) {
+        if (hours === "--") return "--";
         const totalSeconds = Math.floor(hours * 3600);
         const days = Math.floor(totalSeconds / (24 * 3600));
         const hoursRemain = Math.floor((totalSeconds % (24 * 3600)) / 3600);
@@ -194,35 +210,35 @@ function analyzeDrivers(drivers, exceptions, exceptionsSummary, tripsSummary) {
         return `${days}Jrs ${String(hoursRemain).padStart(2, '0')}H ${String(minutes).padStart(2, '0')}Min ${String(seconds).padStart(2, '0')}Sec`;
     }
 
-    // === 10. Générer le detailedResults
-    const detailedResults = results.map(r => ({
+    // === 14. Générer detailedResults
+    const detailedResults = allResults.map(r => ({
         Driver: r.Driver,
-        "Nombres d'Alertes Conduite de nuit": r.nightDrivingAlert || 0,
-        "Nombres d'Alarme Conduite de nuit": r.nightDrivingAlarm || 0,
-        "Nombres d'Alertes conduite hebdomadaire": r.weeklyDriveAlert || 0,
-        "Nombres d'Alarme conduite hebdomadaire": r.weeklyDriveAlarm || 0,
-        "Nombres d'Alertes Repos hebdomadaire": r.weeklyRestAlert || 0,
-        "Nombres d'Alarme Repos hebdomadaire": r.weeklyRestAlarm || 0,
-        "Nombres d'Alertes Travail hebdomadaire": r.weeklyWorkAlert || 0,
-        "Nombres d'Alarme Travail hebdomadaire": r.weeklyWorkAlarm || 0,
-        "Nombres d'Alertes HB": r.harshBrakingAlert || 0,
-        "Nombres d'Alarme HB": r.harshBrakingAlarm || 0,
-        "Nombres d'Alertes HA": r.harshAccelerationAlert || 0,
-        "Nombres d'Alarme HA": r.harshAccelerationAlarm || 0,
-        "Nombres de Téléphone au volant": r.phoneCall || 0,
-        "Nombres de smoking": r.smoking || 0,
-        "Nombres de Ceinture de Sécurité": r.seatBelt || 0,
-        "Nombres de fatigues": r.fatigue || 0,
-        "Nombres de distraction": r.distraction || 0,
+        "Nombres d'Alertes Conduite de nuit": r.nightDrivingAlert,
+        "Nombres d'Alarme Conduite de nuit": r.nightDrivingAlarm,
+        "Nombres d'Alertes conduite hebdomadaire": r.weeklyDriveAlert,
+        "Nombres d'Alarme conduite hebdomadaire": r.weeklyDriveAlarm,
+        "Nombres d'Alertes Repos hebdomadaire": r.weeklyRestAlert,
+        "Nombres d'Alarme Repos hebdomadaire": r.weeklyRestAlarm,
+        "Nombres d'Alertes Travail hebdomadaire": r.weeklyWorkAlert,
+        "Nombres d'Alarme Travail hebdomadaire": r.weeklyWorkAlarm,
+        "Nombres d'Alertes HB": r.harshBrakingAlert,
+        "Nombres d'Alarme HB": r.harshBrakingAlarm,
+        "Nombres d'Alertes HA": r.harshAccelerationAlert,
+        "Nombres d'Alarme HA": r.harshAccelerationAlarm,
+        "Nombres de Téléphone au volant": r.phoneCall,
+        "Nombres de smoking": r.smoking,
+        "Nombres de Ceinture de Sécurité": r.seatBelt,
+        "Nombres de fatigues": r.fatigue,
+        "Nombres de distraction": r.distraction,
         "Nombre totale de points perdu sur la période": r.points,
         "Distance totale Parcouru sur la période": r["Distance totale Parcouru sur la période"],
         "Durée de Conduite sur la période": formatDuration(r["Durée de Conduite sur la période"]),
-        "Ratio": parseFloat(r.Ratio.toFixed(4)),
+        "Ratio": r.Ratio,
         "Ranking": r.Ranking
     }));
 
-
-    const rankingOnly = results.map(r => ({
+    // === 15. Classement simplifié
+    const rankingOnly = allResults.map(r => ({
         Driver: r.Driver,
         Ranking: r.Ranking
     }));
