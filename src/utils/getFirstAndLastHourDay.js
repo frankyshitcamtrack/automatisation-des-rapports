@@ -66,7 +66,7 @@ function getFirstAndLastSevendays() {
   let dateTitle = `${date2}-${date1}`;
 
 
-  return { firstHourDayTimestamp, lastHourDayTimestamp, dateTitle };
+  return { firstHourDayTimestamp, lastHourDayTimestamp, firstHourDayFormat, lasthourDayFormat, dateTitle };
 }
 
 function getFistAndLastHourDay() {

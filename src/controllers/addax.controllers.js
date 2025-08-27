@@ -209,7 +209,10 @@ async function generateAddaxDaylyRepport22h06h() {
             `${LIST_OF_VEHICLES_NOT_AT_ADDAX_PARKING}.xlsx`,
             path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
           );
-        }, 30000);
+          deleteFile(
+            path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
+          );
+        }, 30000)
       }
     })
     .catch((err) => console.log(err));

@@ -1,6 +1,5 @@
 function compensateDrivers(arr1, arr2) {
-
-    // Fonction de normalisation robuste du Grouping
+    // === 1. Fonction de normalisation robuste du grouping
     const normalize = (str) => str
         .toString()
         .trim()
@@ -8,42 +7,78 @@ function compensateDrivers(arr1, arr2) {
         .replace(/\s+/g, '')        // supprime tous les espaces
         .replace(/[^A-Z0-9]/g, ''); // supprime tout sauf lettres/chiffres
 
-    // Créer une map à partir de arr2 : grouping normalisé → conducteur
-    const driverMap = new Map();
+    // === 2. Créer une map de référence à partir de arr2 : grouping → { Conducteur, emplacement }
+    const referenceMap = new Map();
 
     arr2.forEach(item => {
-        const key = normalize(item.Grouping);
-        const driver = item.Conducteur;
+        const grouping = item.grouping || item.Grouping; // gère les majuscules
+        if (!grouping) return;
 
-        // Ne stocker que si le conducteur est non vide
-        if (driver && driver.trim() !== '' && driver !== '--' && driver !== '-') {
-            driverMap.set(key, driver.trim());
-        }
+        const key = normalize(grouping);
+
+        const conducteur = item.Conducteur;
+        const emplacement = item.emplacement || item.Emplacement;
+
+        // On stocke même si un des deux est vide, pour ne pas perdre d'info
+        const validDriver = conducteur &&
+            typeof conducteur === 'string' &&
+            conducteur.trim() !== '' &&
+            !['--', '-', 'inconnu', 'n/a'].includes(conducteur.trim().toLowerCase());
+
+        const validLocation = emplacement &&
+            typeof emplacement === 'string' &&
+            emplacement.trim() !== '' &&
+            !['--', '-', 'inconnu', 'n/a'].includes(emplacement.trim().toLowerCase());
+
+        // On stocke les valeurs nettoyées ou null si invalides
+        referenceMap.set(key, {
+            Conducteur: validDriver ? conducteur.trim() : null,
+            emplacement: validLocation ? emplacement.trim() : null
+        });
     });
 
-    // Parcourir arr1 et compléter uniquement le conducteur s'il est vide
+    // === 3. Parcourir arr1 et compléter ce qui est manquant
     return arr1.map(item => {
-        const key = normalize(item.Grouping);
-        const currentDriver = item.Conducteur;
+        let newItem = { ...item }; // copie de l'objet
+        const grouping = item.grouping || item.Grouping;
 
-
-        // Vérifier si le conducteur est vide
-        const isEmpty = !currentDriver || currentDriver.trim() === '' || currentDriver === '--' || currentDriver === '-';
-
-        if (isEmpty && driverMap.has(key)) {
-            return {
-                ...item,
-                Conducteur: driverMap.get(key)  // ← seul champ modifié
-            };
+        if (!grouping) {
+            return newItem; // rien à faire sans grouping
         }
 
-        // Sinon, on garde l'objet tel quel
-        return item;
+        const key = normalize(grouping);
+        const reference = referenceMap.get(key);
+
+        if (!reference) {
+            return newItem; // pas de référence pour ce grouping
+        }
+
+        const currentDriver = item.Conducteur;
+        const currentLocation = item.emplacement || item.Emplacement;
+
+        // --- Corriger Conducteur si vide ou invalide ---
+        const isEmptyDriver = !currentDriver ||
+            typeof currentDriver !== 'string' ||
+            currentDriver.trim() === '' ||
+            ['--', '-', 'inconnu', 'n/a'].includes(currentDriver.trim().toLowerCase());
+
+        if (isEmptyDriver && reference.Conducteur) {
+            newItem.Conducteur = reference.Conducteur;
+        }
+
+        // --- Corriger emplacement si vide ou invalide ---
+        const isEmptyLocation = !currentLocation ||
+            typeof currentLocation !== 'string' ||
+            currentLocation.trim() === '' ||
+            ['--', '-', 'inconnu', 'n/a'].includes(currentLocation.trim().toLowerCase());
+
+        if (isEmptyLocation && reference.emplacement) {
+            newItem.emplacement = reference.emplacement;
+        }
+
+        return newItem;
     });
 }
-
-
-
 
 
 module.exports = { compensateDrivers }

@@ -1,8 +1,10 @@
 const path = require('path');
 const cron = require('node-cron');
+const moment = require('moment');
 const { getTotalRepportData } = require('../models/total.model');
 const { getTotalAfiliate, getTotalTransporter, getTotalTrucks, getPIO, getTotalNigths, allExceptionType, summaryException, summaryTrip, getTotalDrivers, getpreventreposhebdo, getpreventTestreposhebdo, getLastDriving, getLastDayTransporter } = require('../services/total.service')
-const { getFistAndLastHourDay, getFistAndLastHourDay18H05H } = require('../utils/getFirstAndLastHourDay');
+const { getFistAndLastHourDay, getFistAndLastHourDay18H05H, getFirstAndLastSevendays } = require('../utils/getFirstAndLastHourDay');
+const { convertDateToTimeStamp } = require('../utils/dateFormat')
 const { compensateDrivers } = require('../utils/fillsDriverFromArray');
 const { mergeSimpleParkingData } = require('../utils/mergeTotalDataParking');
 const { convertJsonToExcelTotal } = require('../utils/genrateXlsx');
@@ -10,23 +12,40 @@ const { processNightDrivingSimple } = require('../utils/processNigthDriving');
 const { keepLatestNotifications } = require('../utils/removeDuplicateItemInArr');
 const { analyzeDrivers } = require('../utils/summaryRanking');
 const { generateFleetReport } = require('../utils/generateFleetReport')
-const { Receivers } = require('../storage/mailReceivers.storage');
-const { Senders } = require('../storage/mailSender.storage');
+const { Receivers, totalReceivers } = require('../storage/mailReceivers.storage');
+const { Senders, totalSenders } = require('../storage/mailSender.storage');
 const { sendMail } = require('../utils/sendMail');
 const { deleteFile } = require('../utils/deleteFile');
-const { ADDAX_PETROLEUM, ALL_VEHICLE, LX_45 } = require('../constants/clients');
+const { ALL_VEHICLE, LX_45, CAMEROUN_RANKING_REPORT, CAMEROUN_NIGHT_DRIVING_REPORT, CAMEROUN_REPOS_HEBDOMADAIRE, CAMEROUN_CLOTURE_ACTIVITE } = require('../constants/clients');
 const { TOTAL_ENERGIES, OBC_TEMCM } = require('../constants/ressourcesClient');
-const { STATUS_VEHICLE, STATUS_VEHICLE_NEW } = require('../constants/template');
+const { STATUS_VEHICLE, STATUS_VEHICLE_NEW, RAPPORT_CLOTURE, RAPPORT_RANKING, RAPPORT_REPOS, RAPPORT_NIGHT_DRIVING } = require('../constants/template');
 const { STATUS, TRIP_END } = require('../constants/subGroups');
-const { ADDAX_NOT_AT_PARKING_SUBJECT_MAIL } = require('../constants/mailSubjects');
+const { TOTAL_CLOTURE_SUBJECT_MAIL, TOTAL_RANKING_SUBJECT_MAIL, TOTAL_NIGTH_DRIVING_SUBJECT_MAIL, TOTAL_REPOS_HEBDO_SUBJECT_MAIL } = require('../constants/mailSubjects');
 
 const test = [{ name: 'frank', address: 'franky.shity@camtrack.net' }];
 
 //const pass = process.env.PASS_MAIL;
-const pass = process.env.PASS_MAIL_SAV;
+const pass = process.env.PASS_NOTIFICATION;
+
+function getStartDateForNight(now) {
+    // Si on est entre 00:00 et 03:00, la nuit a commencé la veille à 21h
+    if (now.hour() < 3) {
+        return now.clone().subtract(1, 'day').startOf('day'); // 00:00 du jour précédent
+    }
+    // Sinon, on est entre 21h-23h, donc startDate = 00:00 du jour même
+    return now.clone().startOf('day');
+}
+
+const formatDateForFilename = (dateString) => {
+    return dateString.replace(/:/g, '-').replace(/ /g, '_');
+};
+
 
 
 async function generateNigthDrivingReport() {
+    const sender = await totalSenders(CAMEROUN_NIGHT_DRIVING_REPORT, 'B');
+    const receivers = await totalReceivers(CAMEROUN_NIGHT_DRIVING_REPORT, 'C');
+
     const totalTrucks = await getTotalTrucks();
     const totalTransporter = await getTotalTransporter();
     const totalAfiliate = await getTotalAfiliate();
@@ -37,13 +56,12 @@ async function generateNigthDrivingReport() {
 
     const fisrtHourNigth = firstHourLastNigth.firstHourDayFormat;
     const lastHourNigth = firstHourLastNigth.lasthourDayFormat;
-    //const titleDate = firstHourLastNigth.dateTitle
-    const titleDate = '2025-08-22'
+    const titleDate = firstHourLastNigth.dateTitle
     const pathFile = 'rapport/Total/Nigth';
 
     const column = [{ key: "filiale" }, { key: "transporteur" }, { key: "Vehicule" }, { key: "Driver" }, { key: "start point" }, { key: "end point" }, { key: "start date and time" }, { key: "Total duration" }, { key: "Exception" }, { key: "Niveau" }, { key: "Observation" }];
 
-    const totalNigthsDriving = await getTotalNigths('2025-08-22 17:00:00', '2025-08-23 06:00:00');
+    const totalNigthsDriving = await getTotalNigths(fisrtHourNigth, lastHourNigth);
 
     if (totalTrucks, totalTransporter, totalAfiliate) {
         const nigtDrivingData = processNightDrivingSimple(totalNigthsDriving["resultat"], drivers['resultat'], totalTrucks['resultat'], totalTransporter['resultat'], totalAfiliate['resultat'])
@@ -53,19 +71,38 @@ async function generateNigthDrivingReport() {
             'Conduite de Nuit',
             `${pathFile}-${titleDate}.xlsx`,
             column
-        )
+        ).then(() => {
+            if (sender && receivers) {
+                setTimeout(() => {
+                    sendMail(
+                        sender,
+                        receivers,
+                        pass,
+                        RAPPORT_NIGHT_DRIVING,
+                        `${TOTAL_NIGTH_DRIVING_SUBJECT_MAIL}`,
+                        `${RAPPORT_NIGHT_DRIVING}.xlsx`,
+                        path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
+                    );
+                    deleteFile(
+                        path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
+                    );
+                }, 30000);
+            }
+        })
     }
 }
 
 
 
-async function generateTotalClotureRepport() {
-    const sender = await Senders(ADDAX_PETROLEUM, 'E');
-    const receivers = await Receivers(ADDAX_PETROLEUM, 'D');
-    const fistAndLastHourDay = getFistAndLastHourDay();
+async function generateTotalClotureRepport(firstDate, lastDate) {
+    const sender = await totalSenders(CAMEROUN_CLOTURE_ACTIVITE, 'B');
+    const receivers = await totalReceivers(CAMEROUN_CLOTURE_ACTIVITE, 'C');
 
-    const firstHourDay = fistAndLastHourDay.firstHourDayTimestamp;
-    const lastHourDay = fistAndLastHourDay.lastHourDayTimestamp;
+
+    // const fistAndLastHourDay = getFistAndLastHourDay();
+
+    const firstHourDay = convertDateToTimeStamp(firstDate);
+    const lastHourDay = convertDateToTimeStamp(lastDate);
 
     const totalTrucks = await getTotalTrucks();
 
@@ -74,12 +111,13 @@ async function generateTotalClotureRepport() {
 
     const PIO = await getPIO();
 
-    /*  const firstHourDay = "1749769200";
-     const lastHourDay = "1749855540"; */
-    const titleDate = fistAndLastHourDay.dateTitle;
+    const safeFirst = formatDateForFilename(firstDate);
+    const safeLast = formatDateForFilename(lastDate);
+
+
+    const titleDate = `${safeFirst}-${safeLast}`
     const pathFile = 'rapport/Total/Cloture';
 
-    const AllDataStatusTripEnd = [];
 
     await getTotalRepportData(
         TOTAL_ENERGIES,
@@ -88,125 +126,134 @@ async function generateTotalClotureRepport() {
         firstHourDay,
         lastHourDay,
         STATUS
-    ).then(async (res) => {
-        const objLenth = res?.obj.length;
-        const tripEnd = await getTotalRepportData(
-            TOTAL_ENERGIES,
-            STATUS_VEHICLE,
-            ALL_VEHICLE,
-            firstHourDay,
-            lastHourDay,
-            TRIP_END
-        )
-        const OBCTripEnd = await getTotalRepportData(
-            OBC_TEMCM,
-            STATUS_VEHICLE_NEW,
-            LX_45,
-            firstHourDay,
-            lastHourDay,
-            TRIP_END
-        )
+    )
+        .then(async (res) => {
+            const objLenth = res?.obj.length;
+            const tripEnd = await getTotalRepportData(
+                TOTAL_ENERGIES,
+                STATUS_VEHICLE,
+                ALL_VEHICLE,
+                firstHourDay,
+                lastHourDay,
+                TRIP_END
+            )
+            const OBCTripEnd = await getTotalRepportData(
+                OBC_TEMCM,
+                STATUS_VEHICLE_NEW,
+                LX_45,
+                firstHourDay,
+                lastHourDay,
+                TRIP_END
+            )
 
-        const OBCstatus = await getTotalRepportData(
-            OBC_TEMCM,
-            STATUS_VEHICLE_NEW,
-            LX_45,
-            firstHourDay,
-            lastHourDay,
-            STATUS
-        )
-
-
-
-        if (objLenth > 0 && tripEnd && OBCTripEnd) {
-
-            const compensateDriver = compensateDrivers(res.obj, tripEnd.obj);
-            const fullArr = compensateDrivers(compensateDriver, OBCTripEnd.obj);
+            const OBCstatus = await getTotalRepportData(
+                OBC_TEMCM,
+                STATUS_VEHICLE_NEW,
+                LX_45,
+                firstHourDay,
+                lastHourDay,
+                STATUS
+            )
 
 
 
-            const column = [{ key: "Filiale" }, { key: "Transporteur" }, { key: 'Grouping' }, { key: 'Status Ignition' }, { key: 'Vitesse' }, { key: 'Dernier Conducteur' }, { key: 'Heure de Cloture' }, { key: 'Emplacement' }, { key: 'Coordonnées' }, { key: "Statut POI" }];
-            const fleetColumn = [{ key: "Transporteur" }, { key: "Nombre De Camions" }, { key: "Etat flotte" }, { key: "Heure De cloture" }, { key: "Camions Hors POI" }, { key: "Derniere mise a jour" }];
+            if (objLenth > 0 && tripEnd && OBCTripEnd) {
 
-            if (totalTrucks, totalTransporter, totalAfiliate, PIO) {
-                const finalData = mergeSimpleParkingData(fullArr, totalTrucks["resultat"], totalTransporter["resultat"], totalAfiliate["resultat"]);
+                const compensateDriver = compensateDrivers(res.obj, tripEnd.obj);
+                const fullArr = compensateDrivers(compensateDriver, OBCTripEnd.obj);
 
-                const filterData = finalData.map(item => {
-                    return { ...item, "Statut PIO": PIO.includes(item?.Emplacement?.text) ? "Dans POI" : "Hors POI" }
-                });
+                const column = [{ key: "Filiale" }, { key: "Transporteur" }, { key: 'Grouping' }, { key: 'Status Ignition' }, { key: 'Vitesse' }, { key: 'Dernier Conducteur' }, { key: 'Heure de Cloture' }, { key: 'Emplacement' }, { key: 'Coordonnées' }, { key: "Statut POI" }];
+                const fleetColumn = [{ key: "Transporteur" }, { key: "Nombre De Camions" }, { key: "Etat flotte" }, { key: "Heure De cloture" }, { key: "Camions Hors POI" }, { key: "Derniere mise a jour" }];
 
-                const removeDup = keepLatestNotifications(filterData);
+                if (totalTrucks, totalTransporter, totalAfiliate, PIO) {
+                    const finalData = mergeSimpleParkingData(fullArr, totalTrucks["resultat"], totalTransporter["resultat"], totalAfiliate["resultat"]);
+
+                    const filterData = finalData.map(item => {
+                        return { ...item, "Statut PIO": PIO.includes(item?.Emplacement?.text) ? "Dans POI" : "Hors POI" }
+                    });
+
+                    const removeDup = keepLatestNotifications(filterData);
 
 
-                const listVehicleData = removeDup.map(item => {
-                    const status = parseFloat(item['Status Ignition']);
-                    const statusIgnition = !isNaN(status)
-                        ? (status === 0 ? "OFF" : "ON")
-                        : item['Status Ignition'];
-                    return {
-                        Filiale: item.Filiale ? item.Filiale : '--',
-                        Transporteur: item.Transporteur ? item.Transporteur : '--',
-                        Grouping: item.Grouping ? item.Grouping : '--',
-                        'Status Ignition': item['Status Ignition'] ? statusIgnition : '--',
-                        Vitesse: item.Vitesse ? item.Vitesse : '--',
-                        'Dernier Conducteur': item.Conducteur ? item.Conducteur : '--',
-                        'Heure de Cloture': item.Heure ? item.Heure : '--',
-                        Emplacement: item.Emplacement ? item.Emplacement : '--',
-                        Coordonnées: item['Coordonnées'] ? item['Coordonnées'] : '--',
-                        'Statut POI': item['Statut PIO'] ? item['Statut PIO'] : '--'
+                    const listVehicleData = removeDup.map(item => {
+                        const status = parseFloat(item['Status Ignition']);
+                        const statusIgnition = !isNaN(status)
+                            ? (status === 0 ? "OFF" : "ON")
+                            : item['Status Ignition'];
+                        return {
+                            Filiale: item.Filiale ? item.Filiale : '--',
+                            Transporteur: item.Transporteur ? item.Transporteur : '--',
+                            Grouping: item.Grouping ? item.Grouping : '--',
+                            'Status Ignition': item['Status Ignition'] ? statusIgnition : '--',
+                            Vitesse: item.Vitesse ? item.Vitesse : '--',
+                            'Dernier Conducteur': item.Conducteur ? item.Conducteur : '--',
+                            'Heure de Cloture': item.Heure ? item.Heure : '--',
+                            Emplacement: item.Emplacement ? item.Emplacement : '--',
+                            Coordonnées: item['Coordonnées'] ? item['Coordonnées'] : '--',
+                            'Statut POI': item['Statut PIO'] ? item['Statut PIO'] : '--'
+                        }
+                    })
+
+                    const fleetReport = generateFleetReport(listVehicleData);
+
+                    if (fleetReport) {
+                        await convertJsonToExcelTotal(
+                            fleetReport,
+                            'Feuille Etat Flotte',
+                            `${pathFile}-${titleDate}.xlsx`,
+                            fleetColumn
+                        ).then(
+
+                            setTimeout(async () => {
+                                await convertJsonToExcelTotal(
+                                    listVehicleData,
+                                    'Feuille Liste des camions',
+                                    `${pathFile}-${titleDate}.xlsx`,
+                                    column
+                                )
+                            }, 5000)
+
+                        );
                     }
-                })
 
-                const fleetReport = generateFleetReport(listVehicleData);
-
-                if (fleetReport) {
-                    await convertJsonToExcelTotal(
-                        fleetReport,
-                        'Feuille Etat Flotte',
-                        `${pathFile}-${titleDate}.xlsx`,
-                        fleetColumn
-                    ).then(
-
-                        setTimeout(async () => {
-                            await convertJsonToExcelTotal(
-                                listVehicleData,
-                                'Feuille Liste des camions',
-                                `${pathFile}-${titleDate}.xlsx`,
-                                column
-                            )
-                        }, 5000)
-
-                    );
                 }
 
+            } else {
+                console.log(
+                    `no data found in ${TOTAL_ENERGIES} ${STATUS}`
+                );
             }
-
         }
-    }
 
-    )
-
-
-        /*  .then(async (res) => {
- 
-             if (objLenth > 0) {
-                
-             } else {
-                 console.log(
-                     `no data found in ${STATUS_VEHICLE} ${STATUS}`
-                 );
-             }
-         }) */
-
+        )
+        .then(() => {
+            if (sender && receivers) {
+                setTimeout(() => {
+                    sendMail(
+                        sender,
+                        receivers,
+                        pass,
+                        RAPPORT_CLOTURE,
+                        `${TOTAL_CLOTURE_SUBJECT_MAIL}`,
+                        `${RAPPORT_CLOTURE}.xlsx`,
+                        path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
+                    );
+                    deleteFile(
+                        path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
+                    );
+                }, 30000);
+            }
+        })
         .catch((err) => console.log(err));
 }
 
 
 
 async function generateTotalRankingRepport() {
-    const sender = await Senders(ADDAX_PETROLEUM, 'E');
-    const receivers = await Receivers(ADDAX_PETROLEUM, 'D');
-    const fistAndLastHourDay = getFistAndLastHourDay();
+    const sender = await totalSenders(CAMEROUN_RANKING_REPORT, 'B');
+    const receivers = await totalReceivers(CAMEROUN_RANKING_REPORT, 'C');
+
+    const fistAndLastHourDay = getFirstAndLastSevendays();
 
     const firstHourDay = fistAndLastHourDay.firstHourDayFormat;
     const lastHourDay = fistAndLastHourDay.lasthourDayFormat;
@@ -220,7 +267,7 @@ async function generateTotalRankingRepport() {
 
     const titleDate = fistAndLastHourDay.dateTitle;
     const pathFile = 'rapport/Total/Ranking';
-    const column = [{ key: "Driver" }, { key: "Nombres d'Alertes Conduite de nuit" }, { key: "Nombres d'Alarme Conduite de nuit" }, { key: "Nombres d'Alertes conduite hebdomadaire" }, { key: "Nombres d'Alarme conduite hebdomadaire" }, { key: "Nombres d'Alertes Repos hebdomadaire" }, { key: "Nombres d'Alarme Repos hebdomadaire" }, { key: "Nombres d'Alertes Travail hebdomadaire" }, { key: "Nombres d'Alarme Travail hebdomadaire" }, { key: "Nombres d'Alertes HB" }, { key: "Nombres d'Alarme HB" }, { key: "Nombres d'Alertes HA" }, { key: "Nombres d'Alarme HA" }, { key: "Nombres de Téléphone au volant" }, { key: "Nombres de smoking" }, { key: "Nombres de Ceinture de Sécurité" }, { key: "Nombres de fatigues" }, { key: "Nombres de distraction" }, { key: "Nombre totale de points perdu sur la période" }, { key: "Distance totale Parcouru sur la période" }, { key: "Durée de Conduite sur la période" }, { key: "Ratio" }, { key: "Ranking" }];
+    const column = [{ key: "Driver" }, { key: "Nombres d'Alertes Conduite de nuit" }, { key: "Nombres d'Alarme Conduite de nuit" }, { key: "Nombres d'Alertes conduite hebdomadaire" }, { key: "Nombres d'Alarme conduite hebdomadaire" }, { key: "Nombres d'Alertes Repos hebdomadaire" }, { key: "Nombres d'Alarme Repos hebdomadaire" }, { key: "Nombres d'Alertes Travail hebdomadaire" }, { key: "Nombres d'Alarme Travail hebdomadaire" }, { key: "Nombres d'Alertes HB" }, { key: "Nombres d'Alarme HB" }, { key: "Nombres d'Alertes HA" }, { key: "Nombres d'Alarme HA" }, { key: "Nombres de Téléphone au volant" }, { key: "Nombres de smoking" }, { key: "Nombres de Ceinture de Sécurité" }, { key: "Nombres de fatigues" }, { key: "Nombres de distraction" }, { key: "Nombre totale de points perdu sur la période" }, { key: "Distance totale Parcouru sur la période (km)" }, { key: "Durée de Conduite sur la période" }, { key: "Durée de Conduite sur la période en heure" }, { key: "Ratio" }, { key: "Ranking" }];
     const rankinColumn = [{ key: "Driver" }, { key: "Ranking" }];
 
     if (drivers, getSummaryExceptions, exceptionType, getSummaryTrip) {
@@ -242,6 +289,24 @@ async function generateTotalRankingRepport() {
                     )
                 }, 5000)
             )
+                .then(() => {
+                    if (sender && receivers) {
+                        setTimeout(() => {
+                            sendMail(
+                                sender,
+                                receivers,
+                                pass,
+                                RAPPORT_RANKING,
+                                `${TOTAL_RANKING_SUBJECT_MAIL}`,
+                                `${RAPPORT_RANKING}.xlsx`,
+                                path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
+                            );
+                            deleteFile(
+                                path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
+                            );
+                        }, 30000);
+                    }
+                })
         }
 
 
@@ -252,8 +317,10 @@ async function generateTotalRankingRepport() {
 
 
 async function generateTotalReposHebdo() {
-    const sender = await Senders(ADDAX_PETROLEUM, 'E');
-    const receivers = await Receivers(ADDAX_PETROLEUM, 'D');
+    const sender = await totalSenders(CAMEROUN_REPOS_HEBDOMADAIRE, 'B');
+    const receivers = await totalReceivers(CAMEROUN_REPOS_HEBDOMADAIRE, 'C');
+
+
     const fistAndLastHourDay = getFistAndLastHourDay();
 
     const transporteurs = await getTotalTransporter();
@@ -279,8 +346,6 @@ async function generateTotalReposHebdo() {
         }
     });
 
-
-
     // Créer un objet pour faciliter la recherche des noms de transporteurs
     const transporteursMap = {};
     transporteurs['resultat']?.forEach(transporteur => {
@@ -293,8 +358,6 @@ async function generateTotalReposHebdo() {
             maxdates: distance.max,
         };
     });
-
-    //console.log(distancesTrMap);
 
 
     // Fusionner les données
@@ -332,10 +395,6 @@ async function generateTotalReposHebdo() {
             });
         }
     });
-
-    //console.log(resultat);
-
-
 
 
     //const reposHebdodetails5 = await getpreventTestreposhebdo(5, false);
@@ -423,7 +482,24 @@ async function generateTotalReposHebdo() {
                     columnDriver
                 )
             }, 5000)
-        )
+        ).then(() => {
+            if (sender && receivers) {
+                setTimeout(() => {
+                    sendMail(
+                        sender,
+                        receivers,
+                        pass,
+                        RAPPORT_REPOS,
+                        `${TOTAL_REPOS_HEBDO_SUBJECT_MAIL}`,
+                        `${RAPPORT_REPOS}.xlsx`,
+                        path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
+                    );
+                    deleteFile(
+                        path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
+                    );
+                }, 30000);
+            }
+        })
     }
 
 
@@ -431,14 +507,65 @@ async function generateTotalReposHebdo() {
 
 
 async function generateTotalRepports() {
+
+    const hourScheduleRanking = await totalReceivers(CAMEROUN_RANKING_REPORT, 'F');
+    const hourScheduleNigth = await totalReceivers(CAMEROUN_NIGHT_DRIVING_REPORT, 'F');
+    const hourScheduleCloture = await totalReceivers(CAMEROUN_CLOTURE_ACTIVITE, 'F');
+    const hourScheduleRepos = await totalReceivers(CAMEROUN_REPOS_HEBDOMADAIRE, 'F');
+
+    const hourScheduleNigthHour = hourScheduleNigth[0].address.split(':')[0];
+    const hourScheduleRankingHour = hourScheduleRanking[0].address.split(':')[0];
+    const hourScheduleReposHour = hourScheduleRepos[0].address.split(':')
+
+
+
     //await generateTotalClotureRepport();
-    //await generateTotalReposHebdo()
+    //await generateTotalReposHebdo();
     //await generateNigthDrivingReport();
-    //await generateTotalRankingRepport()
+    //await generateTotalRankingRepport();
+
+    cron.schedule('0 21-23,0-3 * * *', async () => {
+        console.log('test')
+        const now = moment();
+        const startDate = getStartDateForNight(now);
+        const endDate = now.clone().startOf('hour');
+
+        await generateTotalClotureRepport(
+            startDate.format('YYYY-MM-DD HH:mm:ss'),
+            endDate.format('YYYY-MM-DD HH:mm:ss')
+        )
+    }, {
+        scheduled: true,
+        timezone: 'Africa/Lagos',
+    });
+
     cron.schedule(
-        '30 6 * * *',
+        `${hourScheduleReposHour[1]} ${hourScheduleReposHour[0]} * * *`,
         async () => {
-            await generateTotalClotureRepport()
+            await generateTotalReposHebdo();
+        },
+        {
+            scheduled: true,
+            timezone: 'Africa/Lagos',
+        }
+    );
+
+    cron.schedule(
+        `00 ${hourScheduleNigthHour} * * *`,
+        async () => {
+            await generateNigthDrivingReport();
+        },
+        {
+            scheduled: true,
+            timezone: 'Africa/Lagos',
+        }
+    );
+
+
+    cron.schedule(
+        `00 ${hourScheduleRankingHour} * * *`,
+        async () => {
+            await generateTotalRankingRepport();
         },
         {
             scheduled: true,

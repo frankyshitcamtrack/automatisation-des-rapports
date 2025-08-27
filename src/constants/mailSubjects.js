@@ -58,6 +58,20 @@ const ACTIVITY_REPORT_SUBJECT_MAIL_DKT_MONTH =
 const ACTIVITY_REPORT_SUBJECT_MAIL_ALIOS =
   'Bonjour Mr/Mme retrouvez en PJ rapport de communication de la flotte ALIOS';
 
+//Total
+const TOTAL_CLOTURE_SUBJECT_MAIL =
+  'Bonjour Mr/Mme retrouvez en PJ le rapport de cloture de fin de journee de la flotte total Cameroun';
+
+const TOTAL_RANKING_SUBJECT_MAIL =
+  'Bonjour Mr/Mme retrouvez en PJ le rapport Ranking de la flotte Total Cameroun';
+
+const TOTAL_REPOS_HEBDO_SUBJECT_MAIL =
+  'Bonjour Mr/Mme retrouvez en PJ le rapport Repos hebdomadaire de la flotte Total Cameroun';
+
+const TOTAL_NIGTH_DRIVING_SUBJECT_MAIL =
+  'Bonjour Mr/Mme retrouvez en PJ le rapport Conduite de nuit de la flotte Total Cameroun';
+
+
 module.exports = {
   ADDAX_NOT_AT_PARKING_SUBJECT_MAIL,
   EXCEPTION_REPORT_SUBJECT_MAIL,
@@ -82,4 +96,9 @@ module.exports = {
 
   ACTIVITY_REPORT_SUBJECT_MAIL_DKT_MONTH,
   ACTIVITY_REPORT_SUBJECT_MAIL_ALIOS,
+
+  TOTAL_CLOTURE_SUBJECT_MAIL,
+  TOTAL_RANKING_SUBJECT_MAIL,
+  TOTAL_REPOS_HEBDO_SUBJECT_MAIL,
+  TOTAL_NIGTH_DRIVING_SUBJECT_MAIL
 };

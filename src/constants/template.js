@@ -57,8 +57,12 @@ const LIST_VEHICULES = 'Liste Des Véhicules';
 
 
 // total energie
-const STATUS_VEHICLE = 'Statut véhicule '
-const STATUS_VEHICLE_NEW = 'Statut véhicule new'
+const STATUS_VEHICLE = 'Statut véhicule ';
+const STATUS_VEHICLE_NEW = 'Statut véhicule new';
+const RAPPORT_CLOTURE = 'Rapport de cloture';
+const RAPPORT_RANKING = 'Rapport ranking';
+const RAPPORT_REPOS = 'Rapport repos hebdomadaire';
+const RAPPORT_NIGHT_DRIVING = 'Rapport Conduite de nuit';
 
 module.exports = {
   ACTIVITY_REPORT_OF_ADDAX_PETROLEUM,
@@ -98,5 +102,9 @@ module.exports = {
 
   LIST_VEHICULES,
   STATUS_VEHICLE,
-  STATUS_VEHICLE_NEW
+  STATUS_VEHICLE_NEW,
+  RAPPORT_CLOTURE,
+  RAPPORT_RANKING,
+  RAPPORT_REPOS,
+  RAPPORT_NIGHT_DRIVING
 };

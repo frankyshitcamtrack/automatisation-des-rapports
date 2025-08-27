@@ -5,6 +5,8 @@ function filtrerExceptions(exceptionsArray) {
         'Weekly Drive',
         'Weekly Rest',
         'Weekly Work',
+        'Daily Work',
+        'Continuous Drive',
         'Harsh Braking',
         'Harsh Acceleration',
         'Phone Call',
@@ -12,37 +14,37 @@ function filtrerExceptions(exceptionsArray) {
         'No SeatBelt',
         'Fatigue',
         'Distraction'
-        // Les autres ('Continuous Drive', 'Daily Rest', etc.) sont retirés car non utilisés
     ]);
 
     return exceptionsArray.filter(exception => nomsRecherches.has(exception.nm));
 }
 
 function analyzeDrivers(drivers, exceptions, exceptionsSummary, tripsSummary) {
-    // === 1. Map des chauffeurs
+    // === 1. Map des chauffeurs par ID
     const driversMap = {};
     drivers.forEach(driver => {
-        driversMap[driver.drivid] = {
-            name: driver.drivnm
-        };
+        driversMap[driver.drivid] = { name: driver.drivnm };
     });
+
 
 
     // === 2. Filtrer les exceptions pertinentes
     const filteredExceptions = filtrerExceptions(exceptions);
 
-    // === 3. Map exceptionid → exception (pour accès rapide)
+    // === 3. Map exceptionid → exception
     const exceptionById = {};
     filteredExceptions.forEach(ex => {
         exceptionById[ex.exceptionid] = ex;
     });
 
-    // === 4. Map ID → catégorie
+    // === 4. Mapping ID → catégorie
     const categoryMap = {
         4: 'nightDriving',           // Night Driving
         9: 'weeklyDrive',            // Weekly Drive
         8: 'weeklyRest',             // Weekly Rest
         17: 'weeklyWork',            // Weekly Work
+        16: 'dailyWork',             // Daily Work
+        5: 'continuousDrive',        // Continuous Drive
         3: 'harshBraking',           // Harsh Braking
         2: 'harshAcceleration',      // Harsh Acceleration
         10: 'phoneCall',             // Phone Call
@@ -52,7 +54,7 @@ function analyzeDrivers(drivers, exceptions, exceptionsSummary, tripsSummary) {
         20: 'distraction'            // Distraction
     };
 
-    // === 5. Initialiser les stats pour tous les chauffeurs
+    // === 5. Initialiser stats par driverId
     const driverStats = {};
     Object.keys(driversMap).forEach(driverId => {
         driverStats[driverId] = {
@@ -61,6 +63,8 @@ function analyzeDrivers(drivers, exceptions, exceptionsSummary, tripsSummary) {
             weeklyDriveAlert: 0, weeklyDriveAlarm: 0,
             weeklyRestAlert: 0, weeklyRestAlarm: 0,
             weeklyWorkAlert: 0, weeklyWorkAlarm: 0,
+            dailyWorkAlert: 0, dailyWorkAlarm: 0,
+            continuousDriveAlert: 0, continuousDriveAlarm: 0,
             harshBrakingAlert: 0, harshBrakingAlarm: 0,
             harshAccelerationAlert: 0, harshAccelerationAlarm: 0,
             phoneCall: 0,
@@ -75,47 +79,36 @@ function analyzeDrivers(drivers, exceptions, exceptionsSummary, tripsSummary) {
     exceptionsSummary.forEach(ex => {
         const driverId = String(ex.driverid);
         const exceptionId = ex.alertid;
-        const level = ex.level;  // 1 = alert, 2 = alarm
+        const level = ex.level;
         const count = ex.nbrexep || 0;
 
         if (!driversMap[driverId]) return;
-        if (!driverStats[driverId]) return;
-
         const stat = driverStats[driverId];
-        const exception = exceptionById[exceptionId];
+        if (!stat) return;
 
-        // === Ajouter les points
+        const exception = exceptionById[exceptionId];
         if (exception) {
             const points = level === 1 ? exception.sanctionsalert : exception.sanctionsalarm;
             stat.points += points * count;
         }
 
-        // === Fonction utilitaire pour ajouter alert/alarm
         const addCount = (baseName, cnt) => {
             const key = level === 1 ? `${baseName}Alert` : `${baseName}Alarm`;
             stat[key] = (stat[key] || 0) + cnt;
         };
 
-        // === Compter par catégorie
         const category = categoryMap[exceptionId];
         if (!category) return;
 
-        switch (category) {
-            case 'nightDriving':
-            case 'weeklyDrive':
-            case 'weeklyRest':
-            case 'weeklyWork':
-            case 'harshBraking':
-            case 'harshAcceleration':
-                addCount(category, count);
-                break;
-            case 'phoneCall':
-            case 'smoking':
-            case 'seatBelt':
-            case 'fatigue':
-            case 'distraction':
-                stat[category] = (stat[category] || 0) + count;
-                break;
+        const alertAlarmCategories = [
+            'nightDriving', 'weeklyDrive', 'weeklyRest', 'weeklyWork',
+            'dailyWork', 'continuousDrive', 'harshBraking', 'harshAcceleration'
+        ];
+
+        if (alertAlarmCategories.includes(category)) {
+            addCount(category, count);
+        } else {
+            stat[category] = (stat[category] || 0) + count;
         }
     });
 
@@ -124,90 +117,126 @@ function analyzeDrivers(drivers, exceptions, exceptionsSummary, tripsSummary) {
     tripsSummary.forEach(trip => {
         const driverId = String(trip.driverid);
         tripsPerDriver[driverId] = {
-            distance: trip.totdist != null ? parseFloat(trip.totdist) : 0,
-            duration: trip.dur != null ? parseFloat(trip.dur) : 0
+            distance: parseFloat(trip.totdist) || 0,
+            duration: parseFloat(trip.dur) || 0
         };
     });
 
-    // === 8. Construire les résultats
-    const activeResults = [];
-    const inactiveResults = [];
+    // === 8. Construire résultats par chauffeur (avant fusion)
+    const allDriverResults = [];
 
     Object.keys(driversMap).forEach(driverId => {
         const driver = driversMap[driverId];
         const stats = driverStats[driverId];
         const tripInfo = tripsPerDriver[driverId] || { distance: 0, duration: 0 };
 
-        const distance = tripInfo.distance || 0;
-        const duration = tripInfo.duration || 0;
-
-        // === Déterminer si actif
+        const distance = tripInfo.distance;
+        const duration = tripInfo.duration;
         const isActive = distance > 0;
+        const ratio = isActive ? stats.points / distance : 0;
 
-        // Calcul du ratio (si actif)
-        const ratio = isActive ? stats.points / distance : Infinity;
-
-        const baseResult = {
-            Driver: driver.name,
+        allDriverResults.push({
+            Driver: driver.name.trim(), // Nettoyage du nom
             ...stats,
-            "Distance totale Parcouru sur la période": isActive ? parseFloat(distance.toFixed(3)) : "--",
-            "Durée de Conduite sur la période": isActive ? duration : "--",
-            "Ratio": isActive ? parseFloat(ratio.toFixed(4)) : "--",
-            "driverId": parseInt(driverId)
-        };
+            "Distance totale Parcouru sur la période": distance,
+            "Durée de Conduite sur la période": duration,
+            "Ratio": ratio,
+            driverId: parseInt(driverId),
+            isActive
+        });
+    });
+
+    // === 🔥 9. Fusionner les chauffeurs ayant le même nom (insensible aux espaces)
+    const mergedResultsMap = {};
+
+    allDriverResults.forEach(result => {
+        const name = result.Driver; // Déjà trimmé
+
+        if (!mergedResultsMap[name]) {
+            // Initialiser
+            mergedResultsMap[name] = { ...result };
+            // Remettre à zéro les compteurs numériques
+            Object.keys(mergedResultsMap[name]).forEach(key => {
+                if (typeof mergedResultsMap[name][key] === 'number' && key !== 'driverId') {
+                    mergedResultsMap[name][key] = 0;
+                }
+            });
+            mergedResultsMap[name].driverIds = []; // Optionnel : trace des IDs
+        }
+
+        const merged = mergedResultsMap[name];
+
+        // Additionner toutes les valeurs numériques
+        Object.keys(result).forEach(key => {
+            if (typeof result[key] === 'number' && key !== 'driverId') {
+                merged[key] += result[key];
+            }
+        });
+
+        merged.driverIds.push(result.driverId);
+    });
+
+    const mergedResults = Object.values(mergedResultsMap);
+
+    // === 10. Séparer actifs et inactifs (après fusion)
+    const activeResults = [];
+    const inactiveResults = [];
+
+    mergedResults.forEach(result => {
+        const distance = result["Distance totale Parcouru sur la période"];
+        const isActive = distance > 0;
+        const totalPoints = result.points;
+        const ratio = isActive ? parseFloat((totalPoints / distance).toFixed(4)) : 0;
 
         if (isActive) {
-            activeResults.push(baseResult);
+            activeResults.push({
+                Driver: result.Driver,
+                ...result,
+                "Ratio": ratio,
+                "Distance totale Parcouru sur la période": parseFloat(distance.toFixed(3)),
+                "Durée de Conduite sur la période": result["Durée de Conduite sur la période"]
+            });
         } else {
-            // Pour les inactifs : remplacer aussi les stats par "--" ?
-            // Option : garder les stats à 0 mais afficher "--" pour les métriques clés
-            // Ici, on garde les stats internes, mais on remplace les affichages
-            const inactiveDisplay = {
-                ...baseResult,
+            inactiveResults.push({
+                Driver: result.Driver,
                 points: "--",
                 nightDrivingAlert: "--", nightDrivingAlarm: "--",
                 weeklyDriveAlert: "--", weeklyDriveAlarm: "--",
                 weeklyRestAlert: "--", weeklyRestAlarm: "--",
                 weeklyWorkAlert: "--", weeklyWorkAlarm: "--",
+                dailyWorkAlert: "--", dailyWorkAlarm: "--",
+                continuousDriveAlert: "--", continuousDriveAlarm: "--",
                 harshBrakingAlert: "--", harshBrakingAlarm: "--",
                 harshAccelerationAlert: "--", harshAccelerationAlarm: "--",
-                phoneCall: "--", smoking: "--", seatBelt: "--", fatigue: "--", distraction: "--"
-            };
-            inactiveResults.push(inactiveDisplay);
+                phoneCall: "--", smoking: "--", seatBelt: "--", fatigue: "--", distraction: "--",
+                "Distance totale Parcouru sur la période": "--",
+                "Durée de Conduite sur la période": "--",
+                "Ratio": "--"
+            });
         }
     });
 
-    // === 9. Trier les actifs : ratio croissant, puis durée décroissante
+    // === 11. Trier les actifs : ratio croissant, puis durée décroissante
     activeResults.sort((a, b) => {
-        if (a.Ratio !== b.Ratio) {
-            return a.Ratio - b.Ratio;
-        }
+        if (a.Ratio !== b.Ratio) return a.Ratio - b.Ratio;
         return b["Durée de Conduite sur la période"] - a["Durée de Conduite sur la période"];
     });
 
-    // === 10. Ajouter le classement aux actifs
-    activeResults.forEach((r, i) => {
-        r.Ranking = i + 1;
-    });
+    // === 12. Ajouter le classement
+    activeResults.forEach((r, i) => r.Ranking = i + 1);
+    inactiveResults.forEach((r, i) => r.Ranking = activeResults.length + 1 + i);
 
-    // === 11. Classement pour les inactifs : à partir du dernier actif + 1
-    const lastRank = activeResults.length;
-    inactiveResults.forEach((r, i) => {
-        r.Ranking = lastRank + 1 + i;
-    });
-
-    // === 12. Fusionner : actifs d'abord, inactifs après
     const allResults = [...activeResults, ...inactiveResults];
 
-    // === 13. Fonction de formatage de durée
+    // === 13. Formatage de la durée
     function formatDuration(hours) {
         if (hours === "--") return "--";
         const totalSeconds = Math.floor(hours * 3600);
-        const days = Math.floor(totalSeconds / (24 * 3600));
-        const hoursRemain = Math.floor((totalSeconds % (24 * 3600)) / 3600);
-        const minutes = Math.floor((totalSeconds % 3600) / 60);
-        const seconds = totalSeconds % 60;
-        return `${days}Jrs ${String(hoursRemain).padStart(2, '0')}H ${String(minutes).padStart(2, '0')}Min ${String(seconds).padStart(2, '0')}Sec`;
+        const days = Math.floor(totalSeconds / 86400);
+        const h = Math.floor((totalSeconds % 86400) / 3600);
+        const m = Math.floor((totalSeconds % 3600) / 60);
+        const s = totalSeconds % 60;
+        return `${days}Jrs ${String(h).padStart(2, '0')}H ${String(m).padStart(2, '0')}Min ${String(s).padStart(2, '0')}Sec`;
     }
 
     // === 14. Générer detailedResults
@@ -221,6 +250,10 @@ function analyzeDrivers(drivers, exceptions, exceptionsSummary, tripsSummary) {
         "Nombres d'Alarme Repos hebdomadaire": r.weeklyRestAlarm,
         "Nombres d'Alertes Travail hebdomadaire": r.weeklyWorkAlert,
         "Nombres d'Alarme Travail hebdomadaire": r.weeklyWorkAlarm,
+        "Nombres d'Alertes Travail journalier": r.dailyWorkAlert,
+        "Nombres d'Alarme Travail journalier": r.dailyWorkAlarm,
+        "Nombres d'Alertes Conduite continue": r.continuousDriveAlert,
+        "Nombres d'Alarme Conduite continue": r.continuousDriveAlarm,
         "Nombres d'Alertes HB": r.harshBrakingAlert,
         "Nombres d'Alarme HB": r.harshBrakingAlarm,
         "Nombres d'Alertes HA": r.harshAccelerationAlert,
@@ -231,8 +264,9 @@ function analyzeDrivers(drivers, exceptions, exceptionsSummary, tripsSummary) {
         "Nombres de fatigues": r.fatigue,
         "Nombres de distraction": r.distraction,
         "Nombre totale de points perdu sur la période": r.points,
-        "Distance totale Parcouru sur la période": r["Distance totale Parcouru sur la période"],
+        "Distance totale Parcouru sur la période (km)": r["Distance totale Parcouru sur la période"],
         "Durée de Conduite sur la période": formatDuration(r["Durée de Conduite sur la période"]),
+        "Durée de Conduite sur la période en heure": r["Durée de Conduite sur la période"],
         "Ratio": r.Ratio,
         "Ranking": r.Ranking
     }));
@@ -243,9 +277,6 @@ function analyzeDrivers(drivers, exceptions, exceptionsSummary, tripsSummary) {
         Ranking: r.Ranking
     }));
 
-    return {
-        detailedResults,
-        rankingOnly
-    };
+    return { detailedResults, rankingOnly };
 }
 module.exports = { analyzeDrivers }
