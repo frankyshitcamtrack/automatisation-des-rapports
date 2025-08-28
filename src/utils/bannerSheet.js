@@ -57,7 +57,7 @@ function addImageBannerHeaderSheet(
   const imageCell = `${cols[0]}1:${cols[addLogo - 1]}6`;
   const titleHeader = [`${cols[0]}7`, `${cols[addLogo - 1]}7`];
 
-  sheet === "Ranking Chauffeurs" || "Detail Ranking Chauffeurs" ? "" : worksheet.addImage(banner, imageCell);
+  sheet === "Detail Ranking Chauffeurs" ? "" : worksheet.addImage(banner, imageCell);
 
 
   worksheet.mergeCells(titleHeader[0], titleHeader[1]);

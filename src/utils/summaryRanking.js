@@ -273,8 +273,10 @@ function analyzeDrivers(drivers, exceptions, exceptionsSummary, tripsSummary) {
 
     // === 15. Classement simplifié
     const rankingOnly = allResults.map(r => ({
+        Ranking: r.Ranking,
         Driver: r.Driver,
-        Ranking: r.Ranking
+        "Nombre de points perdus au 100km": (r.Ratio === 0 || parseFloat(r.Ratio)) ? r.Ratio * 100 : '--',
+
     }));
 
     return { detailedResults, rankingOnly };
