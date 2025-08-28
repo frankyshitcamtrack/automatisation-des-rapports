@@ -59,10 +59,10 @@ const LIST_VEHICULES = 'Liste Des Véhicules';
 // total energie
 const STATUS_VEHICLE = 'Statut véhicule ';
 const STATUS_VEHICLE_NEW = 'Statut véhicule new';
-const RAPPORT_CLOTURE = 'Rapport de cloture';
-const RAPPORT_RANKING = 'Rapport ranking';
-const RAPPORT_REPOS = 'Rapport repos hebdomadaire';
-const RAPPORT_NIGHT_DRIVING = 'Rapport Conduite de nuit';
+const RAPPORT_CLOTURE = 'Rapport de Clôture TEMCAM';
+const RAPPORT_RANKING = 'Rapport Classement Chauffeurs TEMCAM';
+const RAPPORT_REPOS = 'Rapport Repos Hebdomadaire TEMCAM';
+const RAPPORT_NIGHT_DRIVING = 'Rapport Conduite de Nuit TEMCAM';
 
 module.exports = {
   ACTIVITY_REPORT_OF_ADDAX_PETROLEUM,

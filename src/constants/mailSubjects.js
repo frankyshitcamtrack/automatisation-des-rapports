@@ -59,17 +59,37 @@ const ACTIVITY_REPORT_SUBJECT_MAIL_ALIOS =
   'Bonjour Mr/Mme retrouvez en PJ rapport de communication de la flotte ALIOS';
 
 //Total
-const TOTAL_CLOTURE_SUBJECT_MAIL =
-  'Bonjour Mr/Mme retrouvez en PJ le rapport de cloture de fin de journee de la flotte total Cameroun';
+const TOTAL_CLOTURE_SUBJECT_MAIL = `
+Bonjour,
 
-const TOTAL_RANKING_SUBJECT_MAIL =
-  'Bonjour Mr/Mme retrouvez en PJ le rapport Ranking de la flotte Total Cameroun';
+Prière de trouver ci-joint l'élément cité en objet.
 
-const TOTAL_REPOS_HEBDO_SUBJECT_MAIL =
-  'Bonjour Mr/Mme retrouvez en PJ le rapport Repos hebdomadaire de la flotte Total Cameroun';
+Cordialement.
+`;
 
-const TOTAL_NIGTH_DRIVING_SUBJECT_MAIL =
-  'Bonjour Mr/Mme retrouvez en PJ le rapport Conduite de nuit de la flotte Total Cameroun';
+const TOTAL_RANKING_SUBJECT_MAIL = `
+Bonjour,
+
+Prière de trouver ci-joint l'élément cité en objet.
+
+Cordialement.
+`;
+
+const TOTAL_REPOS_HEBDO_SUBJECT_MAIL = `
+Bonjour,
+
+Prière de trouver ci-joint le rapport de tous les chauffeurs qui ont déjà conduit pendant 05 jours  et 06 jours d'affilé
+
+Cordialement.
+`;
+
+const TOTAL_NIGTH_DRIVING_SUBJECT_MAIL = `
+Bonjour,
+
+Prière de trouver ci-joint l'élément cité en objet.
+
+Cordialement.
+`;
 
 
 module.exports = {

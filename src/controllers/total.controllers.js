@@ -37,7 +37,7 @@ function getStartDateForNight(now) {
 }
 
 const formatDateForFilename = (dateString) => {
-    return dateString.replace(/:/g, '-').replace(/ /g, '_');
+    return dateString?.replace(/:/g, '-').replace(/ /g, '_');
 };
 
 
@@ -78,9 +78,9 @@ async function generateNigthDrivingReport() {
                         sender,
                         receivers,
                         pass,
-                        RAPPORT_NIGHT_DRIVING,
+                        `${RAPPORT_NIGHT_DRIVING}_${titleDate}`,
                         `${TOTAL_NIGTH_DRIVING_SUBJECT_MAIL}`,
-                        `${RAPPORT_NIGHT_DRIVING}.xlsx`,
+                        `${RAPPORT_NIGHT_DRIVING}_${titleDate}.xlsx`,
                         path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
                     );
                     deleteFile(
@@ -233,9 +233,9 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
                         sender,
                         receivers,
                         pass,
-                        RAPPORT_CLOTURE,
+                        `${RAPPORT_CLOTURE}_${titleDate}`,
                         `${TOTAL_CLOTURE_SUBJECT_MAIL}`,
-                        `${RAPPORT_CLOTURE}.xlsx`,
+                        `${RAPPORT_CLOTURE}_${titleDate}.xlsx`,
                         path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
                     );
                     deleteFile(
@@ -266,6 +266,7 @@ async function generateTotalRankingRepport() {
 
 
     const titleDate = fistAndLastHourDay.dateTitle;
+    const splitTitle = titleDate.split('-')
     const pathFile = 'rapport/Total/Ranking';
     const column = [{ key: "Driver" }, { key: "Nombres d'Alertes Conduite de nuit" }, { key: "Nombres d'Alarme Conduite de nuit" }, { key: "Nombres d'Alertes conduite hebdomadaire" }, { key: "Nombres d'Alarme conduite hebdomadaire" }, { key: "Nombres d'Alertes Repos hebdomadaire" }, { key: "Nombres d'Alarme Repos hebdomadaire" }, { key: "Nombres d'Alertes Travail hebdomadaire" }, { key: "Nombres d'Alarme Travail hebdomadaire" }, { key: "Nombres d'Alertes HB" }, { key: "Nombres d'Alarme HB" }, { key: "Nombres d'Alertes HA" }, { key: "Nombres d'Alarme HA" }, { key: "Nombres de Téléphone au volant" }, { key: "Nombres de smoking" }, { key: "Nombres de Ceinture de Sécurité" }, { key: "Nombres de fatigues" }, { key: "Nombres de distraction" }, { key: "Nombre totale de points perdu sur la période" }, { key: "Distance totale Parcouru sur la période (km)" }, { key: "Durée de Conduite sur la période" }, { key: "Durée de Conduite sur la période en heure" }, { key: "Ratio" }, { key: "Ranking" }];
     const rankinColumn = [{ key: "Ranking" }, { key: "Driver" }, { key: 'Nombre de points perdus au 100km' }];
@@ -296,9 +297,9 @@ async function generateTotalRankingRepport() {
                                 sender,
                                 receivers,
                                 pass,
-                                RAPPORT_RANKING,
+                                `${RAPPORT_RANKING}_${splitTitle[1]}_${splitTitle[0]}`,
                                 `${TOTAL_RANKING_SUBJECT_MAIL}`,
-                                `${RAPPORT_RANKING}.xlsx`,
+                                `${RAPPORT_RANKING}__${splitTitle[1]}_${splitTitle[0]}.xlsx`,
                                 path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
                             );
                             deleteFile(
@@ -489,9 +490,9 @@ async function generateTotalReposHebdo() {
                         sender,
                         receivers,
                         pass,
-                        RAPPORT_REPOS,
+                        `${RAPPORT_REPOS}_${titleDate}`,
                         `${TOTAL_REPOS_HEBDO_SUBJECT_MAIL}`,
-                        `${RAPPORT_REPOS}.xlsx`,
+                        `${RAPPORT_REPOS}_${titleDate}.xlsx`,
                         path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
                     );
                     deleteFile(
@@ -519,7 +520,7 @@ async function generateTotalRepports() {
 
 
 
-    //await generateTotalClotureRepport();
+    //await generateTotalClotureRepport('2025-08-27 00:00:00', '2025-08-28 00:00:00')
     //await generateTotalReposHebdo();
     //await generateNigthDrivingReport();
     //await generateTotalRankingRepport();
