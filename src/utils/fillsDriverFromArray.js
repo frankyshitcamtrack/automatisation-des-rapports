@@ -55,6 +55,7 @@ function compensateDrivers(arr1, arr2) {
 
         const currentDriver = item.Conducteur;
         const currentLocation = item.emplacement || item.Emplacement;
+        const currentStatus = item['Status Ignition']
 
         // --- Corriger Conducteur si vide ou invalide ---
         const isEmptyDriver = !currentDriver ||
@@ -74,6 +75,17 @@ function compensateDrivers(arr1, arr2) {
 
         if (isEmptyLocation && reference.emplacement) {
             newItem.emplacement = reference.emplacement;
+        }
+
+
+        // --- Corriger statut si vide ou invalide ---
+        const isEmptyStatus = !currentStatus ||
+            !parseFloat(currentStatus) ||
+            currentStatus.trim() === '' ||
+            ['--', '-', 'inconnu', 'n/a'].includes(currentStatus.trim().toLowerCase());
+
+        if (isEmptyStatus && reference['Status Ignition']) {
+            newItem['Status Ignition'] = reference['Status Ignition'];
         }
 
         return newItem;

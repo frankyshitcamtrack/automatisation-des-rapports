@@ -160,7 +160,9 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
             if (objLenth > 0 && tripEnd && OBCTripEnd) {
 
                 const compensateDriver = compensateDrivers(res.obj, tripEnd.obj);
-                const fullArr = compensateDrivers(compensateDriver, OBCTripEnd.obj);
+                const fullArr1 = compensateDrivers(compensateDriver, OBCTripEnd.obj);
+
+                const fullArr = compensateDrivers(fullArr1, OBCstatus.obj);
 
                 const column = [{ key: "Filiale" }, { key: "Transporteur" }, { key: 'Grouping' }, { key: 'Status Ignition' }, { key: 'Vitesse' }, { key: 'Dernier Conducteur' }, { key: 'Heure de Cloture' }, { key: 'Emplacement' }, { key: 'Coordonnées' }, { key: "Statut POI" }];
                 const fleetColumn = [{ key: "Transporteur" }, { key: "Nombre De Camions" }, { key: "Etat flotte" }, { key: "Heure De cloture" }, { key: "Camions Hors POI" }, { key: "Derniere mise a jour" }];
@@ -521,7 +523,7 @@ async function generateTotalRepports() {
 
 
 
-    //await generateTotalClotureRepport('2025-08-27 00:00:00', '2025-08-28 00:00:00')
+    //await generateTotalClotureRepport('2025-08-27 00:00:00', '2025-08-27 21:00:00')
     //await generateTotalReposHebdo();
     //await generateNigthDrivingReport();
     //await generateTotalRankingRepport();
