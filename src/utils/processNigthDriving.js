@@ -90,6 +90,7 @@ function processNightDrivingSimple(nightDrivingData, drivers, vehicles, transpor
             "start point": exception.startgps,
             "end point": exception.endgps,
             "start date and time": new Date(exception.startdatetime).toLocaleString('fr-FR'),
+            "end date and time": new Date(exception.enddatetime).toLocaleString('fr-FR'),
             "Total duration": formatDuration(exception.totalduration),
             Exception: "Night driving",
             Niveau: Level[0].value,

@@ -1,3 +1,4 @@
+const cron = require('node-cron');
 const { generateAddaxRepports } = require('./addax.controllers');
 const { generateAllRepportPerenco } = require('./perenco.controllers');
 const { generateAllRepportGuinness } = require('./guinness.controllers');
@@ -20,6 +21,20 @@ async function generalControllers() {
   await generateAllRepportDKT();
   await generateAllAliosRepport();
   await generateTotalRepports();
+
+
+  /*  cron.schedule(
+     `00 15 * * *`,
+     async () => {
+       await generateTotalRepports();
+     },
+     {
+       scheduled: true,
+       timezone: 'Africa/Lagos',
+     }
+   ); */
+
+
 }
 
 module.exports = { generalControllers };

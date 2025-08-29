@@ -41,7 +41,7 @@ const formatDateForFilename = (dateString) => {
 };
 
 
-
+//nighht driving
 async function generateNigthDrivingReport() {
     const sender = await totalSenders(CAMEROUN_NIGHT_DRIVING_REPORT, 'B');
     const receivers = await totalReceivers(CAMEROUN_NIGHT_DRIVING_REPORT, 'C');
@@ -59,7 +59,7 @@ async function generateNigthDrivingReport() {
     const titleDate = firstHourLastNigth.dateTitle
     const pathFile = 'rapport/Total/Nigth';
 
-    const column = [{ key: "filiale" }, { key: "transporteur" }, { key: "Vehicule" }, { key: "Driver" }, { key: "start point" }, { key: "end point" }, { key: "start date and time" }, { key: "Total duration" }, { key: "Exception" }, { key: "Niveau" }, { key: "Observation" }];
+    const column = [{ key: "filiale" }, { key: "transporteur" }, { key: "Vehicule" }, { key: "Driver" }, { key: "start point" }, { key: "end point" }, { key: "start date and time" }, { key: "end date and time" }, { key: "Total duration" }, { key: "Exception" }, { key: "Niveau" }, { key: "Observation" }];
 
     const totalNigthsDriving = await getTotalNigths(fisrtHourNigth, lastHourNigth);
 
@@ -93,7 +93,7 @@ async function generateNigthDrivingReport() {
 }
 
 
-
+//cloture
 async function generateTotalClotureRepport(firstDate, lastDate) {
     const sender = await totalSenders(CAMEROUN_CLOTURE_ACTIVITE, 'B');
     const receivers = await totalReceivers(CAMEROUN_CLOTURE_ACTIVITE, 'C');
@@ -248,7 +248,7 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
 }
 
 
-
+//ranking
 async function generateTotalRankingRepport() {
     const sender = await totalSenders(CAMEROUN_RANKING_REPORT, 'B');
     const receivers = await totalReceivers(CAMEROUN_RANKING_REPORT, 'C');
@@ -316,7 +316,7 @@ async function generateTotalRankingRepport() {
 
 }
 
-
+//repos hebdo
 async function generateTotalReposHebdo() {
     const sender = await totalSenders(CAMEROUN_REPOS_HEBDOMADAIRE, 'B');
     const receivers = await totalReceivers(CAMEROUN_REPOS_HEBDOMADAIRE, 'C');
@@ -509,6 +509,7 @@ async function generateTotalReposHebdo() {
 
 async function generateTotalRepports() {
 
+    console.log('load total report');
     const hourScheduleRanking = await totalReceivers(CAMEROUN_RANKING_REPORT, 'F');
     const hourScheduleNigth = await totalReceivers(CAMEROUN_NIGHT_DRIVING_REPORT, 'F');
     const hourScheduleCloture = await totalReceivers(CAMEROUN_CLOTURE_ACTIVITE, 'F');
@@ -572,8 +573,6 @@ async function generateTotalRepports() {
             timezone: 'Africa/Lagos',
         }
     );
-
-
 }
 
 
