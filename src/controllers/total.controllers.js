@@ -115,7 +115,7 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
     const safeLast = formatDateForFilename(lastDate);
 
 
-    const titleDate = `${safeFirst}-${safeLast}`
+    const titleDate = `${safeLast}`
     const pathFile = 'rapport/Total/Cloture';
 
 
