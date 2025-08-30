@@ -553,7 +553,7 @@ async function generateTotalRepports() {
     //await generateTotalClotureRepport('2025-08-27 00:00:00', '2025-08-27 21:00:00')
     //await generateTotalReposHebdo();
     //await generateNigthDrivingReport();
-    await generateTotalRankingRepport();
+    // await generateTotalRankingRepport();
 
     cron.schedule('0 21-23,0-3 * * *', async () => {
         const now = moment();
