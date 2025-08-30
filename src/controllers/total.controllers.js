@@ -263,18 +263,23 @@ async function generateTotalRankingRepport() {
 
     const getSummaryTrip = await summaryTrip(firstHourDay, lastHourDay);
     const getSummaryExceptions = await summaryException(firstHourDay, lastHourDay);
-    const exceptionType = await allExceptionType()
-    const drivers = await getTotalDrivers()
+    const exceptionType = await allExceptionType();
+    const drivers = await getTotalDrivers();
+    const transporter = await getTotalTransporter()
 
 
     const titleDate = fistAndLastHourDay.dateTitle;
     const splitTitle = titleDate.split('-')
     const pathFile = 'rapport/Total/Ranking';
-    const column = [{ key: "Driver" }, { key: "Nombres d'Alertes Conduite de nuit" }, { key: "Nombres d'Alarme Conduite de nuit" }, { key: "Nombres d'Alertes conduite hebdomadaire" }, { key: "Nombres d'Alarme conduite hebdomadaire" }, { key: "Nombres d'Alertes Repos hebdomadaire" }, { key: "Nombres d'Alarme Repos hebdomadaire" }, { key: "Nombres d'Alertes Travail hebdomadaire" }, { key: "Nombres d'Alarme Travail hebdomadaire" }, { key: "Nombres d'Alertes HB" }, { key: "Nombres d'Alarme HB" }, { key: "Nombres d'Alertes HA" }, { key: "Nombres d'Alarme HA" }, { key: "Nombres de Téléphone au volant" }, { key: "Nombres de smoking" }, { key: "Nombres de Ceinture de Sécurité" }, { key: "Nombres de fatigues" }, { key: "Nombres de distraction" }, { key: "Nombre totale de points perdu sur la période" }, { key: "Distance totale Parcouru sur la période (km)" }, { key: "Durée de Conduite sur la période" }, { key: "Durée de Conduite sur la période en heure" }, { key: "Ratio" }, { key: "Ranking" }];
+    const column = [{ key: "Driver" }, { key: "Nombres d'Alertes Conduite de nuit" }, { key: "Nombres d'Alarme Conduite de nuit" }, { key: "Nombres d'Alertes conduite hebdomadaire" }, { key: "Nombres d'Alertes Repos hebdomadaire" }, { key: "Nombres d'Alarme Repos hebdomadaire" }, { key: "Nombres d'Alertes Travail hebdomadaire" }, { key: "Nombres d'Alarme Travail hebdomadaire" }, { key: "Nombres d'Alertes Travail journalier" }, { key: "Nombres d'Alarme Travail journalier" }, { key: "Nombres d'Alertes Conduite continue" }, { key: "Nombres d'Alarme Conduite continue" }, { key: "Nombres d'Alertes HB" }, { key: "Nombres d'Alarme HB" }, { key: "Nombres d'Alertes HA" }, { key: "Nombres d'Alarme HA" }, { key: "Nombres de Téléphone au volant" }, { key: "Nombres de smoking" }, { key: "Nombres de Ceinture de Sécurité" }, { key: "Nombres de fatigues" }, { key: "Nombres de distraction" }, { key: "Nombre totale de points perdu sur la période" }, { key: "Distance totale Parcouru sur la période (km)" }, { key: "Durée de Conduite sur la période" }, { key: "Durée de Conduite sur la période en heure" }, { key: "Ratio" }, { key: "Ranking" }];
     const rankinColumn = [{ key: "Ranking" }, { key: "Driver" }, { key: 'Nombre de points perdus au 100km' }];
+    const rankinColumnTransporterDetail = [{ key: "Transporteur" }, { key: "Nombres d'Alertes Conduite de nuit" }, { key: "Nombres d'Alarme Conduite de nuit" }, { key: "Nombres d'Alertes conduite hebdomadaire" }, { key: "Nombres d'Alertes Repos hebdomadaire" }, { key: "Nombres d'Alarme Repos hebdomadaire" }, { key: "Nombres d'Alertes Travail hebdomadaire" }, { key: "Nombres d'Alarme Travail hebdomadaire" }, { key: "Nombres d'Alertes Travail journalier" }, { key: "Nombres d'Alarme Travail journalier" }, { key: "Nombres d'Alertes Conduite continue" }, { key: "Nombres d'Alarme Conduite continue" }, { key: "Nombres d'Alertes HB" }, { key: "Nombres d'Alarme HB" }, { key: "Nombres d'Alertes HA" }, { key: "Nombres d'Alarme HA" }, { key: "Nombres de Téléphone au volant" }, { key: "Nombres de smoking" }, { key: "Nombres de Ceinture de Sécurité" }, { key: "Nombres de fatigues" }, { key: "Nombres de distraction" }, { key: "Nombre totale de points perdu sur la période" }, { key: "Distance totale Parcouru sur la période (km)" }, { key: "Durée de Conduite sur la période" }, { key: "Durée de Conduite sur la période en heure" }, { key: "Ratio" }, { key: "Ranking" }];
+    const columnRankingTransporter = [{ key: "Ranking" }, { key: "Transporteur" }, { key: 'Nombre de points perdus au 100km' }];
+
+
 
     if (drivers, getSummaryExceptions, exceptionType, getSummaryTrip) {
-        const ranking = analyzeDrivers(drivers["resultat"], exceptionType, getSummaryExceptions['resultat'], getSummaryTrip['resultat']);
+        const ranking = analyzeDrivers(drivers["resultat"], exceptionType, getSummaryExceptions['resultat'], getSummaryTrip['resultat'], transporter['resultat']);
 
         if (ranking) {
             await convertJsonToExcelTotal(
@@ -282,16 +287,38 @@ async function generateTotalRankingRepport() {
                 'Ranking Chauffeurs',
                 `${pathFile}-${titleDate}.xlsx`,
                 rankinColumn
-            ).then(
-                setTimeout(async () => {
-                    await convertJsonToExcelTotal(
-                        ranking?.detailedResults,
-                        'Detail Ranking Chauffeurs',
-                        `${pathFile}-${titleDate}.xlsx`,
-                        column
-                    )
-                }, 5000)
             )
+                .then(
+                    setTimeout(
+                        async () => {
+                            await convertJsonToExcelTotal(
+                                ranking?.detailedResults,
+                                'Detail Ranking Chauffeurs',
+                                `${pathFile}-${titleDate}.xlsx`,
+                                column
+                            )
+                        }, 5000
+                    )
+
+                ).then(
+                    setTimeout(async () => {
+                        await convertJsonToExcelTotal(
+                            ranking?.rankingOnlyByCarrier,
+                            'Ranking Transporteur',
+                            `${pathFile}-${titleDate}.xlsx`,
+                            columnRankingTransporter
+                        )
+                    }, 20000)
+                ).then(
+                    setTimeout(async () => {
+                        await convertJsonToExcelTotal(
+                            ranking?.detailedResultsByCarrier,
+                            'Detail Ranking Transporteur',
+                            `${pathFile}-${titleDate}.xlsx`,
+                            rankinColumnTransporterDetail
+                        )
+                    }, 30000)
+                )
                 .then(() => {
                     if (sender && receivers) {
                         setTimeout(() => {
@@ -307,7 +334,7 @@ async function generateTotalRankingRepport() {
                             deleteFile(
                                 path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
                             );
-                        }, 30000);
+                        }, 60000);
                     }
                 })
         }
@@ -526,7 +553,7 @@ async function generateTotalRepports() {
     //await generateTotalClotureRepport('2025-08-27 00:00:00', '2025-08-27 21:00:00')
     //await generateTotalReposHebdo();
     //await generateNigthDrivingReport();
-    //await generateTotalRankingRepport();
+    await generateTotalRankingRepport();
 
     cron.schedule('0 21-23,0-3 * * *', async () => {
         const now = moment();

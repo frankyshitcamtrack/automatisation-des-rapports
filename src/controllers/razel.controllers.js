@@ -135,32 +135,33 @@ async function generateDaylyRepportRazelVL() {
           firstHourDay,
           lastHourDay,
           RALENTI_MOTEUR_RAZEL_GROUP
-        ).then(async (res) => {
-          const objLenth = res?.obj.length;
-          if (objLenth > 0) {
-            const data = res.obj;
-            columnRalentiMoteur = res.excelColum;
-            columnRalentiMoteur[0] = { key: 'Véhicules' };
-            const replaceGroupinByVehicle = replaceProps(
-              data,
-              'Grouping',
-              'Véhicules'
-            );
-            replaceGroupinByVehicle.map((item) => ralentiMoteur.push(item));
+        )
+          .then(async (res) => {
+            const objLenth = res?.obj.length;
+            if (objLenth > 0) {
+              const data = res.obj;
+              columnRalentiMoteur = res.excelColum;
+              columnRalentiMoteur[0] = { key: 'Véhicules' };
+              const replaceGroupinByVehicle = replaceProps(
+                data,
+                'Grouping',
+                'Véhicules'
+              );
+              replaceGroupinByVehicle.map((item) => ralentiMoteur.push(item));
 
-            //push all data in synthese Arr
-            data.map((item) => {
-              if (item) {
-                const newItem = { ...item, template: 'ralenti-moteur' };
-                synthese.push(newItem);
-              }
-            });
-          } else {
-            console.log(
-              `no data found in ${RAPPORT_RALENTI_MOTEUR_RAZEL} ${RALENTI_MOTEUR_RAZEL_GROUP}`
-            );
-          }
-        });
+              //push all data in synthese Arr
+              data.map((item) => {
+                if (item) {
+                  const newItem = { ...item, template: 'ralenti-moteur' };
+                  synthese.push(newItem);
+                }
+              });
+            } else {
+              console.log(
+                `no data found in ${RAPPORT_RALENTI_MOTEUR_RAZEL} ${RALENTI_MOTEUR_RAZEL_GROUP}`
+              );
+            }
+          });
       })
       .then(async () => {
         const sortData = ralentiMoteur.sort((a, b) => {

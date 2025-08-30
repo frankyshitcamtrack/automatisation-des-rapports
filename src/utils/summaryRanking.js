@@ -19,42 +19,39 @@ function filtrerExceptions(exceptionsArray) {
     return exceptionsArray.filter(exception => nomsRecherches.has(exception.nm));
 }
 
-function analyzeDrivers(drivers, exceptions, exceptionsSummary, tripsSummary) {
-    // === 1. Map des chauffeurs par ID
+function analyzeDrivers(drivers, exceptions, exceptionsSummary, tripsSummary, transporteurs) {
+
     const driversMap = {};
     drivers.forEach(driver => {
-        driversMap[driver.drivid] = { name: driver.drivnm };
+        driversMap[driver.drivid] = { name: driver.drivnm, trpid: driver.trpid };
     });
 
 
-
-    // === 2. Filtrer les exceptions pertinentes
     const filteredExceptions = filtrerExceptions(exceptions);
 
-    // === 3. Map exceptionid → exception
     const exceptionById = {};
     filteredExceptions.forEach(ex => {
         exceptionById[ex.exceptionid] = ex;
     });
 
-    // === 4. Mapping ID → catégorie
+
     const categoryMap = {
-        4: 'nightDriving',           // Night Driving
-        9: 'weeklyDrive',            // Weekly Drive
-        8: 'weeklyRest',             // Weekly Rest
-        17: 'weeklyWork',            // Weekly Work
-        16: 'dailyWork',             // Daily Work
-        5: 'continuousDrive',        // Continuous Drive
-        3: 'harshBraking',           // Harsh Braking
-        2: 'harshAcceleration',      // Harsh Acceleration
-        10: 'phoneCall',             // Phone Call
-        15: 'smoking',               // Smoking
-        11: 'seatBelt',              // No SeatBelt
-        13: 'fatigue',               // Fatigue
-        20: 'distraction'            // Distraction
+        4: 'nightDriving',
+        9: 'weeklyDrive',
+        8: 'weeklyRest',
+        17: 'weeklyWork',
+        16: 'dailyWork',
+        5: 'continuousDrive',
+        3: 'harshBraking',
+        2: 'harshAcceleration',
+        10: 'phoneCall',
+        15: 'smoking',
+        11: 'seatBelt',
+        13: 'fatigue',
+        20: 'distraction'
     };
 
-    // === 5. Initialiser stats par driverId
+
     const driverStats = {};
     Object.keys(driversMap).forEach(driverId => {
         driverStats[driverId] = {
@@ -75,7 +72,7 @@ function analyzeDrivers(drivers, exceptions, exceptionsSummary, tripsSummary) {
         };
     });
 
-    // === 6. Remplir les stats à partir de exceptionsSummary
+
     exceptionsSummary.forEach(ex => {
         const driverId = String(ex.driverid);
         const exceptionId = ex.alertid;
@@ -112,7 +109,7 @@ function analyzeDrivers(drivers, exceptions, exceptionsSummary, tripsSummary) {
         }
     });
 
-    // === 7. Map des trajets
+
     const tripsPerDriver = {};
     tripsSummary.forEach(trip => {
         const driverId = String(trip.driverid);
@@ -122,7 +119,7 @@ function analyzeDrivers(drivers, exceptions, exceptionsSummary, tripsSummary) {
         };
     });
 
-    // === 8. Construire résultats par chauffeur (avant fusion)
+
     const allDriverResults = [];
 
     Object.keys(driversMap).forEach(driverId => {
@@ -136,49 +133,45 @@ function analyzeDrivers(drivers, exceptions, exceptionsSummary, tripsSummary) {
         const ratio = isActive ? stats.points / distance : 0;
 
         allDriverResults.push({
-            Driver: driver.name.trim(), // Nettoyage du nom
+            Driver: driver.name.trim(),
             ...stats,
             "Distance totale Parcouru sur la période": distance,
             "Durée de Conduite sur la période": duration,
             "Ratio": ratio,
             driverId: parseInt(driverId),
+            trpid: driver.trpid,
             isActive
         });
     });
 
-    // === 🔥 9. Fusionner les chauffeurs ayant le même nom (insensible aux espaces)
+
     const mergedResultsMap = {};
 
     allDriverResults.forEach(result => {
-        const name = result.Driver; // Déjà trimmé
+        const name = result.Driver;
 
         if (!mergedResultsMap[name]) {
-            // Initialiser
             mergedResultsMap[name] = { ...result };
-            // Remettre à zéro les compteurs numériques
             Object.keys(mergedResultsMap[name]).forEach(key => {
                 if (typeof mergedResultsMap[name][key] === 'number' && key !== 'driverId') {
                     mergedResultsMap[name][key] = 0;
                 }
             });
-            mergedResultsMap[name].driverIds = []; // Optionnel : trace des IDs
+            mergedResultsMap[name].driverIds = [];
         }
 
         const merged = mergedResultsMap[name];
-
-        // Additionner toutes les valeurs numériques
         Object.keys(result).forEach(key => {
             if (typeof result[key] === 'number' && key !== 'driverId') {
                 merged[key] += result[key];
             }
         });
-
         merged.driverIds.push(result.driverId);
     });
 
     const mergedResults = Object.values(mergedResultsMap);
 
-    // === 10. Séparer actifs et inactifs (après fusion)
+
     const activeResults = [];
     const inactiveResults = [];
 
@@ -216,19 +209,18 @@ function analyzeDrivers(drivers, exceptions, exceptionsSummary, tripsSummary) {
         }
     });
 
-    // === 11. Trier les actifs : ratio croissant, puis durée décroissante
+
     activeResults.sort((a, b) => {
         if (a.Ratio !== b.Ratio) return a.Ratio - b.Ratio;
         return b["Durée de Conduite sur la période"] - a["Durée de Conduite sur la période"];
     });
 
-    // === 12. Ajouter le classement
     activeResults.forEach((r, i) => r.Ranking = i + 1);
     inactiveResults.forEach((r, i) => r.Ranking = activeResults.length + 1 + i);
 
     const allResults = [...activeResults, ...inactiveResults];
 
-    // === 13. Formatage de la durée
+
     function formatDuration(hours) {
         if (hours === "--") return "--";
         const totalSeconds = Math.floor(hours * 3600);
@@ -239,7 +231,6 @@ function analyzeDrivers(drivers, exceptions, exceptionsSummary, tripsSummary) {
         return `${days}Jrs ${String(h).padStart(2, '0')}H ${String(m).padStart(2, '0')}Min ${String(s).padStart(2, '0')}Sec`;
     }
 
-    // === 14. Générer detailedResults
     const detailedResults = allResults.map(r => ({
         Driver: r.Driver,
         "Nombres d'Alertes Conduite de nuit": r.nightDrivingAlert,
@@ -271,14 +262,166 @@ function analyzeDrivers(drivers, exceptions, exceptionsSummary, tripsSummary) {
         "Ranking": r.Ranking
     }));
 
-    // === 15. Classement simplifié
+
     const rankingOnly = allResults.map(r => ({
         Ranking: r.Ranking,
         Driver: r.Driver,
-        "Nombre de points perdus au 100km": (r.Ratio === 0 || parseFloat(r.Ratio)) ? r.Ratio * 100 : '--',
-
+        "Nombre de points perdus au 100km": (r.Ratio === 0 || parseFloat(r.Ratio)) ? parseFloat((r.Ratio * 100).toFixed(2)) : '--',
     }));
 
-    return { detailedResults, rankingOnly };
+
+    const carriersMap = {};
+    transporteurs.forEach(carrier => {
+        carriersMap[carrier.trpid] = carrier.nm;
+    });
+
+
+    const carrierStats = {};
+
+    mergedResults.forEach(result => {
+        const driverData = drivers.find(d => String(d.drivid) === String(result.driverId));
+        if (!driverData || !driverData.trpid) return;
+
+        const trpid = driverData.trpid;
+        const carrierName = carriersMap[trpid];
+        if (!carrierName) return;
+
+        if (!carrierStats[trpid]) {
+            carrierStats[trpid] = {
+                trpid,
+                carrierName,
+                points: 0,
+                nightDrivingAlert: 0, nightDrivingAlarm: 0,
+                weeklyDriveAlert: 0, weeklyDriveAlarm: 0,
+                weeklyRestAlert: 0, weeklyRestAlarm: 0,
+                weeklyWorkAlert: 0, weeklyWorkAlarm: 0,
+                dailyWorkAlert: 0, dailyWorkAlarm: 0,
+                continuousDriveAlert: 0, continuousDriveAlarm: 0,
+                harshBrakingAlert: 0, harshBrakingAlarm: 0,
+                harshAccelerationAlert: 0, harshAccelerationAlarm: 0,
+                phoneCall: 0,
+                smoking: 0,
+                seatBelt: 0,
+                fatigue: 0,
+                distraction: 0,
+                totalDistance: 0,
+                totalDuration: 0,
+                driverCount: 0
+            };
+        }
+
+        const carrier = carrierStats[trpid];
+
+        Object.keys(result).forEach(key => {
+            if (typeof result[key] === 'number' && !['driverId', 'Ranking', 'isActive'].includes(key)) {
+                carrier[key] = (carrier[key] || 0) + result[key];
+            }
+        });
+
+        carrier.totalDistance += result["Distance totale Parcouru sur la période"];
+        carrier.totalDuration += result["Durée de Conduite sur la période"];
+        carrier.driverCount++;
+    });
+
+    const carrierResults = Object.values(carrierStats);
+
+    const activeCarriers = [];
+    const inactiveCarriers = [];
+
+    carrierResults.forEach(carrier => {
+        const isActive = carrier.totalDistance > 0;
+        const ratio = isActive ? parseFloat((carrier.points / carrier.totalDistance).toFixed(4)) : 0;
+
+        if (isActive) {
+            activeCarriers.push({
+                ...carrier,
+                Ratio: ratio,
+                "Distance totale Parcouru sur la période": parseFloat(carrier.totalDistance.toFixed(3)),
+                "Durée de Conduite sur la période": carrier.totalDuration,
+                Ranking: 0
+            });
+        } else {
+            inactiveCarriers.push({
+                ...carrier,
+                points: "--",
+                nightDrivingAlert: "--", nightDrivingAlarm: "--",
+                weeklyDriveAlert: "--", weeklyDriveAlarm: "--",
+                weeklyRestAlert: "--", weeklyRestAlarm: "--",
+                weeklyWorkAlert: "--", weeklyWorkAlarm: "--",
+                dailyWorkAlert: "--", dailyWorkAlarm: "--",
+                continuousDriveAlert: "--", continuousDriveAlarm: "--",
+                harshBrakingAlert: "--", harshBrakingAlarm: "--",
+                harshAccelerationAlert: "--", harshAccelerationAlarm: "--",
+                phoneCall: "--", smoking: "--", seatBelt: "--", fatigue: "--", distraction: "--",
+                "Distance totale Parcouru sur la période": "--",
+                "Durée de Conduite sur la période": "--",
+                "Ratio": "--",
+                Ranking: 0
+            });
+        }
+    });
+
+
+    activeCarriers.sort((a, b) => {
+        if (a.Ratio !== b.Ratio) return a.Ratio - b.Ratio;
+        return b.totalDuration - a.totalDuration;
+    });
+
+
+    activeCarriers.forEach((c, i) => c.Ranking = i + 1);
+    inactiveCarriers.forEach((c, i) => c.Ranking = activeCarriers.length + 1 + i);
+
+    const allCarrierResults = [...activeCarriers, ...inactiveCarriers];
+
+
+    const detailedResultsByCarrier = allCarrierResults.map(c => ({
+        Transporteur: c.carrierName,
+        "Nombres d'Alertes Conduite de nuit": c.nightDrivingAlert,
+        "Nombres d'Alarme Conduite de nuit": c.nightDrivingAlarm,
+        "Nombres d'Alertes conduite hebdomadaire": c.weeklyDriveAlert,
+        "Nombres d'Alarme conduite hebdomadaire": c.weeklyDriveAlarm,
+        "Nombres d'Alertes Repos hebdomadaire": c.weeklyRestAlert,
+        "Nombres d'Alarme Repos hebdomadaire": c.weeklyRestAlarm,
+        "Nombres d'Alertes Travail hebdomadaire": c.weeklyWorkAlert,
+        "Nombres d'Alarme Travail hebdomadaire": c.weeklyWorkAlarm,
+        "Nombres d'Alertes Travail journalier": c.dailyWorkAlert,
+        "Nombres d'Alarme Travail journalier": c.dailyWorkAlarm,
+        "Nombres d'Alertes Conduite continue": c.continuousDriveAlert,
+        "Nombres d'Alarme Conduite continue": c.continuousDriveAlarm,
+        "Nombres d'Alertes HB": c.harshBrakingAlert,
+        "Nombres d'Alarme HB": c.harshBrakingAlarm,
+        "Nombres d'Alertes HA": c.harshAccelerationAlert,
+        "Nombres d'Alarme HA": c.harshAccelerationAlarm,
+        "Nombres de Téléphone au volant": c.phoneCall,
+        "Nombres de smoking": c.smoking,
+        "Nombres de Ceinture de Sécurité": c.seatBelt,
+        "Nombres de fatigues": c.fatigue,
+        "Nombres de distraction": c.distraction,
+        "Nombre totale de points perdu sur la période": c.points,
+        "Distance totale Parcouru sur la période (km)": c["Distance totale Parcouru sur la période"],
+        "Durée de Conduite sur la période": formatDuration(c["Durée de Conduite sur la période"]),
+        "Durée de Conduite sur la période en heure": c["Durée de Conduite sur la période"],
+        "Ratio": c.Ratio,
+        //"Nombre de chauffeurs": c.driverCount,
+        "Ranking": c.Ranking
+    }));
+
+
+    const rankingOnlyByCarrier = allCarrierResults.map(c => ({
+        Ranking: c.Ranking,
+        Transporteur: c.carrierName,
+        "Nombre de points perdus au 100km": c.Ratio !== 0 ? parseFloat((c.Ratio * 100).toFixed(2)) : '--',
+        "Nombre de chauffeurs": c.driverCount
+    }));
+
+
+
+    return {
+        detailedResults,
+        rankingOnly,
+        detailedResultsByCarrier,
+        rankingOnlyByCarrier
+    };
 }
+
 module.exports = { analyzeDrivers }
