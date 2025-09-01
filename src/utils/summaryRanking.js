@@ -410,7 +410,7 @@ function analyzeDrivers(drivers, exceptions, exceptionsSummary, tripsSummary, tr
     const rankingOnlyByCarrier = allCarrierResults.map(c => ({
         Ranking: c.Ranking,
         Transporteur: c.carrierName,
-        "Nombre de points perdus au 100km": c.Ratio !== 0 ? parseFloat((c.Ratio * 100).toFixed(2)) : '--',
+        "Nombre de points perdus au 100km": (c.Ratio === 0 || parseFloat(c.Ratio)) ? parseFloat((c.Ratio * 100).toFixed(2)) : '--',
         "Nombre de chauffeurs": c.driverCount
     }));
 

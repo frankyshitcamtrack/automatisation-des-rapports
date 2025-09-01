@@ -283,32 +283,23 @@ async function generateTotalRankingRepport() {
 
         if (ranking) {
             await convertJsonToExcelTotal(
-                ranking?.rankingOnly,
-                'Ranking Chauffeurs',
+                ranking?.rankingOnlyByCarrier,
+                'Ranking Transporteur',
                 `${pathFile}-${titleDate}.xlsx`,
-                rankinColumn
+                columnRankingTransporter
             )
                 .then(
                     setTimeout(
                         async () => {
                             await convertJsonToExcelTotal(
-                                ranking?.detailedResults,
-                                'Detail Ranking Chauffeurs',
+                                ranking?.rankingOnly,
+                                'Ranking Chauffeurs',
                                 `${pathFile}-${titleDate}.xlsx`,
-                                column
+                                rankinColumn
                             )
                         }, 5000
                     )
 
-                ).then(
-                    setTimeout(async () => {
-                        await convertJsonToExcelTotal(
-                            ranking?.rankingOnlyByCarrier,
-                            'Ranking Transporteur',
-                            `${pathFile}-${titleDate}.xlsx`,
-                            columnRankingTransporter
-                        )
-                    }, 20000)
                 ).then(
                     setTimeout(async () => {
                         await convertJsonToExcelTotal(
@@ -317,6 +308,15 @@ async function generateTotalRankingRepport() {
                             `${pathFile}-${titleDate}.xlsx`,
                             rankinColumnTransporterDetail
                         )
+                    }, 20000)
+                ).then(
+                    setTimeout(async () => {
+                        await convertJsonToExcelTotal(
+                            ranking?.detailedResults,
+                            'Detail Ranking Chauffeurs',
+                            `${pathFile}-${titleDate}.xlsx`,
+                            column
+                        )
                     }, 30000)
                 )
                 .then(() => {
@@ -324,7 +324,7 @@ async function generateTotalRankingRepport() {
                         setTimeout(() => {
                             sendMail(
                                 sender,
-                                receivers,
+                                ['franky.shity@camtrack.net'],
                                 pass,
                                 `${RAPPORT_RANKING}_${splitTitle[1]}_${splitTitle[0]}`,
                                 `${TOTAL_RANKING_SUBJECT_MAIL}`,
@@ -553,7 +553,7 @@ async function generateTotalRepports() {
     //await generateTotalClotureRepport('2025-08-27 00:00:00', '2025-08-27 21:00:00')
     //await generateTotalReposHebdo();
     //await generateNigthDrivingReport();
-    // await generateTotalRankingRepport();
+    //await generateTotalRankingRepport();
 
     cron.schedule('0 21-23,0-3 * * *', async () => {
         const now = moment();
