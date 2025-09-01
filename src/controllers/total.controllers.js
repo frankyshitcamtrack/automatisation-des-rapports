@@ -324,7 +324,7 @@ async function generateTotalRankingRepport() {
                         setTimeout(() => {
                             sendMail(
                                 sender,
-                                ['franky.shity@camtrack.net'],
+                                receivers,
                                 pass,
                                 `${RAPPORT_RANKING}_${splitTitle[1]}_${splitTitle[0]}`,
                                 `${TOTAL_RANKING_SUBJECT_MAIL}`,
@@ -338,11 +338,7 @@ async function generateTotalRankingRepport() {
                     }
                 })
         }
-
-
     }
-
-
 }
 
 //repos hebdo
@@ -550,7 +546,7 @@ async function generateTotalRepports() {
 
 
 
-    //await generateTotalClotureRepport('2025-08-27 00:00:00', '2025-08-27 21:00:00')
+    //await generateTotalClotureRepport('2025-08-31 00:00:00', '2025-09-01 03:00:00')
     //await generateTotalReposHebdo();
     //await generateNigthDrivingReport();
     //await generateTotalRankingRepport();
