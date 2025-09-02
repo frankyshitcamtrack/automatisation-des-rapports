@@ -85,8 +85,9 @@ const LIST_VEHICULES_GROUP = 'Liste des Vehicules';
 
 
 //total
-STATUS = 'Status';
+STATUS = 'Status(cropped)';
 TRIP_END = "Trip end";
+TRIP = "Trip"
 
 module.exports = {
   SYNTHESE,
@@ -152,5 +153,6 @@ module.exports = {
 
   LIST_VEHICULES_GROUP,
   STATUS,
-  TRIP_END
+  TRIP_END,
+  TRIP
 };

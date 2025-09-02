@@ -16,10 +16,10 @@ const { Receivers, totalReceivers } = require('../storage/mailReceivers.storage'
 const { Senders, totalSenders } = require('../storage/mailSender.storage');
 const { sendMail } = require('../utils/sendMail');
 const { deleteFile } = require('../utils/deleteFile');
-const { ALL_VEHICLE, LX_45, CAMEROUN_RANKING_REPORT, CAMEROUN_NIGHT_DRIVING_REPORT, CAMEROUN_REPOS_HEBDOMADAIRE, CAMEROUN_CLOTURE_ACTIVITE } = require('../constants/clients');
+const { ALL_VEHICLE, LX_45, CAMEROUN_RANKING_REPORT, CAMEROUN_NIGHT_DRIVING_REPORT, CAMEROUN_REPOS_HEBDOMADAIRE, CAMEROUN_CLOTURE_ACTIVITE, MDVR } = require('../constants/clients');
 const { TOTAL_ENERGIES, OBC_TEMCM } = require('../constants/ressourcesClient');
 const { STATUS_VEHICLE, STATUS_VEHICLE_NEW, RAPPORT_CLOTURE, RAPPORT_RANKING, RAPPORT_REPOS, RAPPORT_NIGHT_DRIVING } = require('../constants/template');
-const { STATUS, TRIP_END } = require('../constants/subGroups');
+const { STATUS, TRIP_END, TRIP } = require('../constants/subGroups');
 const { TOTAL_CLOTURE_SUBJECT_MAIL, TOTAL_RANKING_SUBJECT_MAIL, TOTAL_NIGTH_DRIVING_SUBJECT_MAIL, TOTAL_REPOS_HEBDO_SUBJECT_MAIL } = require('../constants/mailSubjects');
 
 const test = [{ name: 'frank', address: 'franky.shity@camtrack.net' }];
@@ -39,6 +39,22 @@ function getStartDateForNight(now) {
 const formatDateForFilename = (dateString) => {
     return dateString?.replace(/:/g, '-').replace(/ /g, '_');
 };
+
+
+function isEmptyValue(value) {
+    if (value == null || value === undefined) return true;
+
+    if (typeof value !== 'string') return false;
+
+    const trimmed = value.trim();
+    return trimmed === '' ||
+        trimmed === '--' ||
+        /^-+$/.test(trimmed) ||
+        /^n\/a$/i.test(trimmed) ||
+        trimmed === 'NA' ||
+        trimmed === 'null' ||
+        trimmed === 'undefined';
+}
 
 
 //nighht driving
@@ -122,25 +138,18 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
     await getTotalRepportData(
         TOTAL_ENERGIES,
         STATUS_VEHICLE,
-        ALL_VEHICLE,
+        MDVR,
         firstHourDay,
         lastHourDay,
-        STATUS
+        TRIP
     )
         .then(async (res) => {
             const objLenth = res?.obj.length;
+
             const tripEnd = await getTotalRepportData(
                 TOTAL_ENERGIES,
                 STATUS_VEHICLE,
                 ALL_VEHICLE,
-                firstHourDay,
-                lastHourDay,
-                TRIP_END
-            )
-            const OBCTripEnd = await getTotalRepportData(
-                OBC_TEMCM,
-                STATUS_VEHICLE_NEW,
-                LX_45,
                 firstHourDay,
                 lastHourDay,
                 TRIP_END
@@ -152,17 +161,15 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
                 LX_45,
                 firstHourDay,
                 lastHourDay,
-                STATUS
+                TRIP
             )
 
-
-
-            if (objLenth > 0 && tripEnd && OBCTripEnd) {
+            if (objLenth > 0 && tripEnd && OBCstatus) {
 
                 const compensateDriver = compensateDrivers(res.obj, tripEnd.obj);
-                const fullArr1 = compensateDrivers(compensateDriver, OBCTripEnd.obj);
+                const compensateDriver2 = compensateDrivers(compensateDriver, tripEnd.obj)
+                const fullArr = [...compensateDriver2, ...OBCstatus.obj]
 
-                const fullArr = compensateDrivers(fullArr1, OBCstatus.obj);
 
                 const column = [{ key: "Filiale" }, { key: "Transporteur" }, { key: 'Grouping' }, { key: 'Status Ignition' }, { key: 'Vitesse' }, { key: 'Dernier Conducteur' }, { key: 'Heure de Cloture' }, { key: 'Emplacement' }, { key: 'Coordonnées' }, { key: "Statut POI" }];
                 const fleetColumn = [{ key: "Transporteur" }, { key: "Nombre De Camions" }, { key: "Etat flotte" }, { key: "Heure De cloture" }, { key: "Camions Hors POI" }, { key: "Derniere mise a jour" }];
@@ -174,29 +181,57 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
                         return { ...item, "Statut PIO": PIO.includes(item?.Emplacement?.text) ? "Dans POI" : "Hors POI" }
                     });
 
+
                     const removeDup = keepLatestNotifications(filterData);
 
 
                     const listVehicleData = removeDup.map(item => {
-                        const status = parseFloat(item['Status Ignition']);
-                        const statusIgnition = !isNaN(status)
-                            ? (status === 0 ? "OFF" : "ON")
-                            : item['Status Ignition'];
-                        return {
-                            Filiale: item.Filiale ? item.Filiale : '--',
-                            Transporteur: item.Transporteur ? item.Transporteur : '--',
-                            Grouping: item.Grouping ? item.Grouping : '--',
-                            'Status Ignition': item['Status Ignition'] ? statusIgnition : '--',
-                            Vitesse: item.Vitesse ? item.Vitesse : '--',
-                            'Dernier Conducteur': item.Conducteur ? item.Conducteur : '--',
-                            'Heure de Cloture': item.Heure ? item.Heure : '--',
-                            Emplacement: item.Emplacement ? item.Emplacement : '--',
-                            Coordonnées: item['Coordonnées'] ? item['Coordonnées'] : '--',
-                            'Statut POI': item['Statut PIO'] ? item['Statut PIO'] : '--'
+
+                        const clean = (value) => isEmptyValue(value) ? null : value;
+
+                        const rawIgnition = item.Ignition;
+                        const rawVitesse = item.Vitesse;
+                        const rawEmplacement = item.Emplacement;
+                        const rawCoordonnees = item['Coordonnées'];
+                        const rawDateTime = item['Date et heure'];
+
+                        const cleanedItem = {
+                            Filiale: item.Filiale && !isEmptyValue(item.Filiale) ? item.Filiale : '--',
+                            Transporteur: item.Transporteur && !isEmptyValue(item.Transporteur) ? item.Transporteur : '--',
+                            Grouping: item.Grouping && !isEmptyValue(item.Grouping) ? item.Grouping : '--',
+                            'Status Ignition': isEmptyValue(rawIgnition) ? '--' : (parseFloat(rawIgnition) === 0 ? "OFF" : "ON"),
+                            Vitesse: clean(rawVitesse) ? rawVitesse : '--',
+                            'Dernier Conducteur': item.Conducteur && !isEmptyValue(item.Conducteur) ? item.Conducteur : '--',
+                            'Heure de Cloture': clean(rawDateTime) ? rawDateTime : '--',
+                            Emplacement: clean(rawEmplacement) ? rawEmplacement : '--',
+                            Coordonnées: clean(rawCoordonnees) ? rawCoordonnees : '--',
+                            'Statut POI': item['Statut PIO'] && !isEmptyValue(item['Statut PIO']) ? item['Statut PIO'] : '--'
+                        };
+
+
+                        const keyFields = [
+                            cleanedItem.Vitesse,
+                            cleanedItem.Emplacement,
+                            cleanedItem['Coordonnées'],
+                            cleanedItem['Heure de Cloture'],
+                            cleanedItem['Status Ignition']
+                        ];
+
+
+                        const allKeyFieldsEmpty = keyFields.every(val => val === '--');
+
+
+                        if (allKeyFieldsEmpty) {
+                            cleanedItem['Status Ignition'] = 'OFF';
+                            cleanedItem['Heure de Cloture'] = 'No Time';
                         }
-                    })
+
+                        return cleanedItem;
+                    });
+
 
                     const fleetReport = generateFleetReport(listVehicleData);
+
 
                     if (fleetReport) {
                         await convertJsonToExcelTotal(
@@ -546,7 +581,7 @@ async function generateTotalRepports() {
 
 
 
-    //await generateTotalClotureRepport('2025-08-31 00:00:00', '2025-09-01 03:00:00')
+    //await generateTotalClotureRepport('2025-09-01 00:00:00', '2025-09-01 21:00:00')
     //await generateTotalReposHebdo();
     //await generateNigthDrivingReport();
     //await generateTotalRankingRepport();

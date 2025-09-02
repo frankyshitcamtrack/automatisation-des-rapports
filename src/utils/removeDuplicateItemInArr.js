@@ -13,68 +13,153 @@ function removeDuplicatesCustom(arr, keyFn) {
 }
 
 function parseCustomDateTime(dateTimeStr) {
-  // Extraire date et heure
-  const [datePart, timePart] = dateTimeStr.split(' ');
+  if (!dateTimeStr || typeof dateTimeStr !== 'string') {
+    return NaN;
+  }
+
+  // Normaliser : remplacer 24:00 par 00:00 du jour suivant si nécessaire
+  const has24 = dateTimeStr.includes('24:');
+  if (has24) {
+    // Remplacer 24:xx par 00:xx et ajouter 1 jour
+    dateTimeStr = dateTimeStr.replace('24:', '00:');
+  }
+
+  const parts = dateTimeStr.trim().split(' ');
+  let datePart, timePart;
+
+  if (parts.length === 2) {
+    [datePart, timePart] = parts;
+  } else if (parts.length === 1) {
+    // Pas de date → utiliser aujourd'hui
+    datePart = new Date().toISOString().split('T')[0]; // "2024-05-17"
+    timePart = parts[0];
+  } else {
+    return NaN;
+  }
+
+  // Parser date
   const [year, month, day] = datePart.split('-').map(Number);
-  const [hourStr, min, sec] = timePart.split(':').map(Number);
+  if (![year, month, day].every(Number.isFinite)) {
+    return NaN;
+  }
 
-  // Gérer les heures > 23 (ex: 24:00 → 00:00 du jour suivant)
-  const totalHours = hourStr;
-  const baseDate = new Date(year, month - 1, day); // mois en JS = 0-11
+  // Parser heure
+  const timeParts = timePart.split(':').map(Number);
+  const hour = timeParts[0];
+  const minute = timeParts[1] ?? 0;
+  const second = timeParts[2] ?? 0;
 
-  // Ajouter les heures, minutes, secondes
-  baseDate.setHours(baseDate.getHours() + totalHours, min, sec, 0);
+  if (![hour, minute, second].every(Number.isFinite)) {
+    return NaN;
+  }
 
-  return baseDate;
+  // Créer la date
+  const date = new Date(year, month - 1, day, hour, minute, second);
+
+  // Vérifier validité
+  if (isNaN(date.getTime())) {
+    return NaN;
+  }
+
+  // Si on avait 24:xx, ajouter 1 jour
+  if (has24) {
+    date.setDate(date.getDate() + 1);
+  }
+
+  return date;
 }
 
 function keepLatestNotifications(notifications) {
   const latestByGroup = new Map();
-  const anyByGroup = new Map(); // Pour garder *au moins une* notification par groupe
+  const anyByGroup = new Map();
+  const driverNameByGroup = new Map();
 
   for (const item of notifications) {
     const key = item.Grouping;
-    if (!key) continue; // ignore si pas de Grouping
+    if (!key) continue;
 
-    // Enregistrer *toujours* une notification (pour le cas de secours)
+
+    if (!driverNameByGroup.has(key)) {
+      const driverName = item.driverName || item['Nom Conducteur'] || item.Drivers || null;
+      if (driverName) {
+        driverNameByGroup.set(key, driverName);
+      }
+    }
+
+
     if (!anyByGroup.has(key)) {
       anyByGroup.set(key, item);
     }
 
-    // Extraire l'heure
-    const timeStr = item.Heure?.text;
 
-    // Si pas d'heure, on ne fait rien ici → on garde le "any" comme fallback
+    let timeStr = null;
+    if (item.Heure && typeof item.Heure === 'object' && item.Heure.text) {
+      timeStr = item.Heure.text;
+    } else if (item['Date et heure'] && typeof item['Date et heure'] === 'object' && item['Date et heure'].text) {
+      timeStr = item['Date et heure'].text;
+    }
+
     if (!timeStr) {
       continue;
     }
 
-    // Parser la date
     const parsedDate = parseCustomDateTime(timeStr);
     if (isNaN(parsedDate.getTime())) {
-      continue; // date invalide
+      continue;
     }
 
-    // Comparer avec l'existant (qui a une heure)
+
     const existing = latestByGroup.get(key);
     if (!existing) {
       latestByGroup.set(key, item);
     } else {
-      const existingDate = parseCustomDateTime(existing.Heure.text);
+      let existingTimeStr = null;
+      if (existing.Heure?.text) {
+        existingTimeStr = existing.Heure.text;
+      } else if (existing['Date et heure']?.text) {
+        existingTimeStr = existing['Date et heure'].text;
+      }
+
+      if (!existingTimeStr) continue;
+
+      const existingDate = parseCustomDateTime(existingTimeStr);
+      if (isNaN(existingDate.getTime())) continue;
+
       if (parsedDate > existingDate) {
         latestByGroup.set(key, item);
       }
     }
   }
 
-  // === Construire le résultat final ===
+
   const result = [];
 
   for (const [key, fallbackItem] of anyByGroup) {
-    // Priorité 1 : notification avec heure la plus récente
-    // Priorité 2 : première notification reçue (sans heure)
+
     const best = latestByGroup.get(key) || fallbackItem;
-    result.push(best);
+
+
+    let driverName = best.driverName ||
+      best['Nom Conducteur'] ||
+      best.Drivers;
+
+
+    if (!driverName) {
+      driverName = driverNameByGroup.get(key) || null;
+    }
+
+
+    const finalItem = { ...best };
+
+
+    if (driverName) {
+
+      finalItem.driverName = driverName;
+
+      if (!finalItem['Nom Conducteur']) finalItem['Nom Conducteur'] = driverName;
+    }
+
+    result.push(finalItem);
   }
 
   return result;
