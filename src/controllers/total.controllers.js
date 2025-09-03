@@ -218,14 +218,16 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
                             cleanedItem.Emplacement,
                             cleanedItem['Coordonnées'],
                             cleanedItem['Heure de Cloture'],
-                            cleanedItem['Status Ignition']
+
                         ];
+
+
 
 
                         const allKeyFieldsEmpty = keyFields.every(val => val === '--');
 
 
-                        if (allKeyFieldsEmpty) {
+                        if (allKeyFieldsEmpty && cleanedItem['Status Ignition'] === 'OFF') {
                             cleanedItem['Status Ignition'] = 'OFF';
                             cleanedItem['Heure de Cloture'] = 'No Time';
                         }

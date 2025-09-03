@@ -284,7 +284,34 @@ async function generateAddaxMonthlyRepport() {
         })
         .catch((err) => console.log(err));
     })
-
+    .then(async () => {
+      await getRepportData(
+        ADMIN_ADDAX,
+        EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM,
+        ADDAX_PETROLEUM,
+        firstDayMonth,
+        lastDayMonth,
+        EXCESSIVE_IDLE
+      )
+        .then(async (res) => {
+          const objLenth = res?.obj.length;
+          if (objLenth > 0) {
+            const data = res.obj;
+            const column = res.excelColum;
+            await convertJsonToExcel(
+              data,
+              EXCESSIVE_IDLE,
+              `${pathFile}-${titleDate}.xlsx`,
+              column,
+              '858585'
+            );
+          } else {
+            console.log(
+              `no data found in ${EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM} ${EXCESSIVE_IDLE}`
+            );
+          }
+        })
+    })
     .then(async () => {
       await getRepportData(
         ADMIN_ADDAX,

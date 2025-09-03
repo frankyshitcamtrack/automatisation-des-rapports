@@ -20,17 +20,17 @@ async function generalControllers() {
   await generateAllRepportKPDC();
   await generateAllRepportDKT();
   await generateAllAliosRepport();
-  //await generateTotalRepports();
-  cron.schedule(
-    `00 12 * * *`,
-    async () => {
-      await generateTotalRepports();
-    },
-    {
-      scheduled: true,
-      timezone: 'Africa/Lagos',
-    }
-  );
+  await generateTotalRepports();
+  /*   cron.schedule(
+      `00 12 * * *`,
+      async () => {
+        await generateTotalRepports();
+      },
+      {
+        scheduled: true,
+        timezone: 'Africa/Lagos',
+      }
+    ); */
 }
 
 module.exports = { generalControllers };
