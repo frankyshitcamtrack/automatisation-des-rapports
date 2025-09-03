@@ -31,8 +31,6 @@ async function generalControllers() {
       timezone: 'Africa/Lagos',
     }
   );
-
-
 }
 
 module.exports = { generalControllers };

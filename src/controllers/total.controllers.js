@@ -171,6 +171,7 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
                 const fullArr = [...compensateDriver2, ...OBCstatus.obj]
 
 
+
                 const column = [{ key: "Filiale" }, { key: "Transporteur" }, { key: 'Grouping' }, { key: 'Status Ignition' }, { key: 'Vitesse' }, { key: 'Dernier Conducteur' }, { key: 'Heure de Cloture' }, { key: 'Emplacement' }, { key: 'Coordonnées' }, { key: "Statut POI" }];
                 const fleetColumn = [{ key: "Transporteur" }, { key: "Nombre De Camions" }, { key: "Etat flotte" }, { key: "Heure De cloture" }, { key: "Camions Hors POI" }, { key: "Derniere mise a jour" }];
 
@@ -184,6 +185,9 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
 
                     const removeDup = keepLatestNotifications(filterData);
 
+                    /*  const filterVhle = filterData.filter(item => item.Grouping === 'LT 312 NG')
+
+                   console.log(filterVhle); */
 
                     const listVehicleData = removeDup.map(item => {
 
@@ -581,7 +585,7 @@ async function generateTotalRepports() {
 
 
 
-    //await generateTotalClotureRepport('2025-09-01 00:00:00', '2025-09-01 21:00:00')
+    //await generateTotalClotureRepport('2025-09-02 00:00:00', '2025-09-03 01:00:00')
     //await generateTotalReposHebdo();
     //await generateNigthDrivingReport();
     //await generateTotalRankingRepport();

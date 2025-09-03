@@ -13,78 +13,28 @@ function removeDuplicatesCustom(arr, keyFn) {
 }
 
 function parseCustomDateTime(dateTimeStr) {
-  if (!dateTimeStr || typeof dateTimeStr !== 'string') {
-    return NaN;
-  }
-
-  // Normaliser : remplacer 24:00 par 00:00 du jour suivant si nécessaire
-  const has24 = dateTimeStr.includes('24:');
-  if (has24) {
-    // Remplacer 24:xx par 00:xx et ajouter 1 jour
-    dateTimeStr = dateTimeStr.replace('24:', '00:');
-  }
-
-  const parts = dateTimeStr.trim().split(' ');
-  let datePart, timePart;
-
-  if (parts.length === 2) {
-    [datePart, timePart] = parts;
-  } else if (parts.length === 1) {
-    // Pas de date → utiliser aujourd'hui
-    datePart = new Date().toISOString().split('T')[0]; // "2024-05-17"
-    timePart = parts[0];
-  } else {
-    return NaN;
-  }
-
-  // Parser date
+  // Extraire date et heure
+  const [datePart, timePart] = dateTimeStr.split(' ');
   const [year, month, day] = datePart.split('-').map(Number);
-  if (![year, month, day].every(Number.isFinite)) {
-    return NaN;
-  }
+  const [hourStr, min, sec] = timePart.split(':').map(Number);
 
-  // Parser heure
-  const timeParts = timePart.split(':').map(Number);
-  const hour = timeParts[0];
-  const minute = timeParts[1] ?? 0;
-  const second = timeParts[2] ?? 0;
+  // Gérer les heures > 23 (ex: 24:00 → 00:00 du jour suivant)
+  const totalHours = hourStr;
+  const baseDate = new Date(year, month - 1, day); // mois en JS = 0-11
 
-  if (![hour, minute, second].every(Number.isFinite)) {
-    return NaN;
-  }
+  // Ajouter les heures, minutes, secondes
+  baseDate.setHours(baseDate.getHours() + totalHours, min, sec, 0);
 
-  // Créer la date
-  const date = new Date(year, month - 1, day, hour, minute, second);
-
-  // Vérifier validité
-  if (isNaN(date.getTime())) {
-    return NaN;
-  }
-
-  // Si on avait 24:xx, ajouter 1 jour
-  if (has24) {
-    date.setDate(date.getDate() + 1);
-  }
-
-  return date;
+  return baseDate;
 }
 
 function keepLatestNotifications(notifications) {
   const latestByGroup = new Map();
   const anyByGroup = new Map();
-  const driverNameByGroup = new Map();
 
   for (const item of notifications) {
     const key = item.Grouping;
     if (!key) continue;
-
-
-    if (!driverNameByGroup.has(key)) {
-      const driverName = item.driverName || item['Nom Conducteur'] || item.Drivers || null;
-      if (driverName) {
-        driverNameByGroup.set(key, driverName);
-      }
-    }
 
 
     if (!anyByGroup.has(key)) {
@@ -93,15 +43,22 @@ function keepLatestNotifications(notifications) {
 
 
     let timeStr = null;
+
+
     if (item.Heure && typeof item.Heure === 'object' && item.Heure.text) {
       timeStr = item.Heure.text;
-    } else if (item['Date et heure'] && typeof item['Date et heure'] === 'object' && item['Date et heure'].text) {
+    }
+
+
+    else if (item['Date et heure'] && typeof item['Date et heure'] === 'object' && item['Date et heure'].text) {
       timeStr = item['Date et heure'].text;
     }
+
 
     if (!timeStr) {
       continue;
     }
+
 
     const parsedDate = parseCustomDateTime(timeStr);
     if (isNaN(parsedDate.getTime())) {
@@ -113,10 +70,11 @@ function keepLatestNotifications(notifications) {
     if (!existing) {
       latestByGroup.set(key, item);
     } else {
+
       let existingTimeStr = null;
-      if (existing.Heure?.text) {
+      if (existing.Heure && existing.Heure.text) {
         existingTimeStr = existing.Heure.text;
-      } else if (existing['Date et heure']?.text) {
+      } else if (existing['Date et heure'] && existing['Date et heure'].text) {
         existingTimeStr = existing['Date et heure'].text;
       }
 
@@ -133,33 +91,9 @@ function keepLatestNotifications(notifications) {
 
 
   const result = [];
-
   for (const [key, fallbackItem] of anyByGroup) {
-
     const best = latestByGroup.get(key) || fallbackItem;
-
-
-    let driverName = best.driverName ||
-      best['Nom Conducteur'] ||
-      best.Drivers;
-
-
-    if (!driverName) {
-      driverName = driverNameByGroup.get(key) || null;
-    }
-
-
-    const finalItem = { ...best };
-
-
-    if (driverName) {
-
-      finalItem.driverName = driverName;
-
-      if (!finalItem['Nom Conducteur']) finalItem['Nom Conducteur'] = driverName;
-    }
-
-    result.push(finalItem);
+    result.push(best);
   }
 
   return result;
