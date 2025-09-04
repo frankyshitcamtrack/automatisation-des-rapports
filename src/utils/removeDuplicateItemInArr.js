@@ -12,92 +12,60 @@ function removeDuplicatesCustom(arr, keyFn) {
   });
 }
 
+function extractDateTimeStr(item) {
+  if (item.Heure) {
+    if (typeof item.Heure === "string") return item.Heure;
+    if (typeof item.Heure === "object" && item.Heure.text) return item.Heure.text;
+  }
+
+  if (item["Date et heure"]) {
+    if (typeof item["Date et heure"] === "string") return item["Date et heure"];
+    if (typeof item["Date et heure"] === "object" && item["Date et heure"].text) {
+      return item["Date et heure"].text;
+    }
+  }
+
+  return null;
+}
+
 function parseCustomDateTime(dateTimeStr) {
-  // Extraire date et heure
-  const [datePart, timePart] = dateTimeStr.split(' ');
-  const [year, month, day] = datePart.split('-').map(Number);
-  const [hourStr, min, sec] = timePart.split(':').map(Number);
+  if (!dateTimeStr || typeof dateTimeStr !== "string") return null;
 
-  // Gérer les heures > 23 (ex: 24:00 → 00:00 du jour suivant)
-  const totalHours = hourStr;
-  const baseDate = new Date(year, month - 1, day); // mois en JS = 0-11
+  const [datePart, timePart] = dateTimeStr.split(" ");
+  if (!datePart || !timePart) return null;
 
-  // Ajouter les heures, minutes, secondes
-  baseDate.setHours(baseDate.getHours() + totalHours, min, sec, 0);
+  const [year, month, day] = datePart.split("-").map(Number);
+  const [hourStr, min, sec] = timePart.split(":").map(Number);
+
+  if ([year, month, day, hourStr, min, sec].some(isNaN)) return null;
+
+  const baseDate = new Date(year, month - 1, day);
+  baseDate.setHours(baseDate.getHours() + hourStr, min, sec, 0);
 
   return baseDate;
 }
 
+
 function keepLatestNotifications(notifications) {
   const latestByGroup = new Map();
-  const anyByGroup = new Map();
 
   for (const item of notifications) {
     const key = item.Grouping;
     if (!key) continue;
 
-
-    if (!anyByGroup.has(key)) {
-      anyByGroup.set(key, item);
-    }
-
-
-    let timeStr = null;
-
-
-    if (item.Heure && typeof item.Heure === 'object' && item.Heure.text) {
-      timeStr = item.Heure.text;
-    }
-
-
-    else if (item['Date et heure'] && typeof item['Date et heure'] === 'object' && item['Date et heure'].text) {
-      timeStr = item['Date et heure'].text;
-    }
-
-
-    if (!timeStr) {
-      continue;
-    }
-
-
+    const timeStr = extractDateTimeStr(item);
     const parsedDate = parseCustomDateTime(timeStr);
-    if (isNaN(parsedDate.getTime())) {
-      continue;
-    }
-
+    if (!parsedDate) continue;
 
     const existing = latestByGroup.get(key);
-    if (!existing) {
-      latestByGroup.set(key, item);
-    } else {
-
-      let existingTimeStr = null;
-      if (existing.Heure && existing.Heure.text) {
-        existingTimeStr = existing.Heure.text;
-      } else if (existing['Date et heure'] && existing['Date et heure'].text) {
-        existingTimeStr = existing['Date et heure'].text;
-      }
-
-      if (!existingTimeStr) continue;
-
-      const existingDate = parseCustomDateTime(existingTimeStr);
-      if (isNaN(existingDate.getTime())) continue;
-
-      if (parsedDate > existingDate) {
-        latestByGroup.set(key, item);
-      }
+    if (!existing || parsedDate > existing.date) {
+      latestByGroup.set(key, { item, date: parsedDate });
     }
   }
 
-
-  const result = [];
-  for (const [key, fallbackItem] of anyByGroup) {
-    const best = latestByGroup.get(key) || fallbackItem;
-    result.push(best);
-  }
-
-  return result;
+  return Array.from(latestByGroup.values()).map((v) => v.item);
 }
+
 
 
 module.exports = { removeDuplicates, removeDuplicatesCustom, keepLatestNotifications };

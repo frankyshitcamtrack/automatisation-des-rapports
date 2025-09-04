@@ -185,9 +185,9 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
 
                     const removeDup = keepLatestNotifications(filterData);
 
-                    /*  const filterVhle = filterData.filter(item => item.Grouping === 'LT 312 NG')
+                    // const filterVhle = removeDup.filter(item => item.Grouping === 'LT 200 JU')
 
-                   console.log(filterVhle); */
+                    // console.log(filterVhle); 
 
                     const listVehicleData = removeDup.map(item => {
 
@@ -203,10 +203,10 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
                             Filiale: item.Filiale && !isEmptyValue(item.Filiale) ? item.Filiale : '--',
                             Transporteur: item.Transporteur && !isEmptyValue(item.Transporteur) ? item.Transporteur : '--',
                             Grouping: item.Grouping && !isEmptyValue(item.Grouping) ? item.Grouping : '--',
-                            'Status Ignition': isEmptyValue(rawIgnition) ? '--' : (parseFloat(rawIgnition) === 0 ? "OFF" : "ON"),
+                            'Status Ignition': parseFloat(rawIgnition) === 0 ? "OFF" : 'ON',
                             Vitesse: clean(rawVitesse) ? rawVitesse : '--',
                             'Dernier Conducteur': item.Conducteur && !isEmptyValue(item.Conducteur) ? item.Conducteur : '--',
-                            'Heure de Cloture': clean(rawDateTime) ? rawDateTime : '--',
+                            'Heure de Cloture': (clean(rawDateTime) && parseFloat(rawIgnition) > 0) ? '--' : rawDateTime,
                             Emplacement: clean(rawEmplacement) ? rawEmplacement : '--',
                             Coordonnées: clean(rawCoordonnees) ? rawCoordonnees : '--',
                             'Statut POI': item['Statut PIO'] && !isEmptyValue(item['Statut PIO']) ? item['Statut PIO'] : '--'
@@ -587,7 +587,7 @@ async function generateTotalRepports() {
 
 
 
-    //await generateTotalClotureRepport('2025-09-02 00:00:00', '2025-09-03 01:00:00')
+    //await generateTotalClotureRepport('2025-09-03 00:00:00', '2025-09-04 03:00:00')
     //await generateTotalReposHebdo();
     //await generateNigthDrivingReport();
     //await generateTotalRankingRepport();
