@@ -229,7 +229,7 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
 
                         if (allKeyFieldsEmpty && cleanedItem['Status Ignition'] === 'OFF') {
                             cleanedItem['Status Ignition'] = 'OFF';
-                            cleanedItem['Heure de Cloture'] = 'No Time';
+                            cleanedItem['Heure de Cloture'] = 'NA';
                         }
 
                         return cleanedItem;
@@ -365,7 +365,7 @@ async function generateTotalRankingRepport() {
                         setTimeout(() => {
                             sendMail(
                                 sender,
-                                receivers,
+                                ['franky.shity@camtrack.net'],
                                 pass,
                                 `${RAPPORT_RANKING}_${splitTitle[1]}_${splitTitle[0]}`,
                                 `${TOTAL_RANKING_SUBJECT_MAIL}`,
