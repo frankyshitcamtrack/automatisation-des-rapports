@@ -45,7 +45,7 @@ function parseCustomDateTime(dateTimeStr) {
   return baseDate;
 }
 
-
+/* 
 function keepLatestNotifications(notifications) {
   const latestByGroup = new Map();
 
@@ -64,6 +64,24 @@ function keepLatestNotifications(notifications) {
   }
 
   return Array.from(latestByGroup.values()).map((v) => v.item);
+} */
+
+function keepLatestNotifications(notifications) {
+  const latestByGroup = new Map();
+  const groupOrder = []; // Pour garder l'ordre d'apparition
+
+  for (const item of notifications) {
+    const key = item.Grouping;
+    if (!key) continue;
+
+    if (!latestByGroup.has(key)) {
+      groupOrder.push(key); // Premier passage → on garde l'ordre
+    }
+
+    latestByGroup.set(key, item);
+  }
+
+  return groupOrder.map(key => latestByGroup.get(key));
 }
 
 

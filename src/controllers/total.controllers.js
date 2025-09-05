@@ -146,6 +146,11 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
         .then(async (res) => {
             const objLenth = res?.obj.length;
 
+            //const filterVhleY = res?.obj.filter(item => item.Grouping === 'LTTR 821 AT')
+
+            //console.log(filterVhleY);
+
+
             const tripEnd = await getTotalRepportData(
                 TOTAL_ENERGIES,
                 STATUS_VEHICLE,
@@ -182,12 +187,15 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
                         return { ...item, "Statut PIO": PIO.includes(item?.Emplacement?.text) ? "Dans POI" : "Hors POI" }
                     });
 
+                    //const filterVhleL = filterData.filter(item => item.Grouping === 'LTTR 821 AT')
+
+                    //console.log(filterVhleL);
 
                     const removeDup = keepLatestNotifications(filterData);
 
-                    // const filterVhle = removeDup.filter(item => item.Grouping === 'LT 200 JU')
+                    //const filterVhle = removeDup.filter(item => item.Grouping === 'LTTR 821 AT')
 
-                    // console.log(filterVhle); 
+                    //console.log(filterVhle);
 
                     const listVehicleData = removeDup.map(item => {
 
@@ -587,7 +595,7 @@ async function generateTotalRepports() {
 
 
 
-    //await generateTotalClotureRepport('2025-09-03 00:00:00', '2025-09-04 03:00:00')
+    //await generateTotalClotureRepport('2025-09-04 00:00:00', '2025-09-04 21:00:00')
     //await generateTotalReposHebdo();
     //await generateNigthDrivingReport();
     //await generateTotalRankingRepport();
