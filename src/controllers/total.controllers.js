@@ -49,6 +49,8 @@ function isEmptyValue(value) {
     const trimmed = value.trim();
     return trimmed === '' ||
         trimmed === '--' ||
+        trimmed === '-----' ||
+        trimmed === '------' ||
         /^-+$/.test(trimmed) ||
         /^n\/a$/i.test(trimmed) ||
         trimmed === 'NA' ||
@@ -146,6 +148,7 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
         .then(async (res) => {
             const objLenth = res?.obj.length;
 
+            //console.log(res?.obj);
             //const filterVhleY = res?.obj.filter(item => item.Grouping === 'LTTR 821 AT')
 
             //console.log(filterVhleY);
@@ -177,7 +180,7 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
 
 
 
-                const column = [{ key: "Filiale" }, { key: "Transporteur" }, { key: 'Grouping' }, { key: 'Status Ignition' }, { key: 'Vitesse' }, { key: 'Dernier Conducteur' }, { key: 'Heure de Cloture' }, { key: 'Emplacement' }, { key: 'Coordonnées' }, { key: "Statut POI" }];
+                const column = [{ key: "Filiale" }, { key: "Transporteur" }, { key: 'Grouping' }, { key: 'Status Ignition' }, { key: 'Heure de Cloture' }, { key: 'Emplacement' }, { key: 'Coordonnées' }, { key: "Statut POI" }];
                 const fleetColumn = [{ key: "Transporteur" }, { key: "Nombre De Camions" }, { key: "Etat flotte" }, { key: "Heure De cloture" }, { key: "Camions Hors POI" }, { key: "Derniere mise a jour" }];
 
                 if (totalTrucks, totalTransporter, totalAfiliate, PIO) {
@@ -197,24 +200,37 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
 
                     //console.log(filterVhle);
 
+                    //console.log(removeDup[1]);
                     const listVehicleData = removeDup.map(item => {
 
+
                         const clean = (value) => isEmptyValue(value) ? null : value;
+
+
 
                         const rawIgnition = item.Ignition;
                         const rawVitesse = item.Vitesse;
                         const rawEmplacement = item.Emplacement;
-                        const rawCoordonnees = item['Coordonnées'];
+                        const rawCoordonnees = item.Emplacement ? {
+                            text: item?.Emplacement?.hyperlink?.split('/')[5],
+                            hyperlink: `https://www.google.com/maps/place/${item?.Emplacement?.hyperlink?.split('/')[5]}`
+                        } : undefined;
                         const rawDateTime = item['Date et heure'];
+
+                        //console.log(rawCoordonnees);
 
                         const cleanedItem = {
                             Filiale: item.Filiale && !isEmptyValue(item.Filiale) ? item.Filiale : '--',
                             Transporteur: item.Transporteur && !isEmptyValue(item.Transporteur) ? item.Transporteur : '--',
                             Grouping: item.Grouping && !isEmptyValue(item.Grouping) ? item.Grouping : '--',
                             'Status Ignition': parseFloat(rawIgnition) === 0 ? "OFF" : 'ON',
-                            Vitesse: clean(rawVitesse) ? rawVitesse : '--',
-                            'Dernier Conducteur': item.Conducteur && !isEmptyValue(item.Conducteur) ? item.Conducteur : '--',
-                            'Heure de Cloture': (clean(rawDateTime) && parseFloat(rawIgnition) > 0) ? '--' : rawDateTime,
+                            //Vitesse: clean(rawVitesse) ? rawVitesse : '--',
+                            //'Dernier Conducteur': item.Conducteur && !isEmptyValue(item.Conducteur) ? item.Conducteur : '--',
+                            'Heure de Cloture': parseFloat(rawIgnition) > 0
+                                ? '--'
+                                : isEmptyValue(rawDateTime)
+                                    ? '--'
+                                    : rawDateTime,
                             Emplacement: clean(rawEmplacement) ? rawEmplacement : '--',
                             Coordonnées: clean(rawCoordonnees) ? rawCoordonnees : '--',
                             'Statut POI': item['Statut PIO'] && !isEmptyValue(item['Statut PIO']) ? item['Statut PIO'] : '--'
@@ -222,11 +238,9 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
 
 
                         const keyFields = [
-                            cleanedItem.Vitesse,
                             cleanedItem.Emplacement,
                             cleanedItem['Coordonnées'],
                             cleanedItem['Heure de Cloture'],
-
                         ];
 
 
@@ -237,12 +251,14 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
 
                         if (allKeyFieldsEmpty && cleanedItem['Status Ignition'] === 'OFF') {
                             cleanedItem['Status Ignition'] = 'OFF';
-                            cleanedItem['Heure de Cloture'] = 'NA';
+                            cleanedItem['Heure de Cloture'] = 'Not Applicable';
                         }
 
                         return cleanedItem;
                     });
 
+                    const t = listVehicleData.filter(item => item.Transporteur === 'SOCOTRAP')
+                    //console.log(t);
 
                     const fleetReport = generateFleetReport(listVehicleData);
 
@@ -373,7 +389,7 @@ async function generateTotalRankingRepport() {
                         setTimeout(() => {
                             sendMail(
                                 sender,
-                                ['franky.shity@camtrack.net'],
+                                receivers,
                                 pass,
                                 `${RAPPORT_RANKING}_${splitTitle[1]}_${splitTitle[0]}`,
                                 `${TOTAL_RANKING_SUBJECT_MAIL}`,
@@ -595,7 +611,7 @@ async function generateTotalRepports() {
 
 
 
-    //await generateTotalClotureRepport('2025-09-04 00:00:00', '2025-09-04 21:00:00')
+    //await generateTotalClotureRepport('2025-09-05 00:00:00', '2025-09-06 03:00:00')
     //await generateTotalReposHebdo();
     //await generateNigthDrivingReport();
     //await generateTotalRankingRepport();
