@@ -1,4 +1,5 @@
 const { level } = require('../storage/exception.level');
+const { dateInYyyyMmDdHhMmSs } = require('../utils/dateFormat')
 
 function processNightDrivingSimple(nightDrivingData, drivers, vehicles, transporters, subsidiaries) {
     const driverMap = Object.fromEntries(drivers.map(d => [d.drivid, d]))
@@ -52,7 +53,7 @@ function processNightDrivingSimple(nightDrivingData, drivers, vehicles, transpor
     function isNightTime(datetime) {
         try {
             const date = new Date(datetime);
-            const hours = date.getUTCHours()
+            const hours = date.getHours();
             return hours >= 18 || hours === 0;
         } catch {
             return false;
@@ -71,6 +72,9 @@ function processNightDrivingSimple(nightDrivingData, drivers, vehicles, transpor
 
     return nightDrivingData?.map(exception => {
 
+
+        const startDate = `${exception.startdatetime.toString().split('T')[0]} ${exception.startdatetime.toString().split('T')[1].split('.')[0]}`
+        const endDate = `${exception.enddatetime.toString().split('T')[0]} ${exception.enddatetime.toString().split('T')[1].split('.')[0]}`
         const subsidiary = subsidiaryMap[exception?.affiliateid];
         const transporter = transporterMap[exception?.transporterid];
         const vehicle = vehicleMap[exception?.vehicleid];
@@ -89,8 +93,8 @@ function processNightDrivingSimple(nightDrivingData, drivers, vehicles, transpor
             Driver: driver?.drivnm || `Chauffeur Inconnu`,
             "start point": exception.startgps,
             "end point": exception.endgps,
-            "start date and time": new Date(exception.startdatetime).toLocaleString('fr-FR'),
-            "end date and time": new Date(exception.enddatetime).toLocaleString('fr-FR'),
+            "start date and time": startDate,
+            "end date and time": endDate,
             "Total duration": formatDuration(exception.totalduration),
             Exception: "Night driving",
             Niveau: Level[0].value,

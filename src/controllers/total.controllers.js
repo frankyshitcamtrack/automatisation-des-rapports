@@ -81,6 +81,7 @@ async function generateNigthDrivingReport() {
 
     const totalNigthsDriving = await getTotalNigths(fisrtHourNigth, lastHourNigth);
 
+
     if (totalTrucks, totalTransporter, totalAfiliate) {
         const nigtDrivingData = processNightDrivingSimple(totalNigthsDriving["resultat"], drivers['resultat'], totalTrucks['resultat'], totalTransporter['resultat'], totalAfiliate['resultat'])
 

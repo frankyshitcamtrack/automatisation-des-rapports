@@ -2296,6 +2296,7 @@ async function generateComAlios(data, sheet, path, excelColum, colorSheet) {
 }
 
 async function convertJsonToExcelTotal(data, sheet, path, excelColum, colorSheet) {
+  //  console.log(data[0])
   const dataHeader = [];
 
   const isExistPath = fs.existsSync(path);
