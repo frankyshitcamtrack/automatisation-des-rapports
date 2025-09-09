@@ -4,6 +4,9 @@ const moment = require('moment');
 const { getTotalRepportData } = require('../models/total.model');
 const { getTotalAfiliate, getTotalTransporter, getTotalTrucks, getPIO, getTotalNigths, allExceptionType, summaryException, summaryTrip, getTotalDrivers, getpreventreposhebdo, getpreventTestreposhebdo, getLastDriving, getLastDayTransporter } = require('../services/total.service')
 const { getFistAndLastHourDay, getFistAndLastHourDay18H05H, getFirstAndLastSevendays } = require('../utils/getFirstAndLastHourDay');
+const {
+    getFirstAndLastDayMonth,
+} = require('../utils/getFistDayAndLastDayMonth');
 const { convertDateToTimeStamp } = require('../utils/dateFormat')
 const { compensateDrivers } = require('../utils/fillsDriverFromArray');
 const { mergeSimpleParkingData } = require('../utils/mergeTotalDataParking');
@@ -182,7 +185,7 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
 
 
                 const column = [{ key: "Filiale" }, { key: "Transporteur" }, { key: 'Grouping' }, { key: 'Status Ignition' }, { key: 'Heure de Cloture' }, { key: 'Emplacement' }, { key: 'Coordonnées' }, { key: "Statut POI" }];
-                const fleetColumn = [{ key: "Transporteur" }, { key: "Nombre De Camions" }, { key: "Etat flotte" }, { key: "Heure De cloture" }, { key: "Camions Hors POI" }, { key: "Derniere mise a jour" }];
+                const fleetColumn = [{ key: "Transporteur" }, { key: "Nombre De Camions" }, { key: "Etat flotte" }, { key: "Heure De cloture" }, { key: "Nombres de Véhicules Actifs" }, { key: "Camions Hors POI" }, { key: "Derniere mise a jour" }];
 
                 if (totalTrucks, totalTransporter, totalAfiliate, PIO) {
                     const finalData = mergeSimpleParkingData(fullArr, totalTrucks["resultat"], totalTransporter["resultat"], totalAfiliate["resultat"]);
@@ -291,9 +294,7 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
                     `no data found in ${TOTAL_ENERGIES} ${STATUS}`
                 );
             }
-        }
-
-        )
+        })
         .then(() => {
             if (sender && receivers) {
                 setTimeout(() => {
@@ -321,10 +322,10 @@ async function generateTotalRankingRepport() {
     const sender = await totalSenders(CAMEROUN_RANKING_REPORT, 'B');
     const receivers = await totalReceivers(CAMEROUN_RANKING_REPORT, 'C');
 
-    const fistAndLastHourDay = getFirstAndLastSevendays();
+    const fistAndLastHourDay = getFirstAndLastDayMonth();
 
-    const firstHourDay = fistAndLastHourDay.firstHourDayFormat;
-    const lastHourDay = fistAndLastHourDay.lasthourDayFormat;
+    const firstHourDay = fistAndLastHourDay.fistDayFormat;
+    const lastHourDay = fistAndLastHourDay.lastDayFormat;
 
 
     const getSummaryTrip = await summaryTrip(firstHourDay, lastHourDay);
@@ -337,8 +338,8 @@ async function generateTotalRankingRepport() {
     const titleDate = fistAndLastHourDay.dateTitle;
     const splitTitle = titleDate.split('-')
     const pathFile = 'rapport/Total/Ranking';
-    const column = [{ key: "Driver" }, { key: "Nombres d'Alertes Conduite de nuit" }, { key: "Nombres d'Alarme Conduite de nuit" }, { key: "Nombres d'Alertes conduite hebdomadaire" }, { key: "Nombres d'Alertes Repos hebdomadaire" }, { key: "Nombres d'Alarme Repos hebdomadaire" }, { key: "Nombres d'Alertes Travail hebdomadaire" }, { key: "Nombres d'Alarme Travail hebdomadaire" }, { key: "Nombres d'Alertes Travail journalier" }, { key: "Nombres d'Alarme Travail journalier" }, { key: "Nombres d'Alertes Conduite continue" }, { key: "Nombres d'Alarme Conduite continue" }, { key: "Nombres d'Alertes HB" }, { key: "Nombres d'Alarme HB" }, { key: "Nombres d'Alertes HA" }, { key: "Nombres d'Alarme HA" }, { key: "Nombres de Téléphone au volant" }, { key: "Nombres de smoking" }, { key: "Nombres de Ceinture de Sécurité" }, { key: "Nombres de fatigues" }, { key: "Nombres de distraction" }, { key: "Nombre totale de points perdu sur la période" }, { key: "Distance totale Parcouru sur la période (km)" }, { key: "Durée de Conduite sur la période" }, { key: "Durée de Conduite sur la période en heure" }, { key: "Ratio" }, { key: "Ranking" }];
-    const rankinColumn = [{ key: "Ranking" }, { key: "Driver" }, { key: 'Nombre de points perdus au 100km' }];
+    const column = [{ key: "Driver" }, { key: 'Transporteur' }, { key: "Nombres d'Alertes Conduite de nuit" }, { key: "Nombres d'Alarme Conduite de nuit" }, { key: "Nombres d'Alertes conduite hebdomadaire" }, { key: "Nombres d'Alertes Repos hebdomadaire" }, { key: "Nombres d'Alarme Repos hebdomadaire" }, { key: "Nombres d'Alertes Travail hebdomadaire" }, { key: "Nombres d'Alarme Travail hebdomadaire" }, { key: "Nombres d'Alertes Travail journalier" }, { key: "Nombres d'Alarme Travail journalier" }, { key: "Nombres d'Alertes Conduite continue" }, { key: "Nombres d'Alarme Conduite continue" }, { key: "Nombres d'Alertes HB" }, { key: "Nombres d'Alarme HB" }, { key: "Nombres d'Alertes HA" }, { key: "Nombres d'Alarme HA" }, { key: "Nombres de Téléphone au volant" }, { key: "Nombres de smoking" }, { key: "Nombres de Ceinture de Sécurité" }, { key: "Nombres de fatigues" }, { key: "Nombres de distraction" }, { key: "Nombre totale de points perdu sur la période" }, { key: "Distance totale Parcouru sur la période (km)" }, { key: "Durée de Conduite sur la période" }, { key: "Durée de Conduite sur la période en heure" }, { key: "Ratio" }, { key: "Ranking" }];
+    const rankinColumn = [{ key: "Ranking" }, { key: "Driver" }, { key: 'Transporteur' }, { key: 'Nombre de points perdus au 100km' }];
     const rankinColumnTransporterDetail = [{ key: "Transporteur" }, { key: "Nombres d'Alertes Conduite de nuit" }, { key: "Nombres d'Alarme Conduite de nuit" }, { key: "Nombres d'Alertes conduite hebdomadaire" }, { key: "Nombres d'Alertes Repos hebdomadaire" }, { key: "Nombres d'Alarme Repos hebdomadaire" }, { key: "Nombres d'Alertes Travail hebdomadaire" }, { key: "Nombres d'Alarme Travail hebdomadaire" }, { key: "Nombres d'Alertes Travail journalier" }, { key: "Nombres d'Alarme Travail journalier" }, { key: "Nombres d'Alertes Conduite continue" }, { key: "Nombres d'Alarme Conduite continue" }, { key: "Nombres d'Alertes HB" }, { key: "Nombres d'Alarme HB" }, { key: "Nombres d'Alertes HA" }, { key: "Nombres d'Alarme HA" }, { key: "Nombres de Téléphone au volant" }, { key: "Nombres de smoking" }, { key: "Nombres de Ceinture de Sécurité" }, { key: "Nombres de fatigues" }, { key: "Nombres de distraction" }, { key: "Nombre totale de points perdu sur la période" }, { key: "Distance totale Parcouru sur la période (km)" }, { key: "Durée de Conduite sur la période" }, { key: "Durée de Conduite sur la période en heure" }, { key: "Ratio" }, { key: "Ranking" }];
     const columnRankingTransporter = [{ key: "Ranking" }, { key: "Transporteur" }, { key: 'Nombre de points perdus au 100km' }];
 

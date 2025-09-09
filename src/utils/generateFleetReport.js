@@ -35,6 +35,11 @@ function generateFleetReport(data) {
             return status === "ON";
         });
 
+        const numberVehicleActives = vehicles.filter(vehicle => {
+            const status = vehicle['Status Ignition'];
+            return status === "ON";
+        }).length
+
 
         const camionsHorsPOI = vehicles.filter(v => v['Statut POI'] === 'Hors POI').length;
 
@@ -43,6 +48,7 @@ function generateFleetReport(data) {
             "Transporteur": transporteur,
             "Nombre De Camions": vehicles.length,
             "Heure De cloture": hasActiveVehicle ? '--' : derniereHeure,
+            "Nombres de Véhicules Actifs": numberVehicleActives,
             "Etat flotte": hasActiveVehicle ? 'Flotte ON' : 'Flotte OFF',
             "Camions Hors POI": camionsHorsPOI,
             "Derniere mise a jour": new Date().toLocaleString('fr-FR')

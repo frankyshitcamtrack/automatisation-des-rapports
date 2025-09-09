@@ -54,8 +54,8 @@ async function generateAddaxDaylyRepport() {
   const firstHourDay = fistAndLastHourDay.firstHourDayTimestamp;
   const lastHourDay = fistAndLastHourDay.lastHourDayTimestamp;
 
-  /*  const firstHourDay = "1749769200";
-   const lastHourDay = "1749855540"; */
+  //const firstHourDay = "1757026800";
+  //const lastHourDay = "1757113199";
   const titleDate = fistAndLastHourDay.dateTitle;
   const pathFile = 'rapport/Adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM';
 

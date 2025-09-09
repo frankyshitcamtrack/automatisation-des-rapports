@@ -20,7 +20,7 @@ function getFirstAndLastDayMonth() {
   });
   let title = `${MonthString}-${date.getFullYear()}`;
   let dateTitle = title.toString().toLocaleUpperCase();
-  return { firstDayTimestamp, lastDayTimestamp, dateTitle };
+  return { firstDayTimestamp, lastDayTimestamp, fistDayFormat, lastDayFormat, dateTitle };
 }
 
 module.exports = { getFirstAndLastDayMonth };
