@@ -348,11 +348,12 @@ async function generateTotalRankingRepport() {
 
     if (drivers, getSummaryExceptions, exceptionType, getSummaryTrip) {
         const ranking = analyzeDrivers(drivers["resultat"], exceptionType, getSummaryExceptions['resultat'], getSummaryTrip['resultat'], transporter['resultat']);
-        /*  await legendeRankingTotal(
-                      `${pathFile}-${titleDate}.xlsx`,
-                      'Legende',
-                  ).then(() => { console.log('generated legend') }) */
 
+        /*    await legendeRankingTotal(
+               `${pathFile}-${titleDate}.xlsx`,
+               'Legende',
+           ).then(() => { console.log('generated legend') });
+    */
 
         if (ranking) {
 

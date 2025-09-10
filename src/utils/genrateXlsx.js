@@ -2423,7 +2423,7 @@ async function legendeRankingTotal(path, sheet) {
 
   const worksheet = workbook.addWorksheet(sheet);
 
-  worksheet.views = [{ showGridLines: false }];
+  worksheet.views = [{ showGridLines: true }];
 
   worksheet.addImage(imageId2, 'A1:D5');
 
@@ -2439,19 +2439,34 @@ async function legendeRankingTotal(path, sheet) {
     editAs: 'oneCell',
   });
 
-  worksheet.mergeCells('A5', 'D5');
-  worksheet.getCell('A5').alignment = {
+  //new
+  worksheet.mergeCells('B2', 'D2');
+  worksheet.getCell('D2').alignment = {
     vertical: 'middle',
     horizontal: 'center',
   };
-  worksheet.getCell('A5').font = { name: 'Arial', size: 12, bold: true };
-  worksheet.getCell('A5').border = {
+
+  worksheet.getCell('D2').font = { name: 'Arial', size: 12, bold: true, underline: true };
+  worksheet.getCell('D2').border = {
     top: { style: 'medium', color: { argb: '000000' } },
     left: { style: 'medium', color: { argb: '000000' } },
     bottom: { style: 'medium', color: { argb: '000000' } },
     right: { style: 'medium', color: { argb: '000000' } },
   };
-  worksheet.getCell('A5').value = sheet;
+  worksheet.getCell('D2').value = 'Critère de Perte de Points';
+
+
+  worksheet.mergeCells('F2', 'G2');
+  worksheet.getCell('G2').alignment = {
+    vertical: 'middle',
+    horizontal: 'center',
+  };
+  worksheet.getCell('G2').font = { name: 'Arial', size: 12, bold: true, underline: true };
+  worksheet.getCell('G2').value = 'Critère de Calcul du Ratio (Formule)';
+
+
+  //old
+
 
   worksheet.getColumn(1).width = 70;
   worksheet.getColumn(2).width = 60;
