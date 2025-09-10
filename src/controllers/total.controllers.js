@@ -663,7 +663,7 @@ async function generateTotalRepports() {
 
 
     cron.schedule(
-        `00 ${hourScheduleRankingHour} * * *`,
+        `${hourScheduleRankingHour[1]} ${hourScheduleRankingHour[0]} * * *`,
         async () => {
             await generateTotalRankingRepport();
         },
