@@ -615,7 +615,7 @@ async function generateTotalRepports() {
     const hourScheduleRepos = await totalReceivers(CAMEROUN_REPOS_HEBDOMADAIRE, 'F');
 
     const hourScheduleNigthHour = hourScheduleNigth[0].address.split(':')[0];
-    const hourScheduleRankingHour = hourScheduleRanking[0].address.split(':')[0];
+    const hourScheduleRankingHour = hourScheduleRanking[0].address.split(':');
     const hourScheduleReposHour = hourScheduleRepos[0].address.split(':')
 
 
