@@ -1,6 +1,7 @@
 const fs = require('fs');
 const _ = require('lodash');
 const XLSX = require('exceljs');
+const { autoSizeColumnSheet } = require('../utils/autoSizeColumnSheet');
 const {
   addImageBannerHeaderSheet,
   perencoHeaderSheet,
@@ -2295,7 +2296,7 @@ async function generateComAlios(data, sheet, path, excelColum, colorSheet) {
   }
 }
 
-async function convertJsonToExcelTotal(data, sheet, path, excelColum, colorSheet) {
+/* async function convertJsonToExcelTotal(data, sheet, path, excelColum, colorSheet) {
   //  console.log(data[0])
   const dataHeader = [];
 
@@ -2329,20 +2330,23 @@ async function convertJsonToExcelTotal(data, sheet, path, excelColum, colorSheet
     if (isExistPath) {
       setTimeout(async () => {
         console.log(`Generating file ${sheet} ...`);
-        const readFile = await workbook.xlsx.readFile(path);
+
+        const readFile = await workbook?.xlsx?.readFile(path);
         if (readFile) {
-          const existWorkSheet = workbook.getWorksheet(sheet);
+          const existWorkSheet = workbook?.getWorksheet(sheet);
+
           if (existWorkSheet) {
-            const existWorkSheetName = existWorkSheet.name;
+            const existWorkSheetName = existWorkSheet?.name || '';
             if (existWorkSheetName === sheet) {
               addRowExistSheet(existWorkSheet, data);
             }
           } else {
+
             const worksheet = workbook.addWorksheet(sheet, {
-              properties: { tabColor: { argb: colorSheet } },
+              properties: { tabColor: { argb: colorSheet } }
             });
 
-            prepareSheet(worksheet, data, dataHeader, excelColum);
+            await prepareSheet(worksheet, data, dataHeader, excelColum);
 
             //Center image header banner depending on number of columns
             addImageBannerHeaderSheet(
@@ -2356,7 +2360,7 @@ async function convertJsonToExcelTotal(data, sheet, path, excelColum, colorSheet
           }
           // Export excel generated file
           workbook.xlsx
-            .writeFile(path, { type: 'buffer', bookType: 'xlsx' })
+            .writeFile(path)
             .then((response) => {
               console.log('file generated');
             })
@@ -2373,7 +2377,7 @@ async function convertJsonToExcelTotal(data, sheet, path, excelColum, colorSheet
         properties: { tabColor: { argb: colorSheet } },
       });
 
-      prepareSheet(worksheet, data, dataHeader, excelColum);
+      await prepareSheet(worksheet, data, dataHeader, excelColum);
 
       //Center image header banner depending on number of columns
       addImageBannerHeaderSheet(
@@ -2396,317 +2400,181 @@ async function convertJsonToExcelTotal(data, sheet, path, excelColum, colorSheet
         });
     }
   }
+} */
+
+
+async function convertJsonToExcelTotal(data, sheet, path, excelColum, colorSheet) {
+  const dataHeader = [];
+
+  if (excelColum) {
+    excelColum.forEach((item) => {
+      dataHeader.push(item.key);
+    });
+  }
+
+  if (dataHeader.length === 0) {
+    console.warn('Aucune colonne définie pour', sheet);
+    return;
+  }
+
+  let workbook = new XLSX.Workbook();
+  const fileExists = fs.existsSync(path);
+
+  try {
+    if (fileExists) {
+      console.log(`Lecture du fichier existant: ${path}`);
+      try {
+        await workbook.xlsx.readFile(path);
+      } catch (readError) {
+        console.warn('Impossible de lire le fichier existant, création d\'un nouveau:', readError);
+        // Continuer avec un nouveau workbook
+      }
+    }
+
+    // Ajouter les images seulement si le workbook est vide
+    const imageId2 = workbook.addImage({
+      buffer: fs.readFileSync('rapport/Total/assets/banner.png'),
+      extension: 'png',
+    });
+
+    const logo1 = workbook.addImage({
+      buffer: fs.readFileSync('rapport/Total/assets/total.png'),
+      extension: 'png',
+    });
+
+    const logo2 = workbook.addImage({
+      buffer: fs.readFileSync('rapport/Total/assets/camtrack-logo.png'),
+      extension: 'png',
+    });
+
+    let worksheet = workbook.getWorksheet(sheet);
+
+    if (worksheet) {
+      console.log(`Ajout de données à la feuille existante: ${sheet}`);
+      addRowExistSheet(worksheet, data);
+    } else {
+      console.log(`Création d'une nouvelle feuille: ${sheet}`);
+      worksheet = workbook.addWorksheet(sheet, {
+        properties: { tabColor: { argb: colorSheet } }
+      });
+
+      await prepareSheet(worksheet, data, dataHeader, excelColum);
+
+      // Ajouter les images seulement pour les nouvelles feuilles
+      addImageBannerHeaderSheet(
+        worksheet,
+        dataHeader,
+        sheet,
+        imageId2,
+        logo1,
+        logo2
+      );
+    }
+
+    // Sauvegarder le fichier
+    console.log(`Écriture du fichier: ${path}`);
+    await workbook.xlsx.writeFile(path);
+    console.log(`Fichier généré avec succès: ${sheet}`);
+
+  } catch (error) {
+    console.error(`Erreur lors de la génération de ${sheet}:`, error);
+    throw error;
+  }
 }
 
 async function legendeRankingTotal(path, sheet) {
   console.log(`Generating file ${sheet} ...`);
 
-  const isExistPath = fs.existsSync(path);
+  try {
+    const workbook = new XLSX.Workbook();
+    const worksheet = workbook.addWorksheet(sheet);
+    worksheet.views = [{ showGridLines: true }];
 
-  let workbook = new XLSX.Workbook();
+    const criteria = [
+      { 'Type de violation': 'Conduite de nuit', Alerte: 1, Alarme: 2 },
+      { 'Type de violation': 'Conduite journalière', Alerte: 1, Alarme: 2 },
+      { 'Type de violation': 'Conduite continue', Alerte: 1, Alarme: 2 },
+      { 'Type de violation': 'Repos journalier', Alerte: 1, Alarme: 2 },
+      { 'Type de violation': 'Travail journalier', Alerte: 1, Alarme: 2 },
+      { 'Type de violation': 'Excès de Vitesse', Alerte: 1, Alarme: 2 },
+      { 'Type de violation': 'Conduite hebdomadaire', Alerte: 1, Alarme: 2 },
+      { 'Type de violation': 'Repos hebdomadaire', Alerte: 1, Alarme: 2 },
+      { 'Type de violation': 'Travail hebdomadaire', Alerte: 1, Alarme: 2 },
+      { 'Type de violation': 'HB', Alerte: 1, Alarme: 2 },
+      { 'Type de violation': 'HA', Alerte: 1, Alarme: 2 },
+      { 'Type de violation': 'Ceinture de Sécurité', Alerte: 1, Alarme: null },
+      { 'Type de violation': 'Téléphone au volant', Alerte: 1, Alarme: null },
+      { 'Type de violation': 'Cigarette', Alerte: 1, Alarme: null },
+      { 'Type de violation': 'Fatigue', Alerte: 1, Alarme: null }
+    ];
 
-  const imageId2 = workbook.addImage({
-    buffer: fs.readFileSync('rapport/Total/assets/banner.png'),
-    extension: 'png',
-  });
+    // En-têtes
+    const headerRow = worksheet.getRow(5);
+    headerRow.getCell(1).value = 'Type de violation';
+    headerRow.getCell(2).value = 'Alarme';
+    headerRow.getCell(3).value = 'Alerte';
 
-  const logo1 = workbook.addImage({
-    buffer: fs.readFileSync('rapport/Total/assets/total.png'),
-    extension: 'png',
-  });
-
-  const logo2 = workbook.addImage({
-    buffer: fs.readFileSync('rapport/Total/assets/camtrack-logo.png'),
-    extension: 'png',
-  });
-
-
-  const worksheet = workbook.addWorksheet(sheet);
-
-  worksheet.views = [{ showGridLines: true }];
-
-  worksheet.addImage(imageId2, 'A1:D5');
-
-  worksheet.addImage(logo1, {
-    tl: { col: 0, row: 0 },
-    ext: { width: 100, height: 100 },
-    editAs: 'oneCell',
-  });
-
-  worksheet.addImage(logo2, {
-    tl: { col: 2, row: 0 },
-    ext: { width: 100, height: 100 },
-    editAs: 'oneCell',
-  });
-
-  //new
-  worksheet.mergeCells('B2', 'D2');
-  worksheet.getCell('D2').alignment = {
-    vertical: 'middle',
-    horizontal: 'center',
-  };
-
-  worksheet.getCell('D2').font = { name: 'Arial', size: 12, bold: true, underline: true };
-  worksheet.getCell('D2').border = {
-    top: { style: 'medium', color: { argb: '000000' } },
-    left: { style: 'medium', color: { argb: '000000' } },
-    bottom: { style: 'medium', color: { argb: '000000' } },
-    right: { style: 'medium', color: { argb: '000000' } },
-  };
-  worksheet.getCell('D2').value = 'Critère de Perte de Points';
-
-
-  worksheet.mergeCells('F2', 'G2');
-  worksheet.getCell('G2').alignment = {
-    vertical: 'middle',
-    horizontal: 'center',
-  };
-  worksheet.getCell('G2').font = { name: 'Arial', size: 12, bold: true, underline: true };
-  worksheet.getCell('G2').value = 'Critère de Calcul du Ratio (Formule)';
-
-
-  //old
-
-
-  worksheet.getColumn(1).width = 70;
-  worksheet.getColumn(2).width = 60;
-
-  //first Array
-  const A8 = worksheet.getCell('A8');
-  const A9 = worksheet.getCell('A9');
-  const A10 = worksheet.getCell('A10');
-  const A11 = worksheet.getCell('A11');
-  const A14 = worksheet.getCell('A14');
-  const A17 = worksheet.getCell('A17');
-
-  const B8 = worksheet.getCell('B8');
-  const B9 = worksheet.getCell('B9');
-  const B10 = worksheet.getCell('B10');
-  const B11 = worksheet.getCell('B11');
-  const B14 = worksheet.getCell('B14');
-  const B15 = worksheet.getCell('B15');
-  const B16 = worksheet.getCell('B16');
-  const B17 = worksheet.getCell('B17');
-  const B18 = worksheet.getCell('B18');
-
-  const C14 = worksheet.getCell('C14');
-  const C15 = worksheet.getCell('C15');
-  const C16 = worksheet.getCell('C16');
-  const C17 = worksheet.getCell('C17');
-  const C18 = worksheet.getCell('C18');
-
-  A8.font = { family: 4, bold: true };
-  A9.font = { family: 4, bold: true };
-  A10.font = { family: 4, bold: true };
-  A11.font = { family: 4, bold: true };
-
-  B8.font = { family: 4, bold: true };
-  B9.font = { family: 4, bold: true };
-  B10.font = { family: 4, bold: true };
-  B11.font = { family: 4, bold: true };
-  B14.font = { family: 4, bold: true };
-  B15.font = { family: 4, bold: true };
-  B16.font = { family: 4, bold: true };
-  B17.font = { family: 4, bold: true };
-  B18.font = { family: 4, bold: true };
-
-  B8.alignment = { vertical: 'middle', horizontal: 'center' };
-  B9.alignment = { vertical: 'middle', horizontal: 'center' };
-  B10.alignment = { vertical: 'middle', horizontal: 'center' };
-  B11.alignment = { vertical: 'middle', horizontal: 'center' };
-  C14.alignment = { vertical: 'middle', horizontal: 'center' };
-  C15.alignment = { vertical: 'middle', horizontal: 'center' };
-  C16.alignment = { vertical: 'middle', horizontal: 'center' };
-  C17.alignment = { vertical: 'middle', horizontal: 'center' };
-  C18.alignment = { vertical: 'middle', horizontal: 'center' };
-
-  C14.font = { family: 4, bold: true };
-  C15.font = { family: 4, bold: true };
-  C16.font = { family: 4, bold: true };
-  C18.font = { family: 4, bold: true };
-  C18.font = { family: 4, bold: true };
-
-  A8.border = {
-    top: { style: 'medium', color: { argb: '000000' } },
-    left: { style: 'medium', color: { argb: '000000' } },
-    bottom: { style: 'medium', color: { argb: '000000' } },
-    right: { style: 'medium', color: { argb: '000000' } },
-  };
-
-  A9.border = {
-    top: { style: 'medium', color: { argb: '000000' } },
-    left: { style: 'medium', color: { argb: '000000' } },
-    bottom: { style: 'medium', color: { argb: '000000' } },
-    right: { style: 'medium', color: { argb: '000000' } },
-  };
-
-  A10.border = {
-    top: { style: 'medium', color: { argb: '000000' } },
-    left: { style: 'medium', color: { argb: '000000' } },
-    bottom: { style: 'medium', color: { argb: '000000' } },
-    right: { style: 'medium', color: { argb: '000000' } },
-  };
-  A11.border = {
-    top: { style: 'medium', color: { argb: '000000' } },
-    left: { style: 'medium', color: { argb: '000000' } },
-    bottom: { style: 'medium', color: { argb: '000000' } },
-    right: { style: 'medium', color: { argb: '000000' } },
-  };
-
-  B8.border = {
-    top: { style: 'medium', color: { argb: '000000' } },
-    left: { style: 'medium', color: { argb: '000000' } },
-    bottom: { style: 'medium', color: { argb: '000000' } },
-    right: { style: 'medium', color: { argb: '000000' } },
-  };
-  B9.border = {
-    top: { style: 'medium', color: { argb: '000000' } },
-    left: { style: 'medium', color: { argb: '000000' } },
-    bottom: { style: 'medium', color: { argb: '000000' } },
-    right: { style: 'medium', color: { argb: '000000' } },
-  };
-  B10.border = {
-    top: { style: 'medium', color: { argb: '000000' } },
-    left: { style: 'medium', color: { argb: '000000' } },
-    bottom: { style: 'medium', color: { argb: '000000' } },
-    right: { style: 'medium', color: { argb: '000000' } },
-  };
-  B11.border = {
-    top: { style: 'medium', color: { argb: '000000' } },
-    left: { style: 'medium', color: { argb: '000000' } },
-    bottom: { style: 'medium', color: { argb: '000000' } },
-    right: { style: 'medium', color: { argb: '000000' } },
-  };
-
-  A8.value = 'Total Number of Vehicle';
-  A9.value = 'Number of vehicle communicating';
-  A10.value = 'Number of vehicle used';
-  A11.value = 'percentage of vehicle used';
-
-  B8.value = 'Total Number of Vehicle';
-
-  B9.value = 'Number of vehicle communicating';
-
-  B10.value = 'Number of vehicle used';
-
-  B11.value = 'percentage of vehicle used';
-
-
-  //Second Array
-  worksheet.mergeCells('A14', 'A16');
-  worksheet.mergeCells('A17', 'A18');
-
-  A14.alignment = { vertical: 'middle', horizontal: 'center' };
-  A14.font = { bold: true };
-  A14.value = 'Total Km driven';
-
-  A17.alignment = { vertical: 'middle', horizontal: 'center' };
-  A17.font = { bold: true };
-  A17.value = 'Safety';
-
-  A14.border = {
-    top: { style: 'medium', color: { argb: '000000' } },
-    left: { style: 'medium', color: { argb: '000000' } },
-    bottom: { style: 'medium', color: { argb: '000000' } },
-    right: { style: 'medium', color: { argb: '000000' } },
-  };
-
-  A17.border = {
-    top: { style: 'medium', color: { argb: '000000' } },
-    left: { style: 'medium', color: { argb: '000000' } },
-    bottom: { style: 'medium', color: { argb: '000000' } },
-    right: { style: 'medium', color: { argb: '000000' } },
-  };
-
-  B14.border = {
-    top: { style: 'medium', color: { argb: '000000' } },
-    left: { style: 'medium', color: { argb: '000000' } },
-    bottom: { style: 'medium', color: { argb: '000000' } },
-    right: { style: 'medium', color: { argb: '000000' } },
-  };
-  B15.border = {
-    top: { style: 'medium', color: { argb: '000000' } },
-    left: { style: 'medium', color: { argb: '000000' } },
-    bottom: { style: 'medium', color: { argb: '000000' } },
-    right: { style: 'medium', color: { argb: '000000' } },
-  };
-  B16.border = {
-    top: { style: 'medium', color: { argb: '000000' } },
-    left: { style: 'medium', color: { argb: '000000' } },
-    bottom: { style: 'medium', color: { argb: '000000' } },
-    right: { style: 'medium', color: { argb: '000000' } },
-  };
-  B17.border = {
-    top: { style: 'medium', color: { argb: '000000' } },
-    left: { style: 'medium', color: { argb: '000000' } },
-    bottom: { style: 'medium', color: { argb: '000000' } },
-    right: { style: 'medium', color: { argb: '000000' } },
-  };
-  B18.border = {
-    top: { style: 'medium', color: { argb: '000000' } },
-    left: { style: 'medium', color: { argb: '000000' } },
-    bottom: { style: 'medium', color: { argb: '000000' } },
-    right: { style: 'medium', color: { argb: '000000' } },
-  };
-
-  C14.border = {
-    top: { style: 'medium', color: { argb: '000000' } },
-    left: { style: 'medium', color: { argb: '000000' } },
-    bottom: { style: 'medium', color: { argb: '000000' } },
-    right: { style: 'medium', color: { argb: '000000' } },
-  };
-  C15.border = {
-    top: { style: 'medium', color: { argb: '000000' } },
-    left: { style: 'medium', color: { argb: '000000' } },
-    bottom: { style: 'medium', color: { argb: '000000' } },
-    right: { style: 'medium', color: { argb: '000000' } },
-  };
-  C16.border = {
-    top: { style: 'medium', color: { argb: '000000' } },
-    left: { style: 'medium', color: { argb: '000000' } },
-    bottom: { style: 'medium', color: { argb: '000000' } },
-    right: { style: 'medium', color: { argb: '000000' } },
-  };
-  C17.border = {
-    top: { style: 'medium', color: { argb: '000000' } },
-    left: { style: 'medium', color: { argb: '000000' } },
-    bottom: { style: 'medium', color: { argb: '000000' } },
-    right: { style: 'medium', color: { argb: '000000' } },
-  };
-  C18.border = {
-    top: { style: 'medium', color: { argb: '000000' } },
-    left: { style: 'medium', color: { argb: '000000' } },
-    bottom: { style: 'medium', color: { argb: '000000' } },
-    right: { style: 'medium', color: { argb: '000000' } },
-  };
-
-  B14.value = 'Number of vehicles  used';
-  B15.value = 'Total Km driven (Km)';
-  B16.value = 'Average km driven per vehicle (Km)';
-  B17.value = 'Number of vehicles in speeding';
-  B18.value = 'max Speed';
-
-  C14.value = 'Number of vehicle used';
-
-  C15.value = 'Total Km driven (Km)';
-
-  C16.value = 'Average km driven per vehicle (Km)';
-
-  C17.value = 'Number of vehicles in speeding';
-
-  C18.value = 'max Speed';
-
-  return workbook.xlsx
-    .writeFile(path, { type: 'buffer', bookType: 'xlsx' })
-    .then((response) => {
-      console.log('file is written');
-    })
-    .catch((err) => {
-      console.log(err);
+    // Style des en-têtes
+    headerRow.eachCell((cell) => {
+      cell.font = { name: 'Arial', size: 11, bold: true };
+      cell.alignment = { vertical: 'middle', horizontal: 'center' };
     });
 
+    // Ajout des données
+    criteria.forEach((item, index) => {
+      const row = worksheet.getRow(6 + index);
+      row.getCell(1).value = item['Type de violation'];
+      row.getCell(2).value = item.Alarme !== null ? item.Alarme : '';
+      row.getCell(3).value = item.Alerte;
 
+      // Alignement des cellules de données
+      row.eachCell((cell) => {
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      });
+    });
+
+    // Fusion des cellules et contenu
+    const merges = [
+      { range: 'B4:C4', value: 'Pénalité (Retrait de Points)', font: { bold: true } },
+      { range: 'A2:C2', value: 'Critère de Perte de Points', font: { bold: true, underline: true } },
+      { range: 'E2:H2', value: 'Critère de Calcul du Ratio (Formule)', font: { bold: true, underline: true }, alignment: { horizontal: 'center' } },
+      { range: 'E4:H4', value: 'Nombre totale de points perdu sur la période = X ;' },
+      { range: 'E5:H5', value: 'Distance totale Parcouru sur la période = Y ;' },
+      { range: 'E6:H6', value: 'Ratio (nombres de point perdu au 100 km) = (X/Y)*100 .' },
+      { range: 'E9:H9', value: 'Critère de Ranking Chauffeur', font: { bold: true, underline: true } },
+      { range: 'E11:H11', value: 'Meilleur Chauffeur = Plus petit ratio.' },
+      { range: 'E12:H12', value: 'Pour les Ratio Identiques, Meilleurs chauffeur correspondra à celui avec la plus grande durée de conduite.' }
+    ];
+
+    merges.forEach(merge => {
+      worksheet.mergeCells(merge.range);
+      const cell = worksheet.getCell(merge.range.split(':')[0]);
+      cell.value = merge.value;
+      if (merge.font) {
+        cell.font = { name: 'Arial', size: 11, ...merge.font };
+      }
+      if (merge.alignment) {
+        cell.alignment = { vertical: 'middle', ...merge.alignment };
+      } else {
+        cell.alignment = { vertical: 'middle', horizontal: 'center' };
+      }
+    });
+
+    // Ajustement automatique des colonnes
+    autoSizeColumnSheet(worksheet);
+
+    // Sauvegarde du fichier
+    await workbook.xlsx.writeFile(path);
+    console.log('File generated successfully');
+
+  } catch (err) {
+    console.error('Error generating file:', err);
+    throw err;
+  }
 }
+
+
+
 
 
 

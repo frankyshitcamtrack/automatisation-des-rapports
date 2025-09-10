@@ -349,69 +349,60 @@ async function generateTotalRankingRepport() {
     if (drivers, getSummaryExceptions, exceptionType, getSummaryTrip) {
         const ranking = analyzeDrivers(drivers["resultat"], exceptionType, getSummaryExceptions['resultat'], getSummaryTrip['resultat'], transporter['resultat']);
 
-        /*    await legendeRankingTotal(
-               `${pathFile}-${titleDate}.xlsx`,
-               'Legende',
-           ).then(() => { console.log('generated legend') });
-    */
-
         if (ranking) {
+            // Générer d'abord le fichier de légende
+            await legendeRankingTotal(`${pathFile}-${titleDate}.xlsx`, 'Critères de Ranking');
+            await new Promise(resolve => setTimeout(resolve, 5000));
+
 
             await convertJsonToExcelTotal(
                 ranking?.rankingOnlyByCarrier,
                 'Ranking Transporteur',
                 `${pathFile}-${titleDate}.xlsx`,
                 columnRankingTransporter
-            )
-                .then(
-                    setTimeout(
-                        async () => {
-                            await convertJsonToExcelTotal(
-                                ranking?.rankingOnly,
-                                'Ranking Chauffeurs',
-                                `${pathFile}-${titleDate}.xlsx`,
-                                rankinColumn
-                            )
-                        }, 5000
-                    )
+            );
+            await new Promise(resolve => setTimeout(resolve, 10000));
 
-                ).then(
-                    setTimeout(async () => {
-                        await convertJsonToExcelTotal(
-                            ranking?.detailedResultsByCarrier,
-                            'Detail Ranking Transporteur',
-                            `${pathFile}-${titleDate}.xlsx`,
-                            rankinColumnTransporterDetail
-                        )
-                    }, 20000)
-                ).then(
-                    setTimeout(async () => {
-                        await convertJsonToExcelTotal(
-                            ranking?.detailedResults,
-                            'Detail Ranking Chauffeurs',
-                            `${pathFile}-${titleDate}.xlsx`,
-                            column
-                        )
-                    }, 30000)
-                )
-                .then(() => {
-                    if (sender && receivers) {
-                        setTimeout(() => {
-                            sendMail(
-                                sender,
-                                receivers,
-                                pass,
-                                `${RAPPORT_RANKING}_${splitTitle[1]}_${splitTitle[0]}`,
-                                `${TOTAL_RANKING_SUBJECT_MAIL}`,
-                                `${RAPPORT_RANKING}__${splitTitle[1]}_${splitTitle[0]}.xlsx`,
-                                path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
-                            );
-                            deleteFile(
-                                path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
-                            );
-                        }, 60000);
-                    }
-                })
+
+            await convertJsonToExcelTotal(
+                ranking?.rankingOnly,
+                'Ranking Chauffeurs',
+                `${pathFile}-${titleDate}.xlsx`,
+                rankinColumn
+            )
+            await new Promise(resolve => setTimeout(resolve, 15000));
+
+            await convertJsonToExcelTotal(
+                ranking?.detailedResultsByCarrier,
+                'Detail Ranking Transporteur',
+                `${pathFile}-${titleDate}.xlsx`,
+                rankinColumnTransporterDetail
+            );
+            await new Promise(resolve => setTimeout(resolve, 20000));
+
+            await convertJsonToExcelTotal(
+                ranking?.detailedResults,
+                'Detail Ranking Chauffeurs',
+                `${pathFile}-${titleDate}.xlsx`,
+                column
+            ).then(() => {
+                if (sender && receivers) {
+                    setTimeout(() => {
+                        sendMail(
+                            sender,
+                            receivers,
+                            pass,
+                            `${RAPPORT_RANKING}_${splitTitle[1]}_${splitTitle[0]}`,
+                            `${TOTAL_RANKING_SUBJECT_MAIL}`,
+                            `${RAPPORT_RANKING}__${splitTitle[1]}_${splitTitle[0]}.xlsx`,
+                            path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
+                        );
+                        deleteFile(
+                            path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
+                        );
+                    }, 60000);
+                }
+            })
         }
     }
 }
@@ -664,7 +655,7 @@ async function generateTotalRepports() {
 
 
     cron.schedule(
-        `${hourScheduleRankingHour[1]} ${hourScheduleRankingHour[0]} * * *`,
+        `${hourScheduleRankingHour[1]} ${hourScheduleRankingHour[0]} 10 1,2,3,4,5,6,7,8,9,10,11,12 *`,
         async () => {
             await generateTotalRankingRepport();
         },
