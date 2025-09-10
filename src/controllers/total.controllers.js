@@ -19,6 +19,7 @@ const { Receivers, totalReceivers } = require('../storage/mailReceivers.storage'
 const { Senders, totalSenders } = require('../storage/mailSender.storage');
 const { sendMail } = require('../utils/sendMail');
 const { deleteFile } = require('../utils/deleteFile');
+const { legendeRankingTotal } = require('../utils/genrateXlsx');
 const { ALL_VEHICLE, LX_45, CAMEROUN_RANKING_REPORT, CAMEROUN_NIGHT_DRIVING_REPORT, CAMEROUN_REPOS_HEBDOMADAIRE, CAMEROUN_CLOTURE_ACTIVITE, MDVR } = require('../constants/clients');
 const { TOTAL_ENERGIES, OBC_TEMCM } = require('../constants/ressourcesClient');
 const { STATUS_VEHICLE, STATUS_VEHICLE_NEW, RAPPORT_CLOTURE, RAPPORT_RANKING, RAPPORT_REPOS, RAPPORT_NIGHT_DRIVING } = require('../constants/template');
@@ -347,8 +348,14 @@ async function generateTotalRankingRepport() {
 
     if (drivers, getSummaryExceptions, exceptionType, getSummaryTrip) {
         const ranking = analyzeDrivers(drivers["resultat"], exceptionType, getSummaryExceptions['resultat'], getSummaryTrip['resultat'], transporter['resultat']);
+        /*  await legendeRankingTotal(
+                      `${pathFile}-${titleDate}.xlsx`,
+                      'Legende',
+                  ).then(() => { console.log('generated legend') }) */
+
 
         if (ranking) {
+
             await convertJsonToExcelTotal(
                 ranking?.rankingOnlyByCarrier,
                 'Ranking Transporteur',
@@ -616,7 +623,7 @@ async function generateTotalRepports() {
     //await generateTotalClotureRepport('2025-09-05 00:00:00', '2025-09-06 03:00:00')
     //await generateTotalReposHebdo();
     //await generateNigthDrivingReport();
-    //await generateTotalRankingRepport();
+    await generateTotalRankingRepport();
 
     cron.schedule('0 21-23,0-3 * * *', async () => {
         const now = moment();

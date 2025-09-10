@@ -19,7 +19,15 @@ function filtrerExceptions(exceptionsArray) {
     return exceptionsArray.filter(exception => nomsRecherches.has(exception.nm));
 }
 
-function analyzeDrivers(drivers, exceptions, exceptionsSummary, tripsSummary, transporteurs) {
+function analyzeDrivers(Alldrivers, exceptions, exceptionsSummary, tripsSummary, transporteurs) {
+
+    let drivers = Alldrivers.filter(item => {
+        const extension = item.drivnm.split('.');
+        return !extension.includes('SODISTRANS')
+    })
+
+
+    //const drivers = Alldrivers.filter(item=>item)
 
     const driversMap = {};
     drivers.forEach(driver => {
@@ -240,7 +248,7 @@ function analyzeDrivers(drivers, exceptions, exceptionsSummary, tripsSummary, tr
         const carrierName = r.Driver.split('.')[1]
         return {
             Driver: r.Driver,
-            "Transporteur": carrierName,
+            "Transporteur": carrierName ? carrierName : '-',
             "Nombres d'Alertes Conduite de nuit": r.nightDrivingAlert,
             "Nombres d'Alarme Conduite de nuit": r.nightDrivingAlarm,
             "Nombres d'Alertes conduite hebdomadaire": r.weeklyDriveAlert,
@@ -279,7 +287,7 @@ function analyzeDrivers(drivers, exceptions, exceptionsSummary, tripsSummary, tr
         return {
             Ranking: r.Ranking,
             Driver: r.Driver,
-            'Transporteur': carrierName,
+            'Transporteur': carrierName ? carrierName : '-',
             "Nombre de points perdus au 100km": (r.Ratio === 0 || parseFloat(r.Ratio)) ? parseFloat((r.Ratio * 100).toFixed(2)) : '--',
         }
     });
