@@ -7,7 +7,7 @@ const fs = require('fs');
 const token = devconfig.totalToken;
 const baseUrl = devconfig.baseUrl;
 const ymaneTotalBaseUrl = devconfig.totalYmaneBaseUrl;
-const ymaneToken = devconfig.ymaneToken
+
 
 async function generateSessionId() {
     return await axios.get(
@@ -158,35 +158,35 @@ async function cleanRepport(sid) {
 
 
 
-async function getTotalAfiliate() {
+async function getTotalAfiliate(token) {
     const affiliate = await axios
-        .get(`${ymaneTotalBaseUrl}/affiliate?key=${ymaneToken}`)
+        .get(`${ymaneTotalBaseUrl}/affiliate?key=${token}`)
         .then((res) => res.data)
         .catch((err) => console.log(err));
     return affiliate;
 }
 
 
-async function getTotalTransporter() {
+async function getTotalTransporter(token) {
     const transporter = await axios
-        .get(`${ymaneTotalBaseUrl}/transporter?key=${ymaneToken}`)
+        .get(`${ymaneTotalBaseUrl}/transporter?key=${token}`)
         .then((res) => res.data)
         .catch((err) => console.log(err));
     return transporter;
 }
 
-async function getTotalTrucks() {
+async function getTotalTrucks(token) {
     const trucks = await axios
-        .get(`${ymaneTotalBaseUrl}/trucks?key=${ymaneToken}`)
+        .get(`${ymaneTotalBaseUrl}/trucks?key=${token}`)
         .then((res) => res.data)
         .catch((err) => console.log(err));
     return trucks;
 }
 
 
-async function getTotalNigths(startOfDay, endofDay) {
+async function getTotalNigths(startOfDay, endofDay, token) {
     const trucks = await axios
-        .post(`${ymaneTotalBaseUrl}/nights?key=${ymaneToken}&startime=${startOfDay}&endtime=${endofDay}`)
+        .post(`${ymaneTotalBaseUrl}/nights?key=${token}&startime=${startOfDay}&endtime=${endofDay}`)
         .then((res) => res.data)
         .catch((err) => console.log(err));
     return trucks;
@@ -207,17 +207,34 @@ async function getPIO() {
 
 }
 
-async function summaryTrip(startOfDay, endofDay) {
+
+
+async function getPIOMADA() {
+    const filePath = 'src/storage/POI_MADA.geojson'
+    try {
+        const data = fs.readFileSync(filePath, 'utf8');
+        const geoJSON = JSON.parse(data)?.features.map(item => item.properties.Name.trim());
+        return geoJSON
+
+    } catch (error) {
+        console.error('Erreur de lecture:', error);
+        return null;
+    }
+
+}
+
+
+async function summaryTrip(startOfDay, endofDay, token) {
     const summaryTrip = await axios
-        .post(`${ymaneTotalBaseUrl}/summarytrip?key=${ymaneToken}&startime=${startOfDay}&endtime=${endofDay}`)
+        .post(`${ymaneTotalBaseUrl}/summarytrip?key=${token}&startime=${startOfDay}&endtime=${endofDay}`)
         .then((res) => res.data)
         .catch((err) => console.log(err));
     return summaryTrip;
 }
 
-async function summaryException(startOfDay, endofDay) {
+async function summaryException(startOfDay, endofDay, token) {
     const summaryException = await axios
-        .post(`${ymaneTotalBaseUrl}/summaryexception?key=${ymaneToken}&startime=${startOfDay}&endtime=${endofDay}`)
+        .post(`${ymaneTotalBaseUrl}/summaryexception?key=${token}&startime=${startOfDay}&endtime=${endofDay}`)
         .then((res) => res.data)
         .catch((err) => console.log(err));
     return summaryException;
@@ -232,43 +249,43 @@ async function allExceptionType() {
 }
 
 
-async function getpreventreposhebdo(nbrdays, sumaryordetails) {
+async function getpreventreposhebdo(nbrdays, sumaryordetails, token) {
     const reposHebdo = await axios
-        .get(`${ymaneTotalBaseUrl}/preventreposhebdo?key=${ymaneToken}&nbrdays=${nbrdays}&sumaryordetails=${sumaryordetails}`)
+        .get(`${ymaneTotalBaseUrl}/preventreposhebdo?key=${token}&nbrdays=${nbrdays}&sumaryordetails=${sumaryordetails}`)
         .then((res) => res.data)
         .catch((err) => console.log(err));
     return reposHebdo;
 }
 
 
-async function getpreventTestreposhebdo(nbrdays, sumaryordetails) {
+async function getpreventTestreposhebdo(nbrdays, sumaryordetails, token) {
     const reposHebdo = await axios
-        .get(`${ymaneTotalBaseUrl}/testpreventreposhebdo?key=${ymaneToken}&nbrdays=${nbrdays}&sumaryordetails=${sumaryordetails}`)
+        .get(`${ymaneTotalBaseUrl}/testpreventreposhebdo?key=${token}&nbrdays=${nbrdays}&sumaryordetails=${sumaryordetails}`)
         .then((res) => res.data)
         .catch((err) => console.log(err));
     return reposHebdo;
 }
 
-async function getTotalDrivers() {
+async function getTotalDrivers(token) {
     const drivers = await axios
-        .get(`${ymaneTotalBaseUrl}/drivers?key=${ymaneToken}`)
+        .get(`${ymaneTotalBaseUrl}/drivers?key=${token}`)
         .then((res) => res.data)
         .catch((err) => console.log(err));
     return drivers;
 }
 
-async function getLastDriving() {
+async function getLastDriving(token) {
     const lastDayDriving = await axios
-        .get(`${ymaneTotalBaseUrl}/lastdaydriving?key=${ymaneToken}`)
+        .get(`${ymaneTotalBaseUrl}/lastdaydriving?key=${token}`)
         .then((res) => res.data)
         .catch((err) => console.log(err));
     return lastDayDriving;
 }
 
 
-async function getLastDayTransporter() {
+async function getLastDayTransporter(token) {
     const lastDayTransporter = await axios
-        .get(`${ymaneTotalBaseUrl}/lastdaytransporter?key=${ymaneToken}`)
+        .get(`${ymaneTotalBaseUrl}/lastdaytransporter?key=${token}`)
         .then((res) => res.data)
         .catch((err) => console.log(err));
     return lastDayTransporter;
@@ -284,6 +301,7 @@ module.exports = {
     getTotalTransporter,
     getTotalTrucks,
     getPIO,
+    getPIOMADA,
     getTotalNigths,
     summaryTrip,
     summaryException,

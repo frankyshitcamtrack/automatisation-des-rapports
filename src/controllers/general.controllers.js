@@ -8,7 +8,8 @@ const { generateAllRepportKPDC } = require('./kpdc.controllers');
 const { generateAllRepportRazel } = require('./razel.controllers');
 const { generateAllRepportDKT } = require('./dkt.controllers');
 const { generateAllAliosRepport } = require('./alios.controller');
-const { generateTotalRepports } = require('./total.controllers')
+const { generateTotalRepports } = require('./total.controllers');
+const { generateTotalMadaRepports } = require('./total.mada.controllers')
 
 async function generalControllers() {
   await generateAllRepportGuinness();
@@ -21,6 +22,7 @@ async function generalControllers() {
   await generateAllRepportDKT();
   await generateAllAliosRepport();
   await generateTotalRepports();
+  //await generateTotalMadaRepports();
   /*   cron.schedule(
       `00 12 * * *`,
       async () => {

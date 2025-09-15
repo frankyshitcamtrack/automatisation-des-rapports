@@ -64,6 +64,16 @@ function analyzeDrivers(Alldrivers, exceptions, exceptionsSummary, tripsSummary,
         20: 'distraction'
     };
 
+    const madagascarCarier = {
+        'TS': 'TRS_',
+        'ST': 'STTA',
+        'TI': 'TRANSLI',
+        'V': 'VOROMAILALA',
+        'TD': 'TRD_',
+        'SA': 'SALONE',
+        'M': 'MIRAY TRANS',
+        'E': 'ENAC',
+    }
 
     const driverStats = {};
     Object.keys(driversMap).forEach(driverId => {
@@ -280,6 +290,7 @@ function analyzeDrivers(Alldrivers, exceptions, exceptionsSummary, tripsSummary,
     });
 
 
+
     const rankingOnly = allResults.map(r => {
         const trpid = r.trpid;
         const carrierName = r.Driver.split('.')[1]
@@ -293,7 +304,55 @@ function analyzeDrivers(Alldrivers, exceptions, exceptionsSummary, tripsSummary,
     });
 
 
+    //Madagasca
+    const detailedResultsMADA = allResults.map(r => {
+        const carrierABb = r.Driver.split('.')[1]
+        const carrierName = madagascarCarier[carrierABb]
+        return {
+            Driver: r.Driver,
+            "Transporteur": carrierName ? carrierName : '-',
+            "Nombres d'Alertes Conduite de nuit": r.nightDrivingAlert,
+            "Nombres d'Alarme Conduite de nuit": r.nightDrivingAlarm,
+            "Nombres d'Alertes conduite hebdomadaire": r.weeklyDriveAlert,
+            "Nombres d'Alarme conduite hebdomadaire": r.weeklyDriveAlarm,
+            "Nombres d'Alertes Repos hebdomadaire": r.weeklyRestAlert,
+            "Nombres d'Alarme Repos hebdomadaire": r.weeklyRestAlarm,
+            "Nombres d'Alertes Travail hebdomadaire": r.weeklyWorkAlert,
+            "Nombres d'Alarme Travail hebdomadaire": r.weeklyWorkAlarm,
+            "Nombres d'Alertes Travail journalier": r.dailyWorkAlert,
+            "Nombres d'Alarme Travail journalier": r.dailyWorkAlarm,
+            "Nombres d'Alertes Conduite continue": r.continuousDriveAlert,
+            "Nombres d'Alarme Conduite continue": r.continuousDriveAlarm,
+            "Nombres d'Alertes HB": r.harshBrakingAlert,
+            "Nombres d'Alarme HB": r.harshBrakingAlarm,
+            "Nombres d'Alertes HA": r.harshAccelerationAlert,
+            "Nombres d'Alarme HA": r.harshAccelerationAlarm,
+            "Nombres de Téléphone au volant": r.phoneCall,
+            "Nombres de smoking": r.smoking,
+            "Nombres de Ceinture de Sécurité": r.seatBelt,
+            "Nombres de fatigues": r.fatigue,
+            "Nombres de distraction": r.distraction,
+            "Nombre totale de points perdu sur la période": r.points,
+            "Distance totale Parcouru sur la période (km)": r["Distance totale Parcouru sur la période"],
+            "Durée de Conduite sur la période": formatDuration(r["Durée de Conduite sur la période"]),
+            "Durée de Conduite sur la période en heure": r["Durée de Conduite sur la période"],
+            "Ratio": r.Ratio,
+            "Ranking": r.Ranking
+        }
+    });
 
+    const rankingOnlyMADA = allResults.map(r => {
+        const trpid = r.trpid;
+        //const carrierName = r.Driver.split('.')[1]
+        const carrierABb = r.Driver.split('.')[1]
+        const carrierName = madagascarCarier[carrierABb]
+        return {
+            Ranking: r.Ranking,
+            Driver: r.Driver,
+            'Transporteur': carrierName ? carrierName : '-',
+            "Nombre de points perdus au 100km": (r.Ratio === 0 || parseFloat(r.Ratio)) ? parseFloat((r.Ratio * 100).toFixed(2)) : '--',
+        }
+    });
 
 
 
@@ -441,7 +500,9 @@ function analyzeDrivers(Alldrivers, exceptions, exceptionsSummary, tripsSummary,
         detailedResults,
         rankingOnly,
         detailedResultsByCarrier,
-        rankingOnlyByCarrier
+        rankingOnlyByCarrier,
+        detailedResultsMADA,
+        rankingOnlyMADA
     };
 }
 
