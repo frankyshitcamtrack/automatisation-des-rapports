@@ -26,8 +26,7 @@ async function vehicleGroupRessourceId(groupResource, sid) {
         .catch((err) => console.log(err));
 
     if (vehicleGroup) {
-
-        groupId = vehicleGroup[0].d.id;
+        groupId = vehicleGroup[0]?.d?.id;
     }
 
     return groupId;

@@ -21,8 +21,8 @@ async function generalControllers() {
   await generateAllRepportKPDC();
   await generateAllRepportDKT();
   await generateAllAliosRepport();
+  await generateTotalMadaRepports();
   await generateTotalRepports();
-  //await generateTotalMadaRepports();
   /*   cron.schedule(
       `00 12 * * *`,
       async () => {

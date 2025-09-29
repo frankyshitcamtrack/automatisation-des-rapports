@@ -161,16 +161,16 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
 
             //console.log(filterVhleY);
 
-
-            const tripEnd = await getTotalRepportData(
-                TOTAL_ENERGIES,
-                STATUS_VEHICLE,
-                ALL_VEHICLE,
-                firstHourDay,
-                lastHourDay,
-                TRIP_END
-            )
-
+            /* 
+                        const tripEnd = await getTotalRepportData(
+                            TOTAL_ENERGIES,
+                            STATUS_VEHICLE,
+                            ALL_VEHICLE,
+                            firstHourDay,
+                            lastHourDay,
+                            TRIP_END
+                        )
+             */
             const OBCstatus = await getTotalRepportData(
                 OBC_TEMCM,
                 STATUS_VEHICLE_NEW,
@@ -179,12 +179,12 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
                 lastHourDay,
                 TRIP
             )
+            //console.log(OBCstatus);
+            if (objLenth > 0 && OBCstatus) {
 
-            if (objLenth > 0 && tripEnd && OBCstatus) {
-
-                const compensateDriver = compensateDrivers(res.obj, tripEnd.obj);
-                const compensateDriver2 = compensateDrivers(compensateDriver, tripEnd.obj)
-                const fullArr = [...compensateDriver2, ...OBCstatus.obj]
+                // const compensateDriver = compensateDrivers(res.obj, tripEnd.obj);
+                //const compensateDriver2 = compensateDrivers(compensateDriver, tripEnd.obj)
+                const fullArr = [...res.obj, ...OBCstatus.obj]
 
 
                 const column = [{ key: "Filiale" }, { key: "Transporteur" }, { key: 'Grouping' }, { key: 'Status Ignition' }, { key: 'Heure de Cloture' }, { key: 'Emplacement' }, { key: 'Coordonnées' }, { key: "Statut POI" }];
@@ -250,11 +250,7 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
                             cleanedItem['Heure de Cloture'],
                         ];
 
-
-
-
                         const allKeyFieldsEmpty = keyFields.every(val => val === '--');
-
 
                         if (allKeyFieldsEmpty && cleanedItem['Status Ignition'] === 'OFF') {
                             cleanedItem['Status Ignition'] = 'OFF';
@@ -614,7 +610,7 @@ async function generateTotalRepports() {
 
 
 
-    //await generateTotalClotureRepport('2025-09-05 00:00:00', '2025-09-06 03:00:00')
+    //await generateTotalClotureRepport('2025-09-28 00:00:00', '2025-09-29 03:00:00')
     //await generateTotalReposHebdo();
     //await generateNigthDrivingReport();
     //await generateTotalRankingRepport();

@@ -35,7 +35,7 @@ const ymaneTokenMada = devconfig.ymaneTokenMada
 const pass = process.env.PASS_NOTIFICATION;
 
 
-function getStartDateForNight(now) {
+/* function getStartDateForNight(now) {
     // Convertir l'heure actuelle en heure de Madagascar (UTC+3)
     const madagascarTime = now.clone().utcOffset(3);
 
@@ -45,6 +45,17 @@ function getStartDateForNight(now) {
     }
     // Sinon, on est entre 21h-23h, donc startDate = 00:00 du jour même
     return madagascarTime.clone().startOf('day');
+} */
+
+
+
+function getStartDateForNight(now) {
+    // Si on est entre 00:00 et 03:00, la nuit a commencé la veille à 21h
+    if (now.hour() < 3) {
+        return now.clone().subtract(1, 'day').startOf('day'); // 00:00 du jour précédent
+    }
+    // Sinon, on est entre 21h-23h, donc startDate = 00:00 du jour même
+    return now.clone().startOf('day');
 }
 
 function getMadagascarTimeRange(localDate, startHour = 0, endHour = 21) {
@@ -320,24 +331,24 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
                 );
             }
         })
-        /*         .then(() => {
-                    if (sender && receivers) {
-                        setTimeout(() => {
-                            sendMail(
-                                sender,
-                                receivers,
-                                pass,
-                                `${RAPPORT_CLOTURE}_${titleDate}`,
-                                `${TOTAL_CLOTURE_SUBJECT_MAIL}`,
-                                `${RAPPORT_CLOTURE}_${titleDate}.xlsx`,
-                                path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
-                            );
-                            deleteFile(
-                                path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
-                            );
-                        }, 30000);
-                    }
-                }) */
+        /*  .then(() => {
+                     if (sender && receivers) {
+                         setTimeout(() => {
+                             sendMail(
+                                 sender,
+                                 receivers,
+                                 pass,
+                                 `${RAPPORT_CLOTURE}_${titleDate}`,
+                                 `${TOTAL_CLOTURE_SUBJECT_MAIL}`,
+                                 `${RAPPORT_CLOTURE}_${titleDate}.xlsx`,
+                                 path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
+                             );
+                             deleteFile(
+                                 path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
+                             );
+                         }, 30000);
+                     }
+                 })  */
         .catch((err) => console.log(err));
 }
 
@@ -410,24 +421,24 @@ async function generateTotalRankingRepport() {
                 `${pathFile}-${titleDate}.xlsx`,
                 column
             )
-            /*            .then(() => {
-                           if (sender && receivers) {
-                               setTimeout(() => {
-                                   sendMail(
-                                       sender,
-                                       receivers,
-                                       pass,
-                                       `${RAPPORT_RANKING}_${splitTitle[1]}_${splitTitle[0]}`,
-                                       `${TOTAL_RANKING_SUBJECT_MAIL}`,
-                                       `${RAPPORT_RANKING}__${splitTitle[1]}_${splitTitle[0]}.xlsx`,
-                                       path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
-                                   );
-                                   deleteFile(
-                                       path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
-                                   );
-                               }, 60000);
-                           }
-                       }) */
+            /*                 .then(() => {
+                                if (sender && receivers) {
+                                    setTimeout(() => {
+                                        sendMail(
+                                            sender,
+                                            receivers,
+                                            pass,
+                                            `${RAPPORT_RANKING}_${splitTitle[1]}_${splitTitle[0]}`,
+                                            `${TOTAL_RANKING_SUBJECT_MAIL}`,
+                                            `${RAPPORT_RANKING}__${splitTitle[1]}_${splitTitle[0]}.xlsx`,
+                                            path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
+                                        );
+                                        deleteFile(
+                                            path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
+                                        );
+                                    }, 60000);
+                                }
+                            }) */
         }
     }
 }
@@ -600,24 +611,24 @@ async function generateTotalReposHebdo() {
                 )
             }, 5000)
         )
-        /*   .then(() => {
-              if (sender && receivers) {
-                  setTimeout(() => {
-                      sendMail(
-                          sender,
-                          receivers,
-                          pass,
-                          `${RAPPORT_REPOS}_${titleDate}`,
-                          `${TOTAL_REPOS_HEBDO_SUBJECT_MAIL}`,
-                          `${RAPPORT_REPOS}_${titleDate}.xlsx`,
-                          path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
-                      );
-                      deleteFile(
-                          path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
-                      );
-                  }, 30000);
-              }
-          }) */
+        /*  .then(() => {
+             if (sender && receivers) {
+                 setTimeout(() => {
+                     sendMail(
+                         sender,
+                         receivers,
+                         pass,
+                         `${RAPPORT_REPOS}_${titleDate}`,
+                         `${TOTAL_REPOS_HEBDO_SUBJECT_MAIL}`,
+                         `${RAPPORT_REPOS}_${titleDate}.xlsx`,
+                         path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
+                     );
+                     deleteFile(
+                         path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
+                     );
+                 }, 30000);
+             }
+         }) */
     }
 
 
@@ -638,9 +649,9 @@ async function generateTotalMadaRepports() {
 
 
     const now = mom().tz('Africa/Douala');
-    const madagascarRange = getMadagascarTimeRange(now, 0, 21);
+    //const madagascarRange = getMadagascarTimeRange(now, 0, 21);
 
-    await generateTotalClotureRepport(madagascarRange.startFormatted, madagascarRange.endFormatted)
+    //await generateTotalClotureRepport('2025-09-18 00:00:00', '2025-09-18 21:00:00')
     //await generateTotalReposHebdo();
     //await generateNigthDrivingReport();
     //await generateTotalRankingRepport();
@@ -663,17 +674,6 @@ async function generateTotalMadaRepports() {
         `${hourScheduleReposHour[1]} ${hourScheduleReposHour[0]} * * *`,
         async () => {
             await generateTotalReposHebdo();
-        },
-        {
-            scheduled: true,
-            timezone: 'Africa/Lagos',
-        }
-    );
-
-    cron.schedule(
-        `00 ${hourScheduleNigthHour} * * *`,
-        async () => {
-            await generateNigthDrivingReport();
         },
         {
             scheduled: true,
