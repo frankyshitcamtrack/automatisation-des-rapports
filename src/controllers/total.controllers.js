@@ -615,15 +615,16 @@ async function generateTotalRepports() {
     //await generateNigthDrivingReport();
     //await generateTotalRankingRepport();
 
-    cron.schedule('0 21-23,0-3 * * *', async () => {
+    cron.schedule('15 21-23,0-3 * * *', async () => {
         const now = moment();
         const startDate = getStartDateForNight(now);
-        const endDate = now.clone().startOf('hour');
+
+        const endDate = now.clone().subtract(10, 'minutes').startOf('hour');
 
         await generateTotalClotureRepport(
             startDate.format('YYYY-MM-DD HH:mm:ss'),
             endDate.format('YYYY-MM-DD HH:mm:ss')
-        )
+        );
     }, {
         scheduled: true,
         timezone: 'Africa/Lagos',
