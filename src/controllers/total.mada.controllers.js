@@ -167,7 +167,7 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
 
     const PIO = await getPIOMADA();
 
-    console.log(PIO);
+    //console.log(PIO);
 
     const safeFirst = formatDateForFilename(firstDate);
     const safeLast = formatDateForFilename(lastDate);
@@ -212,8 +212,11 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
                 TRIP
             )
 
-            if (objLenth > 0 && OBCstatus) {
 
+
+            if (objLenth > 0 && OBCstatus) {
+                //const filter = OBCstatus.obj?.filter(item => item.Grouping === "7223 AH")
+                //console.log(filter);
 
                 //const compensateDriver2 = compensateDrivers(compensateDriver, tripEnd.obj)
                 const fullArr = [...res.obj, ...OBCstatus.obj]
@@ -257,13 +260,13 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
                         } : undefined;
                         const rawDateTime = item['Date et heure'];
 
-                        //console.log(rawCoordonnees);
+                        //console.log(parseFloat(rawIgnition));
 
                         const cleanedItem = {
                             Filiale: item.Filiale && !isEmptyValue(item.Filiale) ? item.Filiale : '--',
                             Transporteur: item.Transporteur && !isEmptyValue(item.Transporteur) ? item.Transporteur : '--',
                             Grouping: item.Grouping && !isEmptyValue(item.Grouping) ? item.Grouping : '--',
-                            'Status Ignition': parseFloat(rawIgnition) === 0 ? "OFF" : 'ON',
+                            'Status Ignition': (parseFloat(rawIgnition) === 0 || !parseFloat(rawIgnition)) ? "OFF" : 'ON',
                             //Vitesse: clean(rawVitesse) ? rawVitesse : '--',
                             //'Dernier Conducteur': item.Conducteur && !isEmptyValue(item.Conducteur) ? item.Conducteur : '--',
                             'Heure de Cloture': parseFloat(rawIgnition) > 0
@@ -651,7 +654,7 @@ async function generateTotalMadaRepports() {
     const now = mom().tz('Africa/Douala');
     //const madagascarRange = getMadagascarTimeRange(now, 0, 21);
 
-    //await generateTotalClotureRepport('2025-09-18 00:00:00', '2025-09-18 21:00:00')
+    //await generateTotalClotureRepport('2025-10-14 00:00:00', '2025-10-14 21:00:00')
     //await generateTotalReposHebdo();
     //await generateNigthDrivingReport();
     //await generateTotalRankingRepport();
