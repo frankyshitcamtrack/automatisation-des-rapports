@@ -22,7 +22,7 @@ async function generalControllers() {
   await generateAllRepportDKT();
   await generateAllAliosRepport();
   await generateTotalMadaRepports();
-  // await generateTotalRepports();
+  await generateTotalRepports();
   /*   cron.schedule(
       `00 12 * * *`,
       async () => {

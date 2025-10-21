@@ -64,6 +64,10 @@ const RAPPORT_RANKING = 'Rapport Classement Chauffeurs TEMCAM';
 const RAPPORT_REPOS = 'Rapport Repos Hebdomadaire TEMCAM';
 const RAPPORT_NIGHT_DRIVING = 'Rapport Conduite de Nuit TEMCAM';
 
+const RAPPORT_CLOTURE_MADA = 'Rapport de Clôture MADA';
+const RAPPORT_RANKING_MADA = 'Rapport Classement Chauffeurs MADA';
+const RAPPORT_REPOS_MADA = 'Rapport Repos Hebdomadaire MADA';
+
 module.exports = {
   ACTIVITY_REPORT_OF_ADDAX_PETROLEUM,
   EXCEPTION_REPORT_VEHICULES_ADDAX_PETROLEUM,
@@ -106,5 +110,9 @@ module.exports = {
   RAPPORT_CLOTURE,
   RAPPORT_RANKING,
   RAPPORT_REPOS,
-  RAPPORT_NIGHT_DRIVING
+  RAPPORT_NIGHT_DRIVING,
+
+  RAPPORT_CLOTURE_MADA,
+  RAPPORT_RANKING_MADA,
+  RAPPORT_REPOS_MADA
 };

@@ -8,7 +8,7 @@ const { getFistAndLastHourDay, getFistAndLastHourDay18H05H, getFirstAndLastSeven
 const {
     getFirstAndLastDayMonth,
 } = require('../utils/getFistDayAndLastDayMonth');
-const { convertDateToTimeStamp } = require('../utils/dateFormat')
+const { convertDateToTimeStamp, dateInYyyyMmDdHhMmSs } = require('../utils/dateFormat')
 const { compensateDrivers } = require('../utils/fillsDriverFromArray');
 const { mergeSimpleParkingData } = require('../utils/mergeTotalDataParking');
 const { convertJsonToExcelTotal } = require('../utils/genrateXlsx');
@@ -21,9 +21,14 @@ const { Senders, totalSenders } = require('../storage/mailSender.storage');
 const { sendMail } = require('../utils/sendMail');
 const { deleteFile } = require('../utils/deleteFile');
 const { legendeRankingTotal } = require('../utils/genrateXlsx');
-const { ALL_VEHICLE, ALL_VEHICLE_MADA, LX_45, CAMEROUN_RANKING_REPORT, CAMEROUN_NIGHT_DRIVING_REPORT, CAMEROUN_REPOS_HEBDOMADAIRE, CAMEROUN_CLOTURE_ACTIVITE, MDVR, MDVR_MADA } = require('../constants/clients');
+const { ALL_VEHICLE, ALL_VEHICLE_MADA, LX_45, MADA_RANKING_REPORT, MADA_REPOS_HEBDOMADAIRE, MADA_CLOTURE_ACTIVITE, MDVR, MDVR_MADA } = require('../constants/clients');
 const { TOTAL_ENERGIES, OBC_TEMCM, OBC_TEMMA, TOTAL_ENERGIES_MADA } = require('../constants/ressourcesClient');
-const { STATUS_VEHICLE, STATUS_VEHICLE_NEW, RAPPORT_CLOTURE, RAPPORT_RANKING, RAPPORT_REPOS, RAPPORT_NIGHT_DRIVING } = require('../constants/template');
+const {
+    STATUS_VEHICLE,
+    STATUS_VEHICLE_NEW,
+    RAPPORT_CLOTURE_MADA,
+    RAPPORT_RANKING_MADA,
+    RAPPORT_REPOS_MADA } = require('../constants/template');
 const { STATUS, TRIP_END, TRIP } = require('../constants/subGroups');
 const { TOTAL_CLOTURE_SUBJECT_MAIL, TOTAL_RANKING_SUBJECT_MAIL, TOTAL_NIGTH_DRIVING_SUBJECT_MAIL, TOTAL_REPOS_HEBDO_SUBJECT_MAIL } = require('../constants/mailSubjects');
 const { devconfig } = require('../config/wialong.config')
@@ -151,8 +156,8 @@ function isEmptyValue(value) {
 
 //cloture
 async function generateTotalClotureRepport(firstDate, lastDate) {
-    const sender = await totalSenders(CAMEROUN_CLOTURE_ACTIVITE, 'B');
-    const receivers = await totalReceivers(CAMEROUN_CLOTURE_ACTIVITE, 'C');
+    const sender = await totalSenders(MADA_CLOTURE_ACTIVITE, 'B');
+    const receivers = await totalReceivers(MADA_CLOTURE_ACTIVITE, 'C');
 
 
     // const fistAndLastHourDay = getFistAndLastHourDay();
@@ -334,32 +339,32 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
                 );
             }
         })
-        /*  .then(() => {
-                     if (sender && receivers) {
-                         setTimeout(() => {
-                             sendMail(
-                                 sender,
-                                 receivers,
-                                 pass,
-                                 `${RAPPORT_CLOTURE}_${titleDate}`,
-                                 `${TOTAL_CLOTURE_SUBJECT_MAIL}`,
-                                 `${RAPPORT_CLOTURE}_${titleDate}.xlsx`,
-                                 path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
-                             );
-                             deleteFile(
-                                 path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
-                             );
-                         }, 30000);
-                     }
-                 })  */
+        .then(() => {
+            if (sender && receivers) {
+                setTimeout(() => {
+                    sendMail(
+                        sender,
+                        receivers,
+                        pass,
+                        `${RAPPORT_CLOTURE_MADA}_${titleDate}`,
+                        `${TOTAL_CLOTURE_SUBJECT_MAIL}`,
+                        `${RAPPORT_CLOTURE_MADA}_${titleDate}.xlsx`,
+                        path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
+                    );
+                    deleteFile(
+                        path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
+                    );
+                }, 30000);
+            }
+        })
         .catch((err) => console.log(err));
 }
 
 
 //ranking
 async function generateTotalRankingRepport() {
-    const sender = await totalSenders(CAMEROUN_RANKING_REPORT, 'B');
-    const receivers = await totalReceivers(CAMEROUN_RANKING_REPORT, 'C');
+    const sender = await totalSenders(MADA_RANKING_REPORT, 'B');
+    const receivers = await totalReceivers(MADA_RANKING_REPORT, 'C');
 
     const fistAndLastHourDay = getFirstAndLastDayMonth();
 
@@ -423,33 +428,32 @@ async function generateTotalRankingRepport() {
                 'Detail Ranking Chauffeurs',
                 `${pathFile}-${titleDate}.xlsx`,
                 column
-            )
-            /*                 .then(() => {
-                                if (sender && receivers) {
-                                    setTimeout(() => {
-                                        sendMail(
-                                            sender,
-                                            receivers,
-                                            pass,
-                                            `${RAPPORT_RANKING}_${splitTitle[1]}_${splitTitle[0]}`,
-                                            `${TOTAL_RANKING_SUBJECT_MAIL}`,
-                                            `${RAPPORT_RANKING}__${splitTitle[1]}_${splitTitle[0]}.xlsx`,
-                                            path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
-                                        );
-                                        deleteFile(
-                                            path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
-                                        );
-                                    }, 60000);
-                                }
-                            }) */
+            ).then(() => {
+                if (sender && receivers) {
+                    setTimeout(() => {
+                        sendMail(
+                            sender,
+                            receivers,
+                            pass,
+                            `${RAPPORT_RANKING_MADA}_${splitTitle[1]}_${splitTitle[0]}`,
+                            `${TOTAL_RANKING_SUBJECT_MAIL}`,
+                            `${RAPPORT_RANKING_MADA}__${splitTitle[1]}_${splitTitle[0]}.xlsx`,
+                            path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
+                        );
+                        deleteFile(
+                            path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
+                        );
+                    }, 60000);
+                }
+            })
         }
     }
 }
 
 //repos hebdo
 async function generateTotalReposHebdo() {
-    const sender = await totalSenders(CAMEROUN_REPOS_HEBDOMADAIRE, 'B');
-    const receivers = await totalReceivers(CAMEROUN_REPOS_HEBDOMADAIRE, 'C');
+    const sender = await totalSenders(MADA_REPOS_HEBDOMADAIRE, 'B');
+    const receivers = await totalReceivers(MADA_REPOS_HEBDOMADAIRE, 'C');
 
 
     const fistAndLastHourDay = getFistAndLastHourDay();
@@ -458,6 +462,8 @@ async function generateTotalReposHebdo() {
     const vehicules = await getTotalTrucks(ymaneTokenMada);
     const lastDayDriving = await getLastDriving(ymaneTokenMada);
     const lastDayTransporter = await getLastDayTransporter(ymaneTokenMada)
+
+    //console.log(lastDayDriving);
 
     const reposHebdoSummary5 = await getpreventreposhebdo(5, true, ymaneTokenMada);
     //const reposHebdoSummary5 = await getpreventTestreposhebdo(5, true);
@@ -490,6 +496,7 @@ async function generateTotalReposHebdo() {
         };
     });
 
+    //console.log(distancesTrMap);
 
     // Fusionner les données
     const resultat = [];
@@ -498,13 +505,17 @@ async function generateTotalReposHebdo() {
     reposHebdoSummary5Update.forEach(item => {
         const nomTransporteur = transporteursMap[item.transporterid];
         const distanceInfo = distancesTrMap[item.transporterid];
+        const lastHour = new Date(distanceInfo?.maxdates);
+        const maxdates = dateInYyyyMmDdHhMmSs(lastHour)
+
+        //console.log(distanceInfo)
 
         if (nomTransporteur) {
             resultat.push({
                 transporteur: nomTransporteur,
                 'Nombre de chauffeurs en 5 jours': item['Nombre de chauffeurs en 5 jours'],
                 'Nombre de chauffeurs en 6 jours': 0,
-                "Derniere mise a jour": distanceInfo.maxdates
+                "Derniere mise a jour": maxdates,
 
             });
         }
@@ -515,6 +526,10 @@ async function generateTotalReposHebdo() {
         const nomTransporteur = transporteursMap[item.transporterid];
         const existant = resultat.find(r => r.transporteur === nomTransporteur);
         const distanceInfo = distancesTrMap[item.transporterid];
+        const lastHour = new Date(distanceInfo?.maxdates);
+        const maxdates = dateInYyyyMmDdHhMmSs(lastHour)
+
+        //console.log(distanceInfo);
         if (existant) {
             existant['Nombre de chauffeurs en 6 jours'] = item['Nombre de chauffeurs en 6 jours'];
         } else if (nomTransporteur) {
@@ -522,7 +537,7 @@ async function generateTotalReposHebdo() {
                 transporteur: nomTransporteur,
                 'Nombre de chauffeurs en 5 jours': 0,
                 'Nombre de chauffeurs en 6 jours': item['Nombre de chauffeurs en 6 jours'],
-                "Derniere mise a jour": distanceInfo.maxdates
+                "Derniere mise a jour": maxdates
             });
         }
     });
@@ -548,37 +563,49 @@ async function generateTotalReposHebdo() {
     });
 
 
+    //console.log(vehicules['resultat'][0]);
+    //console.log(vehicules);
     const vehiculesMap = {};
     vehicules['resultat'].forEach(vehicule => {
         vehiculesMap[vehicule.vclid] = vehicule.vclenm;
     });
 
+    //console.log(vehiculesMap)
     const distancesMap = {};
     lastDayDriving['resultat'].forEach(distance => {
         distancesMap[distance.driverid] = {
-            maxdates: distance.maxdates,
+            maxdates: distance?.lastenddatetime,
             dist: distance.dist / 1000
         };
     });
 
+
     // Fusionner toutes les données
     const tousChauffeurs = [...reposHebdoDetails6Update, ...reposHebdoDetails5Update];
+    //console.log(lastDayDriving);
+    //console.log(tousChauffeurs);
     const result = {};
 
     tousChauffeurs.forEach(chauffeur => {
+        //console.log(chauffeur);
         const nomTransporteur = transporteursMap[chauffeur.transporterid] || 'Transporteur inconnu';
         const nomVehicule = vehiculesMap[chauffeur.driverid] || 'Véhicule inconnu';
         const distanceInfo = distancesMap[chauffeur.driverid] || { maxdates: 'Date inconnue', dist: 0 };
+
+        const lastHour = new Date(distanceInfo?.maxdates);
+        const maxdates = dateInYyyyMmDdHhMmSs(lastHour)
+
+        //console.log(nomVehicule);
 
         const cle = `${chauffeur.driverid}-${chauffeur.transporterid}`;
 
         if (!result[cle]) {
             result[cle] = {
                 Transporteur: nomTransporteur,
-                Vehicule: nomVehicule,
+                //Vehicule: nomVehicule,
                 Chauffeur: chauffeur.name,
                 'Nombre de jours consecutifs': chauffeur['Nombre de jours consecutifs'],
-                'Dernier jour de conduite': distanceInfo.maxdates,
+                'Dernier jour de conduite': maxdates,
                 'Distance totale (km)': distanceInfo.dist.toFixed(2) + 'km'
             };
         } else {
@@ -595,7 +622,7 @@ async function generateTotalReposHebdo() {
     const titleDate = fistAndLastHourDay.dateTitle;
     const pathFile = 'rapport/Total/Repos-hebdoMADA';
     const columnFlotte = [{ key: "transporteur" }, { key: "Nombre de chauffeurs en 5 jours" }, { key: "Nombre de chauffeurs en 6 jours" }, { key: "Derniere mise a jour" }];
-    const columnDriver = [{ key: "Transporteur" }, { key: "Vehicule" }, { key: "Chauffeur" }, { key: "Nombre de jours consecutifs" }, { key: "Dernier jour de conduite" }, { key: "Distance totale (km)" }];
+    const columnDriver = [{ key: "Transporteur" }, { key: "Chauffeur" }, { key: "Nombre de jours consecutifs" }, { key: "Dernier jour de conduite" }, { key: "Distance totale (km)" }];
 
     if (resultat && resultatFinal) {
         await convertJsonToExcelTotal(
@@ -614,24 +641,24 @@ async function generateTotalReposHebdo() {
                 )
             }, 5000)
         )
-        /*  .then(() => {
-             if (sender && receivers) {
-                 setTimeout(() => {
-                     sendMail(
-                         sender,
-                         receivers,
-                         pass,
-                         `${RAPPORT_REPOS}_${titleDate}`,
-                         `${TOTAL_REPOS_HEBDO_SUBJECT_MAIL}`,
-                         `${RAPPORT_REPOS}_${titleDate}.xlsx`,
-                         path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
-                     );
-                     deleteFile(
-                         path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
-                     );
-                 }, 30000);
-             }
-         }) */
+            .then(() => {
+                if (sender && receivers) {
+                    setTimeout(() => {
+                        sendMail(
+                            sender,
+                            receivers,
+                            pass,
+                            `${RAPPORT_REPOS_MADA}_${titleDate}`,
+                            `${TOTAL_REPOS_HEBDO_SUBJECT_MAIL}`,
+                            `${RAPPORT_REPOS_MADA}_${titleDate}.xlsx`,
+                            path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
+                        );
+                        deleteFile(
+                            path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
+                        );
+                    }, 30000);
+                }
+            })
     }
 
 
@@ -641,37 +668,37 @@ async function generateTotalReposHebdo() {
 async function generateTotalMadaRepports() {
 
     console.log('load total MADA report');
-    const hourScheduleRanking = await totalReceivers(CAMEROUN_RANKING_REPORT, 'F');
-    const hourScheduleNigth = await totalReceivers(CAMEROUN_NIGHT_DRIVING_REPORT, 'F');
-    const hourScheduleCloture = await totalReceivers(CAMEROUN_CLOTURE_ACTIVITE, 'F');
-    const hourScheduleRepos = await totalReceivers(CAMEROUN_REPOS_HEBDOMADAIRE, 'F');
+    const hourScheduleRanking = await totalReceivers(MADA_RANKING_REPORT, 'F');
+    // const hourScheduleNigth = await totalReceivers(CAMEROUN_NIGHT_DRIVING_REPORT, 'F');
+    const hourScheduleCloture = await totalReceivers(MADA_CLOTURE_ACTIVITE, 'F');
+    const hourScheduleRepos = await totalReceivers(MADA_REPOS_HEBDOMADAIRE, 'F');
 
-    const hourScheduleNigthHour = hourScheduleNigth[0].address.split(':')[0];
+    //const hourScheduleNigthHour = hourScheduleNigth[0].address.split(':')[0];
     const hourScheduleRankingHour = hourScheduleRanking[0].address.split(':');
     const hourScheduleReposHour = hourScheduleRepos[0].address.split(':')
 
 
     const now = mom().tz('Africa/Douala');
-    //const madagascarRange = getMadagascarTimeRange(now, 0, 21);
+    const madagascarRange = getMadagascarTimeRange(now, 0, 21);
 
-    //await generateTotalClotureRepport('2025-10-14 00:00:00', '2025-10-14 21:00:00')
+    //await generateTotalClotureRepport(madagascarRange.startFormatted, madagascarRange.endFormatted);
     //await generateTotalReposHebdo();
     //await generateNigthDrivingReport();
     //await generateTotalRankingRepport();
 
-    cron.schedule('0 21-23,0-3 * * *', async () => {
-        const now = moment();
-        const startDate = getStartDateForNight(now);
-        const endDate = now.clone().startOf('hour');
-
-        await generateTotalClotureRepport(
-            startDate.format('YYYY-MM-DD HH:mm:ss'),
-            endDate.format('YYYY-MM-DD HH:mm:ss')
-        )
-    }, {
-        scheduled: true,
-        timezone: 'Africa/Lagos',
-    });
+    /*     cron.schedule('0 21-23,0-3 * * *', async () => {
+            const now = moment();
+            const startDate = getStartDateForNight(now);
+            const endDate = now.clone().startOf('hour');
+    
+            await generateTotalClotureRepport(
+                startDate.format('YYYY-MM-DD HH:mm:ss'),
+                endDate.format('YYYY-MM-DD HH:mm:ss')
+            )
+        }, {
+            scheduled: true,
+            timezone: 'Africa/Lagos',
+        }); */
 
     cron.schedule(
         `${hourScheduleReposHour[1]} ${hourScheduleReposHour[0]} * * *`,

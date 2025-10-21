@@ -7,7 +7,7 @@ const { getFistAndLastHourDay, getFistAndLastHourDay18H05H, getFirstAndLastSeven
 const {
     getFirstAndLastDayMonth,
 } = require('../utils/getFistDayAndLastDayMonth');
-const { convertDateToTimeStamp } = require('../utils/dateFormat')
+const { convertDateToTimeStamp, dateInYyyyMmDdHhMmSs } = require('../utils/dateFormat')
 const { compensateDrivers } = require('../utils/fillsDriverFromArray');
 const { mergeSimpleParkingData } = require('../utils/mergeTotalDataParking');
 const { convertJsonToExcelTotal } = require('../utils/genrateXlsx');
@@ -407,6 +407,7 @@ async function generateTotalRankingRepport() {
 
 //repos hebdo
 async function generateTotalReposHebdo() {
+    console.log('generate repos hebdo');
     const sender = await totalSenders(CAMEROUN_REPOS_HEBDOMADAIRE, 'B');
     const receivers = await totalReceivers(CAMEROUN_REPOS_HEBDOMADAIRE, 'C');
 
@@ -457,13 +458,14 @@ async function generateTotalReposHebdo() {
     reposHebdoSummary5Update.forEach(item => {
         const nomTransporteur = transporteursMap[item.transporterid];
         const distanceInfo = distancesTrMap[item.transporterid];
-
+        const lastHour = new Date(distanceInfo?.maxdates);
+        const maxdates = dateInYyyyMmDdHhMmSs(lastHour);
         if (nomTransporteur) {
             resultat.push({
                 transporteur: nomTransporteur,
                 'Nombre de chauffeurs en 5 jours': item['Nombre de chauffeurs en 5 jours'],
                 'Nombre de chauffeurs en 6 jours': 0,
-                "Derniere mise a jour": distanceInfo.maxdates
+                "Derniere mise a jour": maxdates
 
             });
         }
@@ -474,6 +476,8 @@ async function generateTotalReposHebdo() {
         const nomTransporteur = transporteursMap[item.transporterid];
         const existant = resultat.find(r => r.transporteur === nomTransporteur);
         const distanceInfo = distancesTrMap[item.transporterid];
+        const lastHour = new Date(distanceInfo?.maxdates);
+        const maxdates = dateInYyyyMmDdHhMmSs(lastHour)
         if (existant) {
             existant['Nombre de chauffeurs en 6 jours'] = item['Nombre de chauffeurs en 6 jours'];
         } else if (nomTransporteur) {
@@ -481,7 +485,7 @@ async function generateTotalReposHebdo() {
                 transporteur: nomTransporteur,
                 'Nombre de chauffeurs en 5 jours': 0,
                 'Nombre de chauffeurs en 6 jours': item['Nombre de chauffeurs en 6 jours'],
-                "Derniere mise a jour": distanceInfo.maxdates
+                "Derniere mise a jour": maxdates
             });
         }
     });
@@ -515,7 +519,7 @@ async function generateTotalReposHebdo() {
     const distancesMap = {};
     lastDayDriving['resultat'].forEach(distance => {
         distancesMap[distance.driverid] = {
-            maxdates: distance.maxdates,
+            maxdates: distance?.lastenddatetime,
             dist: distance.dist / 1000
         };
     });
@@ -529,6 +533,8 @@ async function generateTotalReposHebdo() {
         const nomVehicule = vehiculesMap[chauffeur.driverid] || 'Véhicule inconnu';
         const distanceInfo = distancesMap[chauffeur.driverid] || { maxdates: 'Date inconnue', dist: 0 };
 
+        const lastHour = new Date(distanceInfo?.maxdates);
+        const maxdates = dateInYyyyMmDdHhMmSs(lastHour)
         const cle = `${chauffeur.driverid}-${chauffeur.transporterid}`;
 
         if (!result[cle]) {
@@ -537,7 +543,7 @@ async function generateTotalReposHebdo() {
                 Vehicule: nomVehicule,
                 Chauffeur: chauffeur.name,
                 'Nombre de jours consecutifs': chauffeur['Nombre de jours consecutifs'],
-                'Dernier jour de conduite': distanceInfo.maxdates,
+                'Dernier jour de conduite': maxdates,
                 'Distance totale (km)': distanceInfo.dist.toFixed(2) + 'km'
             };
         } else {
@@ -554,7 +560,7 @@ async function generateTotalReposHebdo() {
     const titleDate = fistAndLastHourDay.dateTitle;
     const pathFile = 'rapport/Total/Repos-hebdo';
     const columnFlotte = [{ key: "transporteur" }, { key: "Nombre de chauffeurs en 5 jours" }, { key: "Nombre de chauffeurs en 6 jours" }, { key: "Derniere mise a jour" }];
-    const columnDriver = [{ key: "Transporteur" }, { key: "Vehicule" }, { key: "Chauffeur" }, { key: "Nombre de jours consecutifs" }, { key: "Dernier jour de conduite" }, { key: "Distance totale (km)" }];
+    const columnDriver = [{ key: "Transporteur" }, { key: "Chauffeur" }, { key: "Nombre de jours consecutifs" }, { key: "Dernier jour de conduite" }, { key: "Distance totale (km)" }];
 
     if (resultat && resultatFinal) {
         await convertJsonToExcelTotal(
@@ -572,24 +578,25 @@ async function generateTotalReposHebdo() {
                     columnDriver
                 )
             }, 5000)
-        ).then(() => {
-            if (sender && receivers) {
-                setTimeout(() => {
-                    sendMail(
-                        sender,
-                        receivers,
-                        pass,
-                        `${RAPPORT_REPOS}_${titleDate}`,
-                        `${TOTAL_REPOS_HEBDO_SUBJECT_MAIL}`,
-                        `${RAPPORT_REPOS}_${titleDate}.xlsx`,
-                        path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
-                    );
-                    deleteFile(
-                        path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
-                    );
-                }, 30000);
-            }
-        })
+        )
+            .then(() => {
+                if (sender && receivers) {
+                    setTimeout(() => {
+                        sendMail(
+                            sender,
+                            receivers,
+                            pass,
+                            `${RAPPORT_REPOS}_${titleDate}`,
+                            `${TOTAL_REPOS_HEBDO_SUBJECT_MAIL}`,
+                            `${RAPPORT_REPOS}_${titleDate}.xlsx`,
+                            path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
+                        );
+                        deleteFile(
+                            path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
+                        );
+                    }, 30000);
+                }
+            })
     }
 
 
