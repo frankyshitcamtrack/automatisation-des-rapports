@@ -97,24 +97,25 @@ async function generateNigthDrivingReport() {
             'Conduite de Nuit',
             `${pathFile}-${titleDate}.xlsx`,
             column
-        ).then(() => {
-            if (sender && receivers) {
-                setTimeout(() => {
-                    sendMail(
-                        sender,
-                        receivers,
-                        pass,
-                        `${RAPPORT_NIGHT_DRIVING}_${titleDate}`,
-                        `${TOTAL_NIGTH_DRIVING_SUBJECT_MAIL}`,
-                        `${RAPPORT_NIGHT_DRIVING}_${titleDate}.xlsx`,
-                        path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
-                    );
-                    deleteFile(
-                        path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
-                    );
-                }, 30000);
-            }
-        })
+        )
+            .then(() => {
+                if (sender && receivers) {
+                    setTimeout(() => {
+                        sendMail(
+                            sender,
+                            receivers,
+                            pass,
+                            `${RAPPORT_NIGHT_DRIVING}_${titleDate}`,
+                            `${TOTAL_NIGTH_DRIVING_SUBJECT_MAIL}`,
+                            `${RAPPORT_NIGHT_DRIVING}_${titleDate}.xlsx`,
+                            path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
+                        );
+                        deleteFile(
+                            path.join(__dirname, `../../${pathFile}-${titleDate}.xlsx`)
+                        );
+                    }, 30000);
+                }
+            })
     }
 }
 
