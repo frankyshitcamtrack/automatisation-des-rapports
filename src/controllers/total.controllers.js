@@ -638,6 +638,7 @@ async function generateTotalRepports() {
         timezone: 'Africa/Lagos',
     });
 
+
     cron.schedule(
         `${hourScheduleReposHour[1]} ${hourScheduleReposHour[0]} * * *`,
         async () => {

@@ -681,6 +681,9 @@ async function generateTotalMadaRepports() {
     const now = mom().tz('Africa/Douala');
     const madagascarRange = getMadagascarTimeRange(now, 0, 21);
 
+    // console.log(hourScheduleRankingHour);
+    //console.log(hourScheduleReposHour);
+
     //await generateTotalClotureRepport(madagascarRange.startFormatted, madagascarRange.endFormatted);
     //await generateTotalReposHebdo();
     //await generateNigthDrivingReport();
