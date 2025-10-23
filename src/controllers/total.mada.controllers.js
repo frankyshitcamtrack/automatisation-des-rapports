@@ -682,7 +682,7 @@ async function generateTotalMadaRepports() {
     const madagascarRange = getMadagascarTimeRange(now, 0, 21);
 
     // console.log(hourScheduleRankingHour);
-    //console.log(hourScheduleReposHour);
+    console.log(hourScheduleReposHour);
 
     //await generateTotalClotureRepport(madagascarRange.startFormatted, madagascarRange.endFormatted);
     //await generateTotalReposHebdo();

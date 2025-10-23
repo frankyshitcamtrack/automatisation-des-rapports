@@ -623,6 +623,7 @@ async function generateTotalRepports() {
     //await generateNigthDrivingReport();
     //await generateTotalRankingRepport();
 
+    //console.log(hourScheduleReposHour);
     cron.schedule('15 21-23,0-3 * * *', async () => {
         const now = moment();
         const startDate = getStartDateForNight(now);
