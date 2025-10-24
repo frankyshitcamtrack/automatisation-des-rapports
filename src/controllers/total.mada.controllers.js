@@ -709,7 +709,7 @@ async function generateTotalMadaRepports() {
         },
         {
             scheduled: true,
-            timezone: 'Africa/Lagos',
+            timezone: 'Indian/Antananarivo'
         }
     );
 
@@ -721,7 +721,7 @@ async function generateTotalMadaRepports() {
         },
         {
             scheduled: true,
-            timezone: 'Africa/Lagos',
+            timezone: 'Indian/Antananarivo'
         }
     );
 }
