@@ -64,19 +64,19 @@ function getStartDateForNight(now) {
 }
 
 function getMadagascarTimeRange(localDate, startHour = 0, endHour = 21) {
-    // Convertir la date locale en heure Madagascar
     const madagascarStart = localDate.clone().tz('Indian/Antananarivo').hour(startHour).minute(0).second(0);
     const madagascarEnd = localDate.clone().tz('Indian/Antananarivo').hour(endHour).minute(0).second(0);
+
+    console.log(madagascarStart.format('YYYY-MM-DD HH:mm:ss'));
+    console.log(madagascarEnd.format('YYYY-MM-DD HH:mm:ss'));
 
     return {
         start: madagascarStart,
         end: madagascarEnd,
-        // En format string pour affichage
         startFormatted: madagascarStart.format('YYYY-MM-DD HH:mm:ss'),
         endFormatted: madagascarEnd.format('YYYY-MM-DD HH:mm:ss')
     };
 }
-
 
 const formatDateForFilename = (dateString) => {
     return dateString?.replace(/:/g, '-').replace(/ /g, '_');
@@ -678,30 +678,29 @@ async function generateTotalMadaRepports() {
     const hourScheduleReposHour = hourScheduleRepos[0].address.split(':')
 
 
-    const now = mom().tz('Africa/Douala');
+    const now = moment().tz('Indian/Antananarivo');
     const madagascarRange = getMadagascarTimeRange(now, 0, 21);
 
     // console.log(hourScheduleRankingHour);
-    console.log(hourScheduleReposHour);
+    //console.log(hourScheduleReposHour);
 
     //await generateTotalClotureRepport(madagascarRange.startFormatted, madagascarRange.endFormatted);
     //await generateTotalReposHebdo();
     //await generateNigthDrivingReport();
     //await generateTotalRankingRepport();
 
-    /*     cron.schedule('0 21-23,0-3 * * *', async () => {
-            const now = moment();
-            const startDate = getStartDateForNight(now);
-            const endDate = now.clone().startOf('hour');
-    
-            await generateTotalClotureRepport(
-                startDate.format('YYYY-MM-DD HH:mm:ss'),
-                endDate.format('YYYY-MM-DD HH:mm:ss')
-            )
-        }, {
-            scheduled: true,
-            timezone: 'Africa/Lagos',
-        }); */
+    cron.schedule('0 21 * * *', async () => {
+        const nowMadagascar = moment().tz('Indian/Antananarivo');
+
+        const madagascarRange = getMadagascarTimeRange(nowMadagascar, 0, 21);
+
+        console.log(`Exécution du rapport à ${nowMadagascar.format('YYYY-MM-DD HH:mm:ss')}`);
+        await generateTotalClotureRepport(madagascarRange.startFormatted, madagascarRange.endFormatted);
+    }, {
+        scheduled: true,
+        timezone: 'Indian/Antananarivo'
+    });
+
 
     cron.schedule(
         `${hourScheduleReposHour[1]} ${hourScheduleReposHour[0]} * * *`,
