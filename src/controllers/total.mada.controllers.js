@@ -703,7 +703,7 @@ async function generateTotalMadaRepports() {
 
 
     cron.schedule(
-        `00 12 * * *`,
+        `35 12 * * *`,
         async () => {
             await generateTotalReposHebdo();
         },

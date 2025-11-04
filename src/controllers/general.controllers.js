@@ -13,7 +13,7 @@ const { generateTotalMadaRepports } = require('./total.mada.controllers')
 
 async function generalControllers() {
   await generateAllRepportGuinness();
-  await generateAddaxRepports();
+  //await generateAddaxRepports();
   await generateAllRepportPerenco();
   await generateAllRepportCimencam();
   await generateAllRepportCotco();
@@ -22,7 +22,7 @@ async function generalControllers() {
   await generateAllRepportDKT();
   await generateAllAliosRepport();
   await generateTotalMadaRepports();
-  await generateTotalRepports();
+  //await generateTotalRepports();
   /*   cron.schedule(
       `00 12 * * *`,
       async () => {
