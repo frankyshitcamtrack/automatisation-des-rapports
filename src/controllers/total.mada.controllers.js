@@ -681,7 +681,7 @@ async function generateTotalMadaRepports() {
     const now = moment().tz('Indian/Antananarivo');
     const madagascarRange = getMadagascarTimeRange(now, 0, 21);
 
-    // console.log(hourScheduleRankingHour);
+    //console.log(hourScheduleRankingHour);
     //console.log(hourScheduleReposHour);
 
     //await generateTotalClotureRepport(madagascarRange.startFormatted, madagascarRange.endFormatted);
@@ -703,7 +703,7 @@ async function generateTotalMadaRepports() {
 
 
     cron.schedule(
-        `00 10 * * *`,
+        `00 12 * * *`,
         async () => {
             await generateTotalReposHebdo();
         },
