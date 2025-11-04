@@ -51,11 +51,12 @@ async function generateAddaxDaylyRepport() {
   const sender = await Senders(ADDAX_PETROLEUM, 'E');
   const receivers = await Receivers(ADDAX_PETROLEUM, 'D');
   const fistAndLastHourDay = getFistAndLastHourDay();
-  //const firstHourDay = fistAndLastHourDay.firstHourDayTimestamp;
-  //const lastHourDay = fistAndLastHourDay.lastHourDayTimestamp;
+  const firstHourDay = fistAndLastHourDay.firstHourDayTimestamp;
+  const lastHourDay = fistAndLastHourDay.lastHourDayTimestamp;
 
-  const firstHourDay = "1761692400";
-  const lastHourDay = "1757113199";
+  //const firstHourDay = "1761692400";
+  //const lastHourDay = "1761778799";
+
   const titleDate = fistAndLastHourDay.dateTitle;
   const pathFile = 'rapport/Adax/EXCEPTION-REPORT-VEHICULES-ADDAX-PETROLEUM';
 
@@ -172,6 +173,9 @@ async function generateAddaxDaylyRepport22h06h() {
   const lastHour = first22h6h.lastHourDayTimestamp22h;
   const titleDate = first22h6h.dateTitle;
   const pathFile = 'rapport/Adax/LIST-OF-VEHICLES-NOT-AT-ADDAX-PARKING';
+
+  //const firstHour = "1761692400";
+  //const lastHour = "1761778799";
 
   await getRepportData(
     ADMIN_ADDAX,
