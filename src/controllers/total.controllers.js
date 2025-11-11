@@ -521,7 +521,7 @@ async function generateTotalReposHebdo() {
     lastDayDriving['resultat'].forEach(distance => {
         distancesMap[distance.driverid] = {
             maxdates: distance?.lastenddatetime,
-            dist: distance.dist / 1000
+            dist: distance.dist
         };
     });
 
