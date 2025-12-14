@@ -245,6 +245,26 @@ function dateFormatIsoMinusOneDay(date) {
   }
 }
 
+
+function formatToLocalTime(dateString, timeZone = 'Africa/Lagos') {
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return dateString; // Si date invalide, retourne l'original
+
+  // Formate en heure locale d'Africa/Lagos
+  return date.toLocaleString('fr-FR', {
+    timeZone: timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  }).replace(/[/]/g, '-').replace(/[,]/g, '');
+}
+
+
+
 module.exports = {
   dateInYyyyMmDdHhMmSs,
   dateFormatMinusTwoDay,
@@ -256,4 +276,5 @@ module.exports = {
   dateFormatIsoMinusOneDay,
   dateInYyyyMmDdHhMmSsWithSlash,
   dateFormat,
+  formatToLocalTime
 };
