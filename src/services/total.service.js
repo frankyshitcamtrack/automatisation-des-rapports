@@ -71,6 +71,8 @@ async function generateReportDetails(sid, tableIndex, row, level) {
         )
         .then((res) => res.data)
         .catch((err) => console.log(err));
+
+    //report.map(item => console.log(item.c));
     return report;
 }
 

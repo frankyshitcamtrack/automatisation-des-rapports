@@ -189,10 +189,15 @@ function dateFormatPlusOneHour(val) {
   );
 }
 
-function convertDateToTimeStamp(date) {
-  const convert = new Date(date).getTime() / 1000;
+function convertDateToTimeStamp(dateString, timeZone = 'Africa/Lagos') {
 
-  return convert;
+  const localDate = new Date(`${dateString} GMT+0100`);
+
+  const date = new Date(dateString);
+  const offset = date.getTimezoneOffset();
+  const localTimestamp = date.getTime() - (offset * 60 * 1000);
+
+  return Math.floor(localTimestamp / 1000);
 }
 
 function dateFormatIso(date) {

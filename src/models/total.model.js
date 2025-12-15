@@ -67,7 +67,9 @@ async function getTotalRepportData(ressourceClient, template, client, from, to, 
     const generateRepport = await generateReportGlobal(ressourceClient, template, client, from, to, subGroup);
 
     if (generateRepport) {
+
         repportDetail = generateRepport.repportDetail;
+
         group = generateRepport.group;
         if (repportDetail && group) {
 

@@ -3,6 +3,7 @@ const { isValidDate } = require('./checkValidDate')
 
 
 function changePropertiesDateTOLocal(objects) {
+  //console.log(objects)
   return objects.map((object) => {
     const obj = { ...object };
     Object.keys(obj).forEach((property) => {
@@ -20,6 +21,8 @@ function changePropertiesDateTOLocal(objects) {
         }
       }
     });
+
+    // console.log(obj)
     return obj;
   });
 }

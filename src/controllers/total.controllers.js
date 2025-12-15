@@ -261,7 +261,7 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
                         return cleanedItem;
                     });
 
-                    const t = listVehicleData.filter(item => item.Transporteur === 'SOCOTRAP')
+                    //const t = listVehicleData.filter(item => item.Transporteur === 'SOCOTRAP')
                     //console.log(t);
 
                     const fleetReport = generateFleetReport(listVehicleData);
@@ -618,7 +618,7 @@ async function generateTotalRepports() {
 
 
 
-    //await generateTotalClotureRepport('2025-10-28 00:00:00', '2025-10-29 01:00:00')
+    //await generateTotalClotureRepport('2025-12-14 00:00:00', '2025-12-14 01:00:00')
     //await generateTotalReposHebdo();
     //await generateNigthDrivingReport();
     //await generateTotalRankingRepport();
