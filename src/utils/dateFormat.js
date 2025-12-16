@@ -200,6 +200,11 @@ function convertDateToTimeStamp(dateString, timeZone = 'Africa/Lagos') {
   return Math.floor(localTimestamp / 1000);
 }
 
+function convertDateToTimeStampUTC(dateString) {
+  const date = new Date(dateString.includes('Z') ? dateString : dateString + 'Z');
+  return Math.floor(date.getTime() / 1000);
+}
+
 function dateFormatIso(date) {
   return (
     [
@@ -281,5 +286,6 @@ module.exports = {
   dateFormatIsoMinusOneDay,
   dateInYyyyMmDdHhMmSsWithSlash,
   dateFormat,
-  formatToLocalTime
+  formatToLocalTime,
+  convertDateToTimeStampUTC
 };

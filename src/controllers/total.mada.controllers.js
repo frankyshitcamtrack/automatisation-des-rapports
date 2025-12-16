@@ -8,7 +8,7 @@ const { getFistAndLastHourDay, getFistAndLastHourDay18H05H, getFirstAndLastSeven
 const {
     getFirstAndLastDayMonth,
 } = require('../utils/getFistDayAndLastDayMonth');
-const { convertDateToTimeStamp, dateInYyyyMmDdHhMmSs } = require('../utils/dateFormat')
+const { convertDateToTimeStamp, dateInYyyyMmDdHhMmSs, convertDateToTimeStampUTC } = require('../utils/dateFormat')
 const { compensateDrivers } = require('../utils/fillsDriverFromArray');
 const { mergeSimpleParkingData } = require('../utils/mergeTotalDataParking');
 const { convertJsonToExcelTotal } = require('../utils/genrateXlsx');
@@ -162,8 +162,8 @@ async function generateTotalClotureRepport(firstDate, lastDate) {
 
     // const fistAndLastHourDay = getFistAndLastHourDay();
 
-    const firstHourDay = convertDateToTimeStamp(firstDate);
-    const lastHourDay = convertDateToTimeStamp(lastDate);
+    const firstHourDay = convertDateToTimeStampUTC(firstDate);
+    const lastHourDay = convertDateToTimeStampUTC(lastDate);
 
     const totalTrucks = await getTotalTrucks(ymaneTokenMada);
 
@@ -679,7 +679,6 @@ async function generateTotalMadaRepports() {
 
 
     const now = moment().tz('Indian/Antananarivo');
-    const madagascarRange = getMadagascarTimeRange(now, 0, 21);
 
     //console.log(hourScheduleRankingHour);
     //console.log(hourScheduleReposHour);
