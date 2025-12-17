@@ -8,6 +8,55 @@ function processNightDrivingSimple(nightDrivingData, drivers, vehicles, transpor
     const subsidiaryMap = Object.fromEntries(subsidiaries.map(s => [s.affid, s]));
 
 
+    function isPointInPolygon(point, polygon) {
+        const x = point.lat, y = point.lon;
+        let inside = false;
+
+        for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+            const xi = polygon[i].lat, yi = polygon[i].lon;
+            const xj = polygon[j].lat, yj = polygon[j].lon;
+
+            const intersect = ((yi > y) !== (yj > y))
+                && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+
+            if (intersect) inside = !inside;
+        }
+
+        return inside;
+    }
+
+    function isInNOSO(gps) {
+        if (!gps) return false;
+
+        try {
+
+            const cleanGPS = gps.replace(/[()]/g, '');
+            const coords = cleanGPS.split(',');
+
+            if (coords.length < 2) return false;
+
+            const lat = parseFloat(coords[0].trim());
+            const lon = parseFloat(coords[1].trim());
+
+            if (isNaN(lat) || isNaN(lon)) return false;
+
+            const point = { lat, lon };
+
+
+            for (const polygon of KML_POLYGONS) {
+                if (isPointInPolygon(point, polygon)) {
+                    return true;
+                }
+            }
+
+            return false;
+
+        } catch (e) {
+            return false;
+        }
+    }
+
+
     function isInCity(gps) {
         if (!gps) return false;
 
@@ -72,10 +121,22 @@ function processNightDrivingSimple(nightDrivingData, drivers, vehicles, transpor
         const driver = driverMap[exception?.driverid];
         const Level = level.filter(item => item.id === exception.level)
 
-        const derogation = isInCity(exception.startgps) &&
-            isInCity(exception.endgps) &&
-            isNightTime(exception.startdatetime) &&
-            isNightTime(exception.enddatetime);
+        const isStartInCity = isInCity(exception.startgps);
+        const isEndInCity = isInCity(exception.endgps);
+        const isStartInNOSO = isInNOSO(exception.startgps);
+        const isEndInNOSO = isInNOSO(exception.endgps);
+        const isNightStart = isNightTime(exception.startdatetime);
+        const isNightEnd = isNightTime(exception.enddatetime);
+
+
+        let observation = '---';
+        if (isNightStart && isNightEnd) {
+            if (isStartInCity && isEndInCity) {
+                observation = "derogation 00h (City)";
+            } else if (isStartInNOSO && isEndInNOSO) {
+                observation = "derogation NOSO";
+            }
+        }
 
         return {
             filiale: subsidiary?.nm || 'Inconnu',
@@ -89,7 +150,7 @@ function processNightDrivingSimple(nightDrivingData, drivers, vehicles, transpor
             "Total duration": formatDuration(exception.totalduration),
             Exception: "Night driving",
             Niveau: Level[0].value,
-            Observation: derogation ? "derogation 00h" : "--"
+            Observation: observation
         };
     });
 }
