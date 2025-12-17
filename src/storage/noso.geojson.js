@@ -1,4 +1,4 @@
-export const KML_POLYGONS = [
+const KML_POLYGONS = [
     // NOSO_1 - Mbouda-Bamenda
     [
         { lat: 5.7740484508, lon: 10.1592236896 },
@@ -27,3 +27,6 @@ export const KML_POLYGONS = [
         { lat: 4.6834028695, lon: 9.5117578472 }
     ]
 ];
+
+
+module.exports = { KML_POLYGONS }
