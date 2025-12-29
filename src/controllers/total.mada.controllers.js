@@ -688,7 +688,7 @@ async function generateTotalMadaRepports() {
     //await generateNigthDrivingReport();
     //await generateTotalRankingRepport();
 
-    cron.schedule('00 21 * * *', async () => {
+    cron.schedule('00 22 * * *', async () => {
         const nowMadagascar = moment().tz('Indian/Antananarivo');
 
         const madagascarRange = getMadagascarTimeRange(nowMadagascar, 0, 21);

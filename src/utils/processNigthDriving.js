@@ -72,8 +72,8 @@ function processNightDrivingSimple(nightDrivingData, drivers, vehicles, transpor
             if (isNaN(val1) || isNaN(val2)) return false;
 
 
-            let lat = val1;
-            let lon = val2;
+            let lat = val2;
+            let lon = val1;
 
             if (
                 (lat >= 3.8 && lat <= 4.2 && lon >= 9.5 && lon <= 10.0) ||

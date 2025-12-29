@@ -618,9 +618,9 @@ async function generateTotalRepports() {
 
 
 
-    //await generateTotalClotureRepport('2025-12-14 00:00:00', '2025-12-14 01:00:00')
+    await generateTotalClotureRepport('2025-12-17 00:00:00', '2025-12-17 21:00:00')
     //await generateTotalReposHebdo();
-    //await generateNigthDrivingReport();
+    // await generateNigthDrivingReport();
     //await generateTotalRankingRepport();
 
     //console.log(hourScheduleReposHour);
